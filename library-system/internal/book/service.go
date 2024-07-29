@@ -1,6 +1,6 @@
 package book
 
-import "go-lesson/library-system/internal/model"
+import "projects/library-system/internal/model"
 
 func CreateBook(title, author string) model.Book {
 	return AddBook(title, author)

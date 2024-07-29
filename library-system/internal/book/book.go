@@ -1,6 +1,6 @@
 package book
 
-import "go-lesson/library-system/internal/model"
+import "projects/library-system/internal/model"
 
 var books []model.Book
 var lastID int
