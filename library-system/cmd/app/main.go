@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"projects/library-system/internal/book"
+	"projects/internal/book"
 )
 
 func main() {

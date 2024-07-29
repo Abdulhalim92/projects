@@ -1,6 +1,9 @@
 package book
 
-import "projects/library-system/internal/model"
+import (
+	"fmt"
+	"projects/internal/model"
+)
 
 var books []model.Book
 var lastID int
@@ -20,6 +23,8 @@ func AddBook(title, author string) model.Book {
 
 	books = append(books, book)
 
+	fmt.Printf("Book with tittle %s and author %s is created\n", book.Title, book.Author)
+
 	return book
 }
 
@@ -30,10 +35,22 @@ func GetBooks() []model.Book {
 func GetBookByID(id int) *model.Book {
 	for _, book := range books {
 		if book.ID == id {
+			fmt.Printf("Found book with id %d: %+v\n", id, book)
 			return &book
 		}
 	}
 	return nil
+}
+
+func GetBooksByAuthor(author string) []model.Book {
+	var booksByAuthor []model.Book
+
+	for _, book := range books {
+		if book.Author == author {
+			booksByAuthor = append(booksByAuthor, book)
+		}
+	}
+	return booksByAuthor
 }
 
 func UpdateBook(id int, title, author string) bool {
