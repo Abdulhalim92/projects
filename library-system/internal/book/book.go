@@ -1,6 +1,6 @@
 package book
 
-import "go-lesson/library-system/internal/model"
+import "projects/library-system/internal/model"
 
 var books []model.Book
 var lastID int
@@ -34,6 +34,15 @@ func GetBookByID(id int) *model.Book {
 		}
 	}
 	return nil
+}
+func GetBookByAuthor(author string) []model.Book {
+	var booksByAuthor []model.Book
+	for _, book := range books {
+		if book.Author == author {
+			booksByAuthor = append(booksByAuthor, book)
+		}
+	}
+	return booksByAuthor
 }
 
 func UpdateBook(id int, title, author string) bool {

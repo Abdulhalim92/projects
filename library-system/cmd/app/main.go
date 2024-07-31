@@ -2,12 +2,13 @@ package main
 
 import (
 	"fmt"
-	"go-lesson/library-system/internal/book"
+	"projects/library-system/internal/book"
 )
 
 func main() {
 	fmt.Println("Library System")
 
+	//test
 	// Иммитируем создание книг
 	b1 := book.CreateBook("The Hobbit", "J.R.R Tolkien")
 	b2 := book.CreateBook("1984", "George Orwell")
