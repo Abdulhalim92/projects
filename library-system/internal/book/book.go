@@ -5,22 +5,15 @@ import (
 	"projects/internal/model"
 )
 
-type Books struct {
-	Books []model.Book
-}
-
-func NewBooks() *Books {
-	books := make([]model.Book, 0)
-	return &Books{Books: books}
-}
-
+var books []model.Book
 var lastID int
 
 func init() {
+	books = make([]model.Book, 0)
 	lastID = 0
 }
 
-func (b *Books) AddBook(title, author string) model.Book {
+func AddBook(title, author string) model.Book {
 	lastID++
 	book := model.Book{
 		ID:     lastID,
@@ -28,19 +21,19 @@ func (b *Books) AddBook(title, author string) model.Book {
 		Author: author,
 	}
 
-	b.Books = append(b.Books, book)
+	books = append(books, book)
 
 	fmt.Printf("Book with tittle %s and author %s is created\n", book.Title, book.Author)
 
 	return book
 }
 
-func (b *Books) GetBooks() []model.Book {
-	return b.Books
+func GetBooks() []model.Book {
+	return books
 }
 
-func (b *Books) GetBookByID(id int) *model.Book {
-	for _, book := range b.Books {
+func GetBookByID(id int) *model.Book {
+	for _, book := range books {
 		if book.ID == id {
 			fmt.Printf("Found book with id %d: %+v\n", id, book)
 			return &book
@@ -49,10 +42,10 @@ func (b *Books) GetBookByID(id int) *model.Book {
 	return nil
 }
 
-func (b *Books) GetBooksByAuthor(author string) []model.Book {
+func GetBooksByAuthor(author string) []model.Book {
 	var booksByAuthor []model.Book
 
-	for _, book := range b.Books {
+	for _, book := range books {
 		if book.Author == author {
 			booksByAuthor = append(booksByAuthor, book)
 		}
@@ -60,21 +53,21 @@ func (b *Books) GetBooksByAuthor(author string) []model.Book {
 	return booksByAuthor
 }
 
-func (b *Books) UpdateBook(id int, title, author string) bool {
-	for i, book := range b.Books {
+func UpdateBook(id int, title, author string) bool {
+	for i, book := range books {
 		if book.ID == id {
-			b.Books[i].Title = title
-			b.Books[i].Author = author
+			books[i].Title = title
+			books[i].Author = author
 			return true
 		}
 	}
 	return false
 }
 
-func (b *Books) DeleteBook(id int) bool {
-	for i, book := range b.Books {
+func DeleteBook(id int) bool {
+	for i, book := range books {
 		if book.ID == id {
-			b.Books = append(b.Books[:i], b.Books[i+1:]...)
+			books = append(books[:i], books[i+1:]...)
 			return true
 		}
 	}

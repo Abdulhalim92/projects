@@ -2,34 +2,26 @@ package book
 
 import "projects/internal/model"
 
-type Service struct {
-	Books Books
+func CreateBook(title, author string) model.Book {
+	return AddBook(title, author)
 }
 
-func NewService(books Books) *Service {
-	return &Service{Books: books}
+func ListBooks() []model.Book {
+	return GetBooks()
 }
 
-func (s *Service) CreateBook(title, author string) model.Book {
-	return s.Books.AddBook(title, author)
+func FindBook(id int) *model.Book {
+	return GetBookByID(id)
 }
 
-func (s *Service) ListBooks() []model.Book {
-	return s.Books.GetBooks()
+func FindBooksByAuthor(author string) []model.Book {
+	return GetBooksByAuthor(author)
 }
 
-func (s *Service) FindBook(id int) *model.Book {
-	return s.Books.GetBookByID(id)
+func EditBook(id int, title, author string) bool {
+	return UpdateBook(id, title, author)
 }
 
-func (s *Service) FindBooksByAuthor(author string) []model.Book {
-	return s.Books.GetBooksByAuthor(author)
-}
-
-func (s *Service) EditBook(id int, title, author string) bool {
-	return s.Books.UpdateBook(id, title, author)
-}
-
-func (s *Service) RemoveBook(id int) bool {
-	return s.Books.DeleteBook(id)
+func RemoveBook(id int) bool {
+	return DeleteBook(id)
 }
