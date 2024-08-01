@@ -35,6 +35,15 @@ func GetBookByID(id int) *model.Book {
 	}
 	return nil
 }
+func GetBookByAuthor(author string) []model.Book {
+	var booksByAuthor []model.Book
+	for _, book := range books {
+		if book.Author == author {
+			booksByAuthor = append(booksByAuthor, book)
+		}
+	}
+	return booksByAuthor
+}
 
 func UpdateBook(id int, title, author string) bool {
 	for i, book := range books {
