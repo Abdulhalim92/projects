@@ -14,10 +14,6 @@ func FindBook(id int) *model.Book {
 	return GetBookByID(id)
 }
 
-func FindBooksByAuthor(author string) []model.Book {
-	return GetBooksByAuthor(author)
-}
-
 func EditBook(id int, title, author string) bool {
 	return UpdateBook(id, title, author)
 }
