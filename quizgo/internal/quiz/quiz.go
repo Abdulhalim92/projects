@@ -1,6 +1,9 @@
 package quiz
 
-import "quizgo/internal/model"
+import (
+	"fmt"
+	"quizgo/internal/model"
+)
 
 var lastID int
 
@@ -49,4 +52,28 @@ func (qds QuizDataStore) AddQuizData(quiz model.Quiz) {
 
 func (qds QuizDataStore) GetQuestionsLen() int {
 	return len(qds.questions)
+}
+
+func (qds QuizDataStore) FormatOpts(opts [4]string) string {
+	firstRowGap := 20 - len(opts[0])
+	secondRowGap := 20 - len(opts[2])
+	var firstRowSpace, secondRowSpace string
+	for i := 0; i < firstRowGap; i++ {
+		firstRowSpace += " "
+	}
+	for i := 0; i < secondRowGap; i++ {
+		secondRowSpace += " "
+	}
+	return fmt.Sprintf("     A) %v%vB) %v\n\n     C) %v%vD) %v",
+		opts[0], firstRowSpace, opts[1],
+		opts[2], secondRowSpace, opts[3])
+}
+
+func (qds QuizDataStore) GetFormattedQuiz(qID int) string {
+	fmt.Printf("Quiz #%d \n", qID+1)
+	q := qds.QuestionForID(qID)
+	opts := qds.OptionsForID(qID)
+	formattedOpts := qds.FormatOpts(opts)
+
+	return fmt.Sprintf("%v\n%v", q, formattedOpts)
 }
