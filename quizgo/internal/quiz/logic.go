@@ -36,11 +36,11 @@ func (ql QuizLogic) AskQuestion(fq FormattedQuiz) {
 func (ql QuizLogic) StartQuiz() {
 	var difLevel DifficultyLevel = 1
 	var quizNum int = 1
-
+	difficulties := []string{"Easy", "Medium", "Hard"}
 	for ; difLevel <= 3; difLevel++ {
 		for _, v := range ql.ds.GetQuestionsByDifficulty(difLevel) {
 
-			fmt.Printf("\nQuiz #%d \n", quizNum)
+			fmt.Printf("\nQuiz #%d          Difficulty: %s\n", quizNum, difficulties[difLevel-1])
 			ql.AskQuestion(v)
 			quizNum++
 		}
