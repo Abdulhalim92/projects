@@ -100,7 +100,7 @@ func (r *Records) UpdateDoctorInAllRecords(id int, NewDoctor model.Doctor) bool 
 	for i := 0; i < len(r.Records); i++ {
 		if r.Records[i].Doctor.ID == id {
 			r.Records[i].Doctor = model.Doctor{
-				ID:           id,
+				ID:           NewDoctor.ID,
 				Name:         NewDoctor.Name,
 				Surname:      NewDoctor.Surname,
 				TypeOfDoctor: NewDoctor.TypeOfDoctor,
