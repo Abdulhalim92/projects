@@ -1,8 +1,10 @@
 package model
 
+type DifficultyLevel int
+
 type Quiz struct {
-	QuestionID    int
 	Question      string
 	AnswerOptions [4]string
 	AnswerIndex   int
+	Difficulty    DifficultyLevel
 }

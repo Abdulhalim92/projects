@@ -2,40 +2,31 @@ package quiz
 
 import (
 	"fmt"
-	"quizgo/internal/model"
 )
 
 type DataStore interface {
-	AddQuizData(quiz model.Quiz)
-	CreateQuiz(q string, opts [4]string, ansIndex int) model.Quiz
-	GetQuestionsLen() int
-	AnswerForID(qID int) string
-	GetFormattedQuiz(qID int) string
+	GetQuestion(difLevel DifficultyLevel, qIndex int) (FormattedQuiz, error)
+
+	GetQuestionsByDifficulty(difLevel DifficultyLevel) []FormattedQuiz
 }
 
 type QuizLogic struct {
 	ds DataStore
 }
 
-func (ql QuizLogic) CheckAnswer(a string, qID int) bool {
-	if a == ql.ds.AnswerForID(qID) {
-		return true
-	}
+func (ql QuizLogic) AskQuestion(fq FormattedQuiz) {
+	var userAnswer string
 
-	return false
-}
-
-func (ql QuizLogic) AskQuestion(qID int) {
-	var a string
-	fmt.Println(ql.ds.GetFormattedQuiz(qID))
-	fmt.Scan(&a)
-	for a != "a" && a != "b" && a != "c" && a != "d" {
+	q := fq.question
+	a := fq.answer
+	fmt.Println(q)
+	fmt.Scan(&userAnswer)
+	for userAnswer != "a" && userAnswer != "b" && userAnswer != "c" && userAnswer != "d" {
 		fmt.Println("Type an option letter: a, b, c, d")
-		fmt.Scan(&a)
+		fmt.Scan(&userAnswer)
 	}
 
-	result := ql.CheckAnswer(a, qID)
-	if result {
+	if userAnswer == a {
 		fmt.Println("Right!")
 	} else {
 		fmt.Println("Wrong")
@@ -43,7 +34,16 @@ func (ql QuizLogic) AskQuestion(qID int) {
 }
 
 func (ql QuizLogic) StartQuiz() {
-	for i := 0; i < ql.ds.GetQuestionsLen(); i++ {
-		ql.AskQuestion(i)
+	var difLevel DifficultyLevel = 1
+	var quizNum int = 1
+
+	for ; difLevel <= 3; difLevel++ {
+		for _, v := range ql.ds.GetQuestionsByDifficulty(difLevel) {
+
+			fmt.Printf("\nQuiz #%d \n", quizNum)
+			ql.AskQuestion(v)
+			quizNum++
+		}
+
 	}
 }
