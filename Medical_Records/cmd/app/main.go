@@ -69,4 +69,9 @@ func main() {
 	fmt.Println(result2)
 	result3 := NewService.ChangeDoctorInAllRecords(2, *NewDoctor)
 	fmt.Println(result3)
+	result4 := NewService.RemoveRecordByPatientID(3)
+	fmt.Println(result4)
+	result5 := NewService.RemoveRecordByRecordID(2)
+	fmt.Println(result5)
+
 }
