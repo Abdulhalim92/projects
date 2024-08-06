@@ -70,5 +70,5 @@ func main() {
 		return
 	}
 
-	g.StartGame()
+	g.Start()
 }
