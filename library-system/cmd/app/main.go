@@ -14,11 +14,11 @@ func main() {
 	newBooks := book.NewBooks(books)
 	service := book.NewService(*newBooks)
 
-	// Иммитируем создание книг
+	// Имитируем создание книг
 	b1 := service.CreateBook("The Hobbit", "J.R.R Tolkien")
 	b2 := service.CreateBook("1984", "George Orwell")
 
-	// Иммитируем получение спискм книг
+	// Имитируем получение спискам книг
 	listBooks := service.ListBooks()
 	fmt.Println("Books in library:")
 	for _, b := range listBooks {
