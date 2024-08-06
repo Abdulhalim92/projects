@@ -6,7 +6,6 @@ import (
 
 type DataStore interface {
 	GetQuestion(difLevel DifficultyLevel, qIndex int) (FormattedQuiz, error)
-
 	GetQuestionsByDifficulty(difLevel DifficultyLevel) []FormattedQuiz
 }
 
@@ -14,7 +13,7 @@ type QuizLogic struct {
 	ds DataStore
 }
 
-func (ql QuizLogic) AskQuestion(fq FormattedQuiz) {
+func (ql QuizLogic) AskQuestion(fq FormattedQuiz) bool {
 	var userAnswer string
 
 	q := fq.question
@@ -28,8 +27,10 @@ func (ql QuizLogic) AskQuestion(fq FormattedQuiz) {
 
 	if userAnswer == a {
 		fmt.Println("Right!")
+		return true
 	} else {
 		fmt.Println("Wrong")
+		return false
 	}
 }
 

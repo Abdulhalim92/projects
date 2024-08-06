@@ -8,6 +8,7 @@ import (
 func main() {
 	ds := quiz.NewQuizStore()
 	l := quiz.NewQuizLogic(ds)
+	g := quiz.NewGame(l, ds, 3)
 
 	quiz1 := ds.CreateQuiz(
 		"What is the capital of France?",
@@ -32,26 +33,31 @@ func main() {
 		[4]string{"1", "2", "3", "5"},
 		1,
 		2)
+
 	quiz5 := ds.CreateQuiz(
 		"Which element has the chemical symbol 'O'?",
 		[4]string{"Gold", "Silver", "Osmium", "Oxygen"},
 		3,
 		2)
+
 	quiz6 := ds.CreateQuiz(
 		"In which year did the Titanic sink?",
 		[4]string{"1905", "1912", "1918", "1923"},
 		1,
 		2)
+
 	quiz7 := ds.CreateQuiz(
 		"Who developed the theory of general relativity?",
 		[4]string{"Albert Einstein", "Isaac Newton", "Niels Bohr", "Galilio Galilei"},
 		0,
 		3)
+
 	quiz8 := ds.CreateQuiz(
 		"What is the longest river in the world?",
 		[4]string{"Amazon", "Yangtze", "Nile", "Mississippi"},
 		2,
 		3)
+
 	quiz9 := ds.CreateQuiz(
 		"Which author wrote 'One Hundred Years of Solitude'?",
 		[4]string{"Islabel Allende", "Mario Vargas Llosa", "Jorge Luis Borges", "Gabriel Garcia"},
@@ -64,5 +70,5 @@ func main() {
 		return
 	}
 
-	l.StartQuiz()
+	g.StartGame()
 }
