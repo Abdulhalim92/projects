@@ -39,7 +39,7 @@ func (g Game) LogGameInfo(quizN int, difLevel DifficultyLevel, hAmount int) {
 
 }
 
-func (g Game) StartGame() {
+func (g Game) Start() {
 	var difLevel DifficultyLevel = 1
 	var quizN int = 1
 	var result bool
