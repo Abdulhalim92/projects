@@ -1,23 +1,35 @@
 package book
 
-import "go-lesson/library-system/internal/model"
+import "projects/internal/model"
 
-func CreateBook(title, author string) model.Book {
-	return AddBook(title, author)
+type Service struct {
+	Books Books
 }
 
-func ListBooks() []model.Book {
-	return GetBooks()
+func NewService(b Books) *Service {
+	return &Service{b}
 }
 
-func FindBook(id int) *model.Book {
-	return GetBookByID(id)
+func (s *Service) CreateBook(title, author string) model.Book {
+	return s.Books.AddBook(title, author)
 }
 
-func EditBook(id int, title, author string) bool {
-	return UpdateBook(id, title, author)
+func (s *Service) ListBooks() []model.Book {
+	return s.Books.GetBooks()
 }
 
-func RemoveBook(id int) bool {
-	return DeleteBook(id)
+func (s *Service) FindBook(id int) *model.Book {
+	return s.Books.GetBookByID(id)
+}
+
+func (s *Service) FindBooksByAuthor(author string) []model.Book {
+	return s.Books.GetBooksByAuthor(author)
+}
+
+func (s *Service) EditBook(id int, title, author string) bool {
+	return s.Books.UpdateBook(id, title, author)
+}
+
+func (s *Service) RemoveBook(id int) bool {
+	return s.Books.DeleteBook(id)
 }
