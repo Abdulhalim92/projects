@@ -14,7 +14,7 @@ func (s *Service) CreateBook(title, author string) model.Book {
 	return s.Books.AddBook(title, author)
 }
 
-func (s *Service) ListBooks() []model.Book {
+func (s *Service) ListBooks() map[int]model.Book {
 	return s.Books.GetBooks()
 }
 
@@ -27,7 +27,12 @@ func (s *Service) FindBooksByAuthor(author string) []model.Book {
 }
 
 func (s *Service) EditBook(id int, title, author string) bool {
-	return s.Books.UpdateBook(id, title, author)
+	book := model.Book{
+		ID:     id,
+		Title:  title,
+		Author: author,
+	}
+	return s.Books.UpdateBook(book)
 }
 
 func (s *Service) RemoveBook(id int) bool {

@@ -6,12 +6,14 @@ import (
 )
 
 type Books struct {
-	Books []model.Book
+	BooksMap map[int]model.Book
+	lastID   int
 }
 
-func NewBooks(books []model.Book) *Books {
+func NewBooks(books map[int]model.Book) *Books {
 	return &Books{
-		Books: books,
+		BooksMap: books,
+		lastID:   0,
 	}
 }
 
@@ -29,20 +31,20 @@ func (b *Books) AddBook(title, author string) model.Book {
 		Author: author,
 	}
 
-	b.Books = append(b.Books, book)
+	b.BooksMap[lastID] = book
 
 	fmt.Printf("Book with tittle %s and author %s is created\n", book.Title, book.Author)
 
 	return book
 }
 
-func (b *Books) GetBooks() []model.Book {
-	return b.Books
+func (b *Books) GetBooks() map[int]model.Book {
+	return b.BooksMap
 }
 
 func (b *Books) GetBookByID(id int) *model.Book {
-	for _, book := range b.Books {
-		if book.ID == id {
+	for k, book := range b.BooksMap {
+		if k == id {
 			fmt.Printf("Found book with id %d: %+v\n", id, book)
 			return &book
 		}
@@ -53,7 +55,7 @@ func (b *Books) GetBookByID(id int) *model.Book {
 func (b *Books) GetBooksByAuthor(author string) []model.Book {
 	var booksByAuthor []model.Book
 
-	for _, book := range b.Books {
+	for _, book := range b.BooksMap {
 		if book.Author == author {
 			booksByAuthor = append(booksByAuthor, book)
 		}
@@ -61,11 +63,10 @@ func (b *Books) GetBooksByAuthor(author string) []model.Book {
 	return booksByAuthor
 }
 
-func (b *Books) UpdateBook(id int, title, author string) bool {
-	for i, book := range b.Books {
-		if book.ID == id {
-			b.Books[i].Title = title
-			b.Books[i].Author = author
+func (b *Books) UpdateBook(book model.Book) bool {
+	for k, _ := range b.BooksMap {
+		if k == book.ID {
+			b.BooksMap[k] = book
 			return true
 		}
 	}
@@ -73,9 +74,9 @@ func (b *Books) UpdateBook(id int, title, author string) bool {
 }
 
 func (b *Books) DeleteBook(id int) bool {
-	for i, book := range b.Books {
-		if book.ID == id {
-			b.Books = append(b.Books[:i], b.Books[i+1:]...)
+	for k, _ := range b.BooksMap {
+		if k == id {
+			delete(b.BooksMap, id)
 			return true
 		}
 	}
