@@ -9,7 +9,7 @@ import (
 func main() {
 	fmt.Println("Library System")
 
-	books := make([]model.Book, 0)
+	books := make(map[int]model.Book)
 
 	newBooks := book.NewBooks(books)
 	service := book.NewService(*newBooks)
@@ -28,7 +28,7 @@ func main() {
 	// Имитируем обновление книги
 	updated := service.EditBook(b1.ID, "The Hobbit: An Unexpected Journey", "J.R.R. Tolkien")
 	if updated {
-		fmt.Printf("Book ID %d updated successfully\n", b1.ID)
+		fmt.Printf("Book ID %d updated successfully: Title: %s, Author: %s\n", b1.ID, b1.Title, b1.Author)
 	}
 
 	// Имитируем удаление книги
