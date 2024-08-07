@@ -5,3 +5,11 @@ type Book struct {
 	Title  string
 	Author string
 }
+
+// sher
+type Product struct {
+	ID       int
+	Company  string
+	Model    string
+	Category string
+}

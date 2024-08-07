@@ -1,56 +1,80 @@
 package book
 
-import "go-lesson/library-system/internal/model"
+import (
+	"fmt"
+	"projects/library-system/internal/model"
+)
 
 var books []model.Book
 var lastID int
 
-func init() {
-	books = make([]model.Book, 0)
-	lastID = 0
+type Books struct {
+	BooksMap map[int]model.Book
+	LASTID   int
 }
 
-func AddBook(title, author string) model.Book {
-	lastID++
+func NewBooks(books map[int]model.Book) *Books {
+	return &Books{
+		BooksMap: books,
+		LASTID:   0,
+	}
+}
+
+func (b *Books) AddBook(title, author string) model.Book {
+	b.LASTID++
 	book := model.Book{
-		ID:     lastID,
+		ID:     b.LASTID,
 		Title:  title,
 		Author: author,
 	}
+	b.BooksMap[b.LASTID] = book
 
-	books = append(books, book)
+	fmt.Printf("Book with tittle %s and author %s is created\n", book.Title, book.Author)
 
-	return book
+	return b.BooksMap[b.LASTID]
 }
 
-func GetBooks() []model.Book {
+func (b *Books) GetBooks() []model.Book {
+	books := make([]model.Book, 0)
+	for _, value := range b.BooksMap {
+		books = append(books, value)
+	}
 	return books
 }
 
-func GetBookByID(id int) *model.Book {
-	for _, book := range books {
-		if book.ID == id {
-			return &book
-		}
+func (b *Books) GetBookByID(id int) *model.Book {
+	value, ok := b.BooksMap[id]
+	if !ok {
+		fmt.Printf("Does't exist\n")
+		return nil
 	}
-	return nil
+	return &value
 }
 
-func UpdateBook(id int, title, author string) bool {
-	for i, book := range books {
-		if book.ID == id {
-			books[i].Title = title
-			books[i].Author = author
+func (b *Books) GetBooksByAuthor(author string) []model.Book {
+	var booksByAuthor []model.Book
+	for _, value := range b.BooksMap {
+		if value.Author == author {
+			booksByAuthor = append(booksByAuthor, value)
+		}
+	}
+	return booksByAuthor
+}
+
+func (b *Books) UpdateBook(id int, title, author string) bool {
+	for key := range b.BooksMap {
+		if key == id {
+			b.BooksMap[key] = model.Book{Title: title, Author: author}
 			return true
 		}
 	}
 	return false
 }
 
-func DeleteBook(id int) bool {
-	for i, book := range books {
-		if book.ID == id {
-			books = append(books[:i], books[i+1:]...)
+func (b *Books) DeleteBook(id int) bool {
+	for key := range b.BooksMap {
+		if key == id {
+			delete(b.BooksMap, key)
 			return true
 		}
 	}
