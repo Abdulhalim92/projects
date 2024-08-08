@@ -2,6 +2,7 @@ package quiz
 
 import (
 	"fmt"
+	"time"
 )
 
 type Logic interface {
@@ -9,48 +10,52 @@ type Logic interface {
 }
 
 type Game struct {
-	l        Logic
-	ds       DataStore
-	attempts int
+	l      Logic
+	ds     DataStore
+	hearts int
 }
 
 func (g Game) DrawHearts(hAmount int) {
-	rows := [5]string{
-		"  ###   ###  ",
-		" ##### ##### ",
-		"   #######   ",
-		"     ###     ",
+	rows := [6]string{
+		`  ###   ###  `,
+		` ##### ##### `,
+		`  #########  `,
+		`    #####    `,
+		`     ###     `,
+		`      #      `,
 	}
 
 	for _, currRow := range rows {
 		for j := 0; j < hAmount; j++ {
 			fmt.Print(currRow)
 		}
-		fmt.Println()
+		fmt.Print("\n")
 	}
 
+	fmt.Print("\n")
 }
 
-func (g Game) LogGameInfo(quizN int, difLevel DifficultyLevel, hAmount int) {
+func (g Game) LogInfo(quizN int, difLevel DifficultyLevel, hAmount int) {
 
 	difficulties := []string{"Easy", "Medium", "Hard"}
-	fmt.Printf("\nQuiz #%d  |  Difficulty: %s\n", quizN, difficulties[difLevel-1])
+	fmt.Printf("\nQuiz #%d  |  Difficulty: %s\n\n", quizN, difficulties[difLevel-1])
 	g.DrawHearts(hAmount)
 
 }
 
 func (g Game) Start() {
+	start := time.Now()
 	var difLevel DifficultyLevel = 1
 	var quizN int = 1
 	var result bool
-	hearts := g.attempts
+	hearts := g.hearts
 	for ; difLevel <= 3; difLevel++ {
 		for _, v := range g.ds.GetQuestionsByDifficulty(difLevel) {
 			if hearts == 0 {
 				fmt.Println("Game over")
 				return
 			}
-			g.LogGameInfo(quizN, difLevel, hearts)
+			g.LogInfo(quizN, difLevel, hearts)
 			result = g.l.AskQuestion(v)
 			if !result {
 				hearts--
@@ -58,6 +63,9 @@ func (g Game) Start() {
 			quizN++
 		}
 	}
-	g.DrawHearts(hearts)
-	fmt.Println("You won!")
+
+	timePassed := time.Now().Sub(start).Truncate(time.Second)
+
+	fmt.Print("\nYou won!\n")
+	fmt.Printf("Hearts ramained: %d  |  Complited in: %v\n", hearts, timePassed)
 }

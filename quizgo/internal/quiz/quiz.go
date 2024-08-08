@@ -25,7 +25,6 @@ func (qds QuizDataStore) CreateQuiz(q string, opts [4]string, ansIndex int, difL
 		AnswerIndex:   ansIndex,
 		Difficulty:    difLevel,
 	}
-
 }
 
 func (qds *QuizDataStore) Add(args ...interface{}) error {
@@ -75,7 +74,7 @@ func (qds QuizDataStore) GetFormattedQuiz(quiz model.Quiz) FormattedQuiz {
 	answerLetters := [4]string{"a", "b", "c", "d"}
 	formattedOpts := qds.FormatOpts(quiz.AnswerOptions)
 
-	q := fmt.Sprintf("%s\n%s", quiz.Question, formattedOpts)
+	q := fmt.Sprintf("%s\n\n%s", quiz.Question, formattedOpts)
 	a := answerLetters[quiz.AnswerIndex]
 	return FormattedQuiz{
 		question: q,

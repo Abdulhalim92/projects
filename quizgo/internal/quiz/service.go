@@ -1,10 +1,10 @@
 package quiz
 
-func NewGame(l Logic, ds DataStore, attempts int) Game {
+func NewGame(l Logic, ds DataStore, heartsAmount int) Game {
 	return Game{
-		l:        l,
-		ds:       ds,
-		attempts: attempts,
+		l:      l,
+		ds:     ds,
+		hearts: heartsAmount,
 	}
 }
 

@@ -1,7 +1,9 @@
 package quiz
 
-import "fmt"
-
+import (
+	"fmt"
+	"strings"
+)
 
 type DataStore interface {
 	GetQuestion(difLevel DifficultyLevel, qIndex int) (FormattedQuiz, error)
@@ -17,9 +19,11 @@ func (ql QuizLogic) AskQuestion(fq FormattedQuiz) bool {
 	q := fq.question
 	a := fq.answer
 
-	fmt.Println(q)
+	fmt.Printf("%s\n\n", q)
+	fmt.Print(">>> ")
 	fmt.Scan(&userAnswer)
 
+	userAnswer = strings.ToLower(userAnswer)
 	for userAnswer != "a" && userAnswer != "b" && userAnswer != "c" && userAnswer != "d" {
 		fmt.Println("Type an option letter: a, b, c, d")
 		fmt.Scan(&userAnswer)
