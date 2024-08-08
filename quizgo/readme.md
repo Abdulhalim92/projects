@@ -1,9 +1,9 @@
-# Викторина
+# Quizgo
 Quizgo это сервис для обработки данных викторин и создания игры на
 основе этих данных. Игре можно будет задать количество жизней и играть
 в неё в консоле.
 
-## Пользование
+## Как работает?
 Метод для создания викторин(QuizDataStore.CreateQuiz) принмает исходные
 данные вопроса, вариантов ответа, правильного ответа и сложности вопроса
 для создания структуры викторины.
@@ -30,29 +30,8 @@ quizgo/
 │   │   ├── game.go
 │   │   ├── logic.go
 │   │   └── service.go
-│   ├── http/
-│   │   ├── handler/
-│   │   │   ├── user_handler.go
-│   │   ├── middleware/
-│   │   │   └── auth_middleware.go
-│   │   └── router.go
-│   ├── config/
-│   │   └── config.go
-│   ├── database/
-│   │   ├── database.go
-│   │   └── migrations/
-│   └── util/
-│       └── util.go
-├── pkg/
-│   └── model/
-│       ├── quiz.go
-├── docs/
-│   ├── api/
-│   └── architecture/
-├── scripts/
-│   └── setup.sh
-├── .env
-├── .gitignore
+├── model/
+│   └── quiz.go/
 ├── go.mod
 └── go.sum
 ````
