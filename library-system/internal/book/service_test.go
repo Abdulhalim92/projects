@@ -6,8 +6,7 @@ import (
 )
 
 func TestCreateBook(t *testing.T) {
-	books := make([]model.Book, 0) // Reset the books slice before each test
-	lastID = 0                     // Reset the lastID before each test
+	books := make(map[int]model.Book) // Reset the books map before each test
 
 	b := NewBooks(books)
 	s := NewService(*b)
@@ -25,8 +24,7 @@ func TestCreateBook(t *testing.T) {
 }
 
 func TestListBooks(t *testing.T) {
-	books := make([]model.Book, 0) // Reset the books slice before each test
-	lastID = 0                     // Reset the lastID before each test
+	books := make(map[int]model.Book) // Reset the books map before each test
 
 	b := NewBooks(books)
 	s := NewService(*b)
@@ -41,8 +39,7 @@ func TestListBooks(t *testing.T) {
 }
 
 func TestFindBook(t *testing.T) {
-	books := make([]model.Book, 0) // Reset the books slice before each test
-	lastID = 0                     // Reset the lastID before each test
+	books := make(map[int]model.Book) // Reset the books map before each test
 
 	b := NewBooks(books)
 	s := NewService(*b)
@@ -58,8 +55,7 @@ func TestFindBook(t *testing.T) {
 }
 
 func TestEditBook(t *testing.T) {
-	books := make([]model.Book, 0) // Reset the books slice before each test
-	lastID = 0                     // Reset the lastID before each test
+	books := make(map[int]model.Book) // Reset the books map before each test
 
 	b := NewBooks(books)
 	s := NewService(*b)
@@ -77,8 +73,7 @@ func TestEditBook(t *testing.T) {
 }
 
 func TestRemoveBook(t *testing.T) {
-	books := make([]model.Book, 0) // Reset the books slice before each test
-	lastID = 0                     // Reset the lastID before each test
+	books := make(map[int]model.Book) // Reset the books map before each test
 
 	b := NewBooks(books)
 	s := NewService(*b)
