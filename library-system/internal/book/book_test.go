@@ -6,11 +6,12 @@ import (
 )
 
 func TestAddBook(t *testing.T) {
-	books := make([]model.Book, 0) // Reset the books slice before each test
-	lastID = 0                     // Reset the lastID before each test
+	books := make(map[int]model.Book) // Reset the books map before each test
+	lastID := 0                       // Reset the lastID before each test
 
 	b := Books{
-		Books: books,
+		BooksMap: books,
+		LastID:   lastID,
 	}
 
 	book := b.AddBook("The Hobbit", "J.R.R. Tolkien")
@@ -26,11 +27,12 @@ func TestAddBook(t *testing.T) {
 }
 
 func TestGetBooks(t *testing.T) {
-	books := make([]model.Book, 0) // Reset the books slice before each test
-	lastID = 0                     // Reset the lastID before each test
+	books := make(map[int]model.Book) // Reset the books map before each test
+	lastID := 0                       // Reset the lastID before each test
 
 	b := Books{
-		Books: books,
+		BooksMap: books,
+		LastID:   lastID,
 	}
 
 	b.AddBook("The Hobbit", "J.R.R. Tolkien")
@@ -43,11 +45,12 @@ func TestGetBooks(t *testing.T) {
 }
 
 func TestGetBookByID(t *testing.T) {
-	books := make([]model.Book, 0) // Reset the books slice before each test
-	lastID = 0                     // Reset the lastID before each test
+	books := make(map[int]model.Book) // Reset the books map before each test
+	lastID := 0                       // Reset the lastID before each test
 
 	b := Books{
-		Books: books,
+		BooksMap: books,
+		LastID:   lastID,
 	}
 
 	b.AddBook("The Hobbit", "J.R.R. Tolkien")
@@ -61,11 +64,12 @@ func TestGetBookByID(t *testing.T) {
 }
 
 func TestUpdateBook(t *testing.T) {
-	books := make([]model.Book, 0) // Reset the books slice before each test
-	lastID = 0                     // Reset the lastID before each test
+	books := make(map[int]model.Book) // Reset the books map before each test
+	lastID := 0                       // Reset the lastID before each test
 
 	b := Books{
-		Books: books,
+		BooksMap: books,
+		LastID:   lastID,
 	}
 
 	b.AddBook("The Hobbit", "J.R.R. Tolkien")
@@ -81,13 +85,13 @@ func TestUpdateBook(t *testing.T) {
 }
 
 func TestDeleteBook(t *testing.T) {
-	books := make([]model.Book, 0) // Reset the books slice before each test
-	lastID = 0                     // Reset the lastID before each test
+	books := make(map[int]model.Book) // Reset the books map before each test
+	lastID := 0                       // Reset the lastID before each test
 
 	b := Books{
-		Books: books,
+		BooksMap: books,
+		LastID:   lastID,
 	}
-
 	b.AddBook("The Hobbit", "J.R.R. Tolkien")
 	deleted := b.DeleteBook(1)
 	if !deleted {
