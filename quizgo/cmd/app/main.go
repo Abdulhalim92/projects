@@ -64,7 +64,17 @@ func main() {
 		3,
 		3)
 
-	err := ds.Add(quiz1, quiz2, quiz3, quiz4, quiz5, quiz6, quiz7, quiz8, quiz9)
+	IDs, err := ds.Add(quiz1, quiz2, quiz3, quiz4, quiz5, quiz6, quiz7, quiz8, quiz9)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	_, err = ds.EditQuiz(IDs[0], "What is the name of the first artificial Earth satellite, launched by the Soviet Union in 1957?",
+		quiz.Opts{"Voyager 1", "Sputnik 1", "Luna 2", "Explorer 1"},
+		quiz.Ans(1),
+		quiz.Dif(2))
+
 	if err != nil {
 		fmt.Println(err)
 		return

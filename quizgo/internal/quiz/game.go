@@ -15,7 +15,7 @@ type Game struct {
 	hearts int
 }
 
-func (g Game) DrawHearts(hAmount int) {
+func (g Game) drawHearts(hAmount int) {
 	rows := [6]string{
 		`  ###   ###  `,
 		` ##### ##### `,
@@ -35,27 +35,28 @@ func (g Game) DrawHearts(hAmount int) {
 	fmt.Print("\n")
 }
 
-func (g Game) LogInfo(quizN int, difLevel DifficultyLevel, hAmount int) {
-
+func (g Game) LogInfo(quizN, hAmount int, difLevel Dif) {
 	difficulties := []string{"Easy", "Medium", "Hard"}
 	fmt.Printf("\nQuiz #%d  |  Difficulty: %s\n\n", quizN, difficulties[difLevel-1])
-	g.DrawHearts(hAmount)
+	g.drawHearts(hAmount)
 
 }
 
 func (g Game) Start() {
 	start := time.Now()
-	var difLevel DifficultyLevel = 1
+	var difLevel Dif = 1
 	var quizN int = 1
 	var result bool
 	hearts := g.hearts
+
 	for ; difLevel <= 3; difLevel++ {
 		for _, v := range g.ds.GetQuestionsByDifficulty(difLevel) {
 			if hearts == 0 {
 				fmt.Println("Game over")
 				return
 			}
-			g.LogInfo(quizN, difLevel, hearts)
+
+			g.LogInfo(quizN, hearts, difLevel)
 			result = g.l.AskQuestion(v)
 			if !result {
 				hearts--

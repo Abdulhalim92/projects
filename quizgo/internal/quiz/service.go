@@ -16,6 +16,6 @@ func NewQuizLogic(ds DataStore) QuizLogic {
 
 func NewQuizStore() QuizDataStore {
 	return QuizDataStore{
-		Questions: map[DifficultyLevel][]FormattedQuiz{},
+		Questions: map[Dif][]FormattedQuiz{},
 	}
 }

@@ -6,8 +6,8 @@ import (
 )
 
 type DataStore interface {
-	GetQuestion(difLevel DifficultyLevel, qIndex int) (FormattedQuiz, error)
-	GetQuestionsByDifficulty(difLevel DifficultyLevel) []FormattedQuiz
+	GetQuestion(id ID) (*FormattedQuiz, error)
+	GetQuestionsByDifficulty(difLevel Dif) []FormattedQuiz
 }
 
 type QuizLogic struct {
@@ -16,10 +16,11 @@ type QuizLogic struct {
 
 func (ql QuizLogic) AskQuestion(fq FormattedQuiz) bool {
 	var userAnswer string
-	q := fq.question
-	a := fq.answer
+	q := fq.Question
+	opts := fq.Options
+	a := fq.Answer
 
-	fmt.Printf("%s\n\n", q)
+	fmt.Printf("%s\n\n%s\n\n", q, opts)
 	fmt.Print(">>> ")
 	fmt.Scan(&userAnswer)
 

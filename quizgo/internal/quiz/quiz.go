@@ -4,61 +4,143 @@ import (
 	"errors"
 	"fmt"
 	"quizgo/internal/model"
+	"strconv"
 )
 
-type DifficultyLevel = model.DifficultyLevel
+type ID string
+
+type Dif = model.DifficultyLevel
+type Qst = model.Question
+type Opts = model.AnswerOptions
+type Ans = model.AnswerIndex
 
 type FormattedQuiz struct {
-	question string
-	answer   string
+	Question string
+	Answer   string
+	Options  string
 }
 
 type QuizDataStore struct {
-	Questions map[DifficultyLevel][]FormattedQuiz
+	Questions map[model.DifficultyLevel][]FormattedQuiz
 }
 
-func (qds QuizDataStore) CreateQuiz(q string, opts [4]string, ansIndex int, difLevel DifficultyLevel) model.Quiz {
-
+func (qds QuizDataStore) CreateQuiz(q string, opts [4]string, ansIndex int, difLevel int) model.Quiz {
 	return model.Quiz{
-		Question:      q,
-		AnswerOptions: opts,
-		AnswerIndex:   ansIndex,
-		Difficulty:    difLevel,
+		Question:   Qst(q),
+		Options:    Opts(opts),
+		Index:      Ans(ansIndex),
+		Difficulty: Dif(difLevel),
 	}
 }
 
-func (qds *QuizDataStore) Add(args ...interface{}) error {
+func (qds *QuizDataStore) Add(args ...interface{}) ([]ID, error) {
 	var quizes []model.Quiz
+	var IDs []ID
+
 	for _, arg := range args {
-		switch arg := arg.(type) {
-		case model.Quiz:
-			if arg.AnswerIndex > 3 || arg.AnswerIndex < 0 {
-				return errors.New("answer index must correspond to the right answer from answer options")
+		if arg, ok := arg.(model.Quiz); ok {
+			if arg.Index > 3 || arg.Index < 0 {
+				return nil, errors.New("answer index must correspond to the right answer from answer options")
 			}
 			if arg.Difficulty < 1 || arg.Difficulty > 3 {
-				return errors.New("difficulty level must be one of: 1, 2, 3")
+				return nil, errors.New("difficulty level must be one of: 1, 2, 3")
 			}
 			quizes = append(quizes, arg)
-
-		default:
-			return errors.New("Add method supports only Quiz type as an argument")
+		} else {
+			return nil, errors.New("Add method supports only Quiz type as an argument")
 		}
 	}
 
 	var fq FormattedQuiz
-	var difLevel DifficultyLevel
+	var difLevel model.DifficultyLevel
+	var id ID
 	for _, v := range quizes {
-		fq = qds.GetFormattedQuiz(v)
+		fq = qds.createFormattedQuiz(v)
 		difLevel = v.Difficulty
+		index := len(qds.Questions[difLevel])
 		qds.Questions[difLevel] = append(qds.Questions[difLevel], fq)
+
+		id = ID(strconv.Itoa(int(difLevel))) + ID(strconv.Itoa(index))
+		IDs = append(IDs, id)
 	}
-	return nil
+	return IDs, nil
 }
 
-func (qds QuizDataStore) FormatOpts(opts [4]string) string {
+func (qds QuizDataStore) GetQuestion(id ID) (*FormattedQuiz, error) {
+	difLevel, index, err := qds.parseID(id)
+	if err != nil {
+		return &FormattedQuiz{}, err
+	}
+
+	if difLevel < 1 || difLevel > 3 {
+		return &FormattedQuiz{}, errors.New("difficulty level must be one of: 1, 2, 3")
+	}
+
+	return &qds.Questions[Dif(difLevel)][index], nil
+}
+
+func (qds QuizDataStore) EditQuiz(id ID, args ...interface{}) (ID, error) {
+	quiz, err := qds.GetQuestion(id)
+	if err != nil {
+		return "", err
+	}
+
+	answerLetters := [4]string{"a", "b", "c", "d"}
+	for _, v := range args {
+		switch v := v.(type) {
+
+		case model.Question:
+			quiz.Question = string(v)
+		case string:
+			quiz.Question = v
+
+		case model.AnswerIndex:
+			quiz.Answer = answerLetters[v]
+
+		case model.AnswerOptions:
+			quiz.Options = qds.formatOpts(v)
+		case [4]string:
+			quiz.Options = qds.formatOpts(Opts(v))
+
+		case model.DifficultyLevel:
+			difLevel, index, err := qds.parseID(id)
+			if err != nil {
+				return "", err
+			}
+
+			qds.Questions[v] = append(qds.Questions[v], *quiz)
+
+			qds.Questions[Dif(difLevel)] =
+				append(qds.Questions[Dif(difLevel)][:index], qds.Questions[Dif(difLevel)][index+1:]...)
+
+			id = ID(strconv.Itoa(difLevel)) + ID(strconv.Itoa(len(qds.Questions[v])))
+		}
+	}
+
+	return id, nil
+}
+
+func (qds QuizDataStore) GetQuestionsByDifficulty(difLevel model.DifficultyLevel) []FormattedQuiz {
+	return qds.Questions[difLevel]
+}
+
+func (qds QuizDataStore) GetEasyQuestions() []FormattedQuiz {
+	return qds.Questions[1]
+}
+
+func (qds QuizDataStore) GetMediumQuestion() []FormattedQuiz {
+	return qds.Questions[2]
+}
+
+func (qds QuizDataStore) GetHardQuestions() []FormattedQuiz {
+	return qds.Questions[3]
+}
+
+func (qds QuizDataStore) formatOpts(opts model.AnswerOptions) string {
 	firstRowGap := 20 - len(opts[0])
 	secondRowGap := 20 - len(opts[2])
 	var firstRowSpace, secondRowSpace string
+
 	for i := 0; i < firstRowGap; i++ {
 		firstRowSpace += " "
 	}
@@ -70,35 +152,29 @@ func (qds QuizDataStore) FormatOpts(opts [4]string) string {
 		opts[2], secondRowSpace, opts[3])
 }
 
-func (qds QuizDataStore) GetFormattedQuiz(quiz model.Quiz) FormattedQuiz {
+func (qds QuizDataStore) createFormattedQuiz(quiz model.Quiz) FormattedQuiz {
 	answerLetters := [4]string{"a", "b", "c", "d"}
-	formattedOpts := qds.FormatOpts(quiz.AnswerOptions)
+	formattedOpts := qds.formatOpts(quiz.Options)
 
-	q := fmt.Sprintf("%s\n\n%s", quiz.Question, formattedOpts)
-	a := answerLetters[quiz.AnswerIndex]
+	q := fmt.Sprintf("%s", quiz.Question)
+	a := answerLetters[quiz.Index]
 	return FormattedQuiz{
-		question: q,
-		answer:   a,
+		Question: q,
+		Answer:   a,
+		Options:  formattedOpts,
 	}
 }
 
-func (qds QuizDataStore) GetQuestion(difLevel DifficultyLevel, qIndex int) (FormattedQuiz, error) {
-	if difLevel < 1 || difLevel > 3 {
-		return FormattedQuiz{}, errors.New("difficulty level must be one of: 1, 2, 3")
+func (qds QuizDataStore) parseID(id ID) (int, int, error) {
+	difLevel, err := strconv.Atoi(string(id[0:1]))
+	if err != nil {
+		return 0, 0, err
 	}
-	return qds.Questions[difLevel][qIndex], nil
-}
 
-func (qds QuizDataStore) GetQuestionsByDifficulty(difLevel DifficultyLevel) []FormattedQuiz {
-	return qds.Questions[difLevel]
-}
+	index, err := strconv.Atoi(string(id[1:]))
+	if err != nil {
+		return 0, 0, err
+	}
 
-func (qds QuizDataStore) GetEasyQuestions() []FormattedQuiz {
-	return qds.Questions[1]
-}
-func (qds QuizDataStore) GetMediumQuestion() []FormattedQuiz {
-	return qds.Questions[2]
-}
-func (qds QuizDataStore) GetHardQuestions() []FormattedQuiz {
-	return qds.Questions[3]
+	return difLevel, index, nil
 }
