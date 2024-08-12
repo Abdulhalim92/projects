@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"projects/internal/book"
 	"projects/internal/model"
+	"projects/internal/user"
 )
 
 func main() {
@@ -42,4 +43,14 @@ func main() {
 	if foundBook != nil {
 		fmt.Printf("Found Book - ID: %d, Title: %s, Author: %s\n", foundBook.ID, foundBook.Title, foundBook.Author)
 	}
+	// Users
+	m := make(map[int]model.User)
+	users := user.NewUsers(m)
+	s := user.CreateService(*users)
+	s.CreateUser(1, "ffg", "34fv34v3")
+	fmt.Println(s)
+	fmt.Println(s.ListUsers())
+	fmt.Println(s.ListUserById(1))
+	fmt.Println(s.RemoveUserById(1))
+	fmt.Println()
 }
