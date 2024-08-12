@@ -22,6 +22,8 @@
             - transaction.go
             - repository.go
             - service.go
+        - categories/
+                
         - http/
             - handler/
                 - account_handler.go

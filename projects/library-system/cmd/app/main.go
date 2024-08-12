@@ -9,7 +9,7 @@ import (
 func main() {
 	fmt.Println("Library System")
 
-	books := make([]model.Book, 0)
+	books := make(map[int]model.Book)
 
 	newBooks := book.NewBooks(books)
 	service := book.NewService(*newBooks)
