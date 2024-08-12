@@ -7,28 +7,28 @@ import (
 
 type Books struct {
 	BooksMap map[int]model.Book
-	LASTID   int
+	Lastid   int
 }
 
 func NewBooks(books map[int]model.Book) *Books {
 	return &Books{
 		BooksMap: books,
-		LASTID:   0,
+		Lastid:   0,
 	}
 }
 
 func (b *Books) AddBook(title, author string) model.Book {
-	b.LASTID++
+	b.Lastid++
 	book := model.Book{
-		ID:     b.LASTID,
+		ID:     b.Lastid,
 		Title:  title,
 		Author: author,
 	}
-	b.BooksMap[b.LASTID] = book
+	b.BooksMap[b.Lastid] = book
 
 	fmt.Printf("Book with tittle %s and author %s is created\n", book.Title, book.Author)
 
-	return b.BooksMap[b.LASTID]
+	return b.BooksMap[b.Lastid]
 }
 
 func (b *Books) GetBooks() []model.Book {
