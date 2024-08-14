@@ -11,9 +11,10 @@ func main() {
 	fmt.Println("Library System")
 
 	// Инициализация книг
-	books := make(map[int]model.Book)
-	newBooks := book.NewBooks(books)
-	bookService := book.NewService(*newBooks)
+	//books := make(map[int]model.Book)
+	//newBooks := book.NewBooks(books)
+	jsonBooks := book.NewJSONBooks("books.json")
+	bookService := book.NewService(*jsonBooks)
 
 	// Инициализация пользователей
 	users := make(map[int]model.User)
