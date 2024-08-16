@@ -24,7 +24,6 @@ func (u *Users) AddUser(username, password string) model.User {
 		Username: username,
 		Password: password,
 	}
-
 	u.UsersMap[user.ID] = user
 
 	fmt.Printf("User with username %s is created\n", user.Username)
