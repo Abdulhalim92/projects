@@ -1,12 +1,15 @@
 package book
 
-import "projects/internal/model"
+import (
+	"fmt"
+	"projects/internal/model"
+)
 
 type Service struct {
-	Books Books
+	Books JSONBooks
 }
 
-func NewService(b Books) *Service {
+func NewService(b JSONBooks) *Service {
 	return &Service{b}
 }
 
@@ -15,26 +18,59 @@ func (s *Service) CreateBook(title, author string) model.Book {
 }
 
 func (s *Service) ListBooks() map[int]model.Book {
-	return s.Books.GetBooks()
+	books, err := s.Books.GetBooks()
+	if err != nil {
+		fmt.Println(err)
+		return nil
+	}
+	return books
 }
 
 func (s *Service) FindBook(id int) *model.Book {
-	return s.Books.GetBookByID(id)
+	book, err := s.Books.GetBookByID(id)
+	if err != nil {
+		fmt.Println(err)
+		return nil
+	}
+	return book
 }
 
 func (s *Service) FindBooksByAuthor(author string) []model.Book {
-	return s.Books.GetBooksByAuthor(author)
+	books, err := s.Books.GetBooksByAuthor(author)
+	if err != nil {
+		fmt.Println(err)
+		return nil
+	}
+	return books
 }
 
 func (s *Service) EditBook(id int, title, author string) bool {
+	_, err := s.Books.GetBookByID(id)
+	if err != nil {
+		fmt.Println(err)
+		return false
+	}
+
 	book := model.Book{
 		ID:     id,
 		Title:  title,
 		Author: author,
 	}
-	return s.Books.UpdateBook(book)
+
+	err = s.Books.UpdateBook(book)
+	if err != nil {
+		fmt.Println(err)
+		return false
+	}
+
+	return true
 }
 
 func (s *Service) RemoveBook(id int) bool {
-	return s.Books.DeleteBook(id)
+	err := s.Books.DeleteBook(id)
+	if err != nil {
+		fmt.Println(err)
+		return false
+	}
+	return true
 }

@@ -7,31 +7,25 @@ import (
 
 type Books struct {
 	BooksMap map[int]model.Book
-	lastID   int
+	LastID   int
 }
 
 func NewBooks(books map[int]model.Book) *Books {
 	return &Books{
 		BooksMap: books,
-		lastID:   0,
+		LastID:   0,
 	}
 }
 
-var lastID int
-
-func init() {
-	lastID = 0
-}
-
 func (b *Books) AddBook(title, author string) model.Book {
-	lastID++
+	b.LastID++
 	book := model.Book{
-		ID:     lastID,
+		ID:     b.LastID,
 		Title:  title,
 		Author: author,
 	}
 
-	b.BooksMap[lastID] = book
+	b.BooksMap[book.ID] = book
 
 	fmt.Printf("Book with tittle %s and author %s is created\n", book.Title, book.Author)
 
@@ -43,42 +37,47 @@ func (b *Books) GetBooks() map[int]model.Book {
 }
 
 func (b *Books) GetBookByID(id int) *model.Book {
-	for k, book := range b.BooksMap {
-		if k == id {
-			fmt.Printf("Found book with id %d: %+v\n", id, book)
-			return &book
-		}
+	book, exists := b.BooksMap[id]
+	if !exists {
+		fmt.Printf("Book with id %d not found\n", id)
+		return nil
 	}
-	return nil
+	return &book
 }
 
 func (b *Books) GetBooksByAuthor(author string) []model.Book {
 	var booksByAuthor []model.Book
-
 	for _, book := range b.BooksMap {
 		if book.Author == author {
 			booksByAuthor = append(booksByAuthor, book)
 		}
 	}
 	return booksByAuthor
+
 }
 
 func (b *Books) UpdateBook(book model.Book) bool {
-	for k, _ := range b.BooksMap {
-		if k == book.ID {
-			b.BooksMap[k] = book
-			return true
-		}
+	_, exists := b.BooksMap[b.LastID]
+
+	if !exists {
+		fmt.Printf("Book with id %d not found\n", book.ID)
+		return false
 	}
-	return false
+
+	fmt.Printf("Book with id %d updated: Title: %s, Author: %s\n", book.ID, book.Title, book.Author)
+	b.BooksMap[b.LastID] = book
+
+	return true
 }
 
 func (b *Books) DeleteBook(id int) bool {
-	for k, _ := range b.BooksMap {
-		if k == id {
-			delete(b.BooksMap, id)
-			return true
-		}
+	_, exists := b.BooksMap[id]
+	if !exists {
+		fmt.Printf("Book with id %d not found\n", id)
+		return false
 	}
-	return false
+
+	delete(b.BooksMap, id)
+
+	return true
 }
