@@ -13,11 +13,11 @@ func NewUsers(m map[int]model.User) *Users {
 		LastId:  0,
 	}
 }
-func (u *Users) AddUser(id int, login string, password string) *model.User {
+func (u *Users) AddUser(UserName string, password string) *model.User {
 	u.LastId++
 	user := model.User{
-		UserId:   id,
-		Login:    login,
+		UserId:   u.LastId,
+		UserName: UserName,
 		Password: password,
 	}
 

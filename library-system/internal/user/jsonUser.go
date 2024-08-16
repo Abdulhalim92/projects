@@ -19,16 +19,16 @@ func NewJSONUsers(filename string) *JsonUser {
 }
 func (j JsonUser) loadUsers() (map[int]model.User, error) {
 	users := make(map[int]model.User)
-	err := utils.ReadJsonFromFileUser(j.filename, &users)
+	err := utils.ReadJSONFromFile(j.filename, &users)
 	if err != nil {
 		return nil, err
 	}
 	return users, nil
 }
 func (j JsonUser) saveUsers(users map[int]model.User) error {
-	return utils.WriteJsonToUserFile(j.filename, &users)
+	return utils.WriteJSONToFile(j.filename, &users)
 }
-func (j JsonUser) AddUser(Password, Login string) model.User {
+func (j JsonUser) AddUser(Password, UseerName string) model.User {
 	users, err := j.loadUsers()
 	if err != nil {
 		fmt.Printf("Error while loading Users: %v\n", err)
@@ -42,14 +42,14 @@ func (j JsonUser) AddUser(Password, Login string) model.User {
 		}
 	}
 	lastID++
-	users[lastID] = model.User{UserId: lastID, Password: Password, Login: Login}
+	users[lastID] = model.User{UserId: lastID, Password: Password, UserName: UseerName}
 	err = j.saveUsers(users)
 	if err != nil {
 		fmt.Printf("Error while saving: %v\n", err)
 		return model.User{}
 	}
-	fmt.Printf("User with id: %d, Password: %s, Login: %s\n", lastID, Password, Login)
-	return model.User{UserId: lastID, Password: Password, Login: Login}
+	fmt.Printf("User with id: %d, Password: %s, Login: %s\n", lastID, Password, UseerName)
+	return model.User{UserId: lastID, Password: Password, UserName: UseerName}
 }
 func (j JsonUser) GetUsers() map[int]model.User {
 	users, err := j.loadUsers()
@@ -82,12 +82,12 @@ func (j JsonUser) GetUsersByPassword(password string) map[int]model.User {
 	var formattedUsers = make(map[int]model.User)
 	for _, user := range users {
 		if user.Password == password {
-			formattedUsers[user.UserId] = model.User{UserId: user.UserId, Password: user.Password, Login: user.Login}
+			formattedUsers[user.UserId] = model.User{UserId: user.UserId, Password: user.Password, UserName: user.UserName}
 		}
 	}
 	return formattedUsers
 }
-func (j JsonUser) UpdateUser(UserId int, Login, Password string) bool {
+func (j JsonUser) UpdateUser(UserId int, UserName, Password string) bool {
 	users, err := j.loadUsers()
 	if err != nil {
 		fmt.Printf("Error while loading Users")
@@ -95,7 +95,7 @@ func (j JsonUser) UpdateUser(UserId int, Login, Password string) bool {
 	}
 	for id := range users {
 		if users[id].UserId == UserId {
-			users[id] = model.User{Login: Login, Password: Password}
+			users[id] = model.User{UserName: UserName, Password: Password}
 			err = j.saveUsers(users)
 			if err != nil {
 				fmt.Printf("Error while saving to file: %v", err)
@@ -106,7 +106,7 @@ func (j JsonUser) UpdateUser(UserId int, Login, Password string) bool {
 	}
 	return false
 }
-func (j JsonUser) DeleteUser(id int) bool {
+func (j JsonUser) DeleteUserById(id int) bool {
 	users, err := j.loadUsers()
 	if err != nil {
 		fmt.Printf("Error while loading files: %v", err)

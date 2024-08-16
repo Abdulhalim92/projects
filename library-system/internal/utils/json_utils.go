@@ -5,10 +5,9 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"projects/internal/model"
 )
 
-func ReadJSONFromFile(filename string, b *[]model.Book) error {
+func ReadJSONFromFile(filename string, b interface{}) error {
 	file, err := os.Open(filename)
 	if err != nil {
 		if os.IsNotExist(err) {
@@ -35,7 +34,7 @@ func ReadJSONFromFile(filename string, b *[]model.Book) error {
 	return nil
 }
 
-func WriteJSONToFile(filename string, b *[]model.Book) error {
+func WriteJSONToFile(filename string, b interface{}) error {
 	data, err := json.MarshalIndent(b, "", "  ")
 	if err != nil {
 		return fmt.Errorf("failed to marshal JSON: %w", err)
