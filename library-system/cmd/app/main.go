@@ -21,6 +21,104 @@ func main() {
 	newUsers := user.NewUsers(users)
 	userService := user.NewService(*newUsers)
 
+	for {
+		fmt.Println("Enter command:")
+		var command string
+		fmt.Scanln(&command)
+		if command == "exit" {
+			return
+		}
+
+		switch command {
+		case "create-book":
+			fmt.Println("Enter book title:")
+			var title string
+			fmt.Scanln(&title)
+			fmt.Println("Enter book author:")
+			var author string
+			fmt.Scanln(&author)
+			bookService.CreateBook(title, author)
+		case "list-books":
+			listBooks := bookService.ListBooks()
+			fmt.Println("Books in library:")
+			for _, b := range listBooks {
+				fmt.Printf("ID: %d, Title: %s, Author: %s\n", b.ID, b.Title, b.Author)
+			}
+		case "create-user":
+			fmt.Println("Enter username:")
+			var username string
+			fmt.Scanln(&username)
+			fmt.Println("Enter password:")
+			var password string
+			fmt.Scanln(&password)
+			userService.CreateUser(username, password)
+		case "list-users":
+			listUsers := userService.ListUsers()
+			fmt.Println("Users in system:")
+			for _, u := range listUsers {
+				fmt.Printf("ID: %d, Username: %s, Password: %s\n", u.ID, u.Username, u.Password)
+			}
+		case "edit-book":
+			fmt.Println("Enter book ID:")
+			var id int
+			fmt.Scanln(&id)
+			fmt.Println("Enter new title:")
+			var title string
+			fmt.Scanln(&title)
+			fmt.Println("Enter new author:")
+			var author string
+			fmt.Scanln(&author)
+			updatedBook := bookService.EditBook(id, "The Hobbit: An Unexpected Journey", "J.R.R. Tolkien")
+			if updatedBook {
+				fmt.Printf("Book ID %d updated successfully: Title: %s, Author: %s\n", id, title, author)
+			}
+		case "edit-user":
+			fmt.Println("Enter user ID:")
+			var id int
+			fmt.Scanln(&id)
+			fmt.Println("Enter new username:")
+			var username string
+			fmt.Scanln(&username)
+			fmt.Println("Enter new password:")
+			var password string
+			fmt.Scanln(&password)
+			userService.EditUser(id, username, password)
+		case "delete-book":
+			fmt.Println("Enter book ID:")
+			var id int
+			fmt.Scanln(&id)
+			deletedBook := bookService.RemoveBook(id)
+			if deletedBook {
+				fmt.Printf("Book ID %d deleted successfully\n", id)
+			}
+		case "delete-user":
+			fmt.Println("Enter user ID:")
+			var id int
+			fmt.Scanln(&id)
+			userService.RemoveUser(id)
+		case "get-book-by-id":
+			fmt.Println("Enter book ID:")
+			var id int
+			fmt.Scanln(&id)
+			foundBook := bookService.FindBook(id)
+			if foundBook != nil {
+				fmt.Printf("Found Book - ID: %d, Title: %s, Author: %s\n", foundBook.ID, foundBook.Title, foundBook.Author)
+			} else {
+				fmt.Printf("Book with ID %d not found\n", id)
+			}
+		case "get-user-by-id":
+			fmt.Println("Enter user ID:")
+			var id int
+			fmt.Scanln(&id)
+			foundUser := userService.FindUser(id)
+			if foundUser != nil {
+				fmt.Printf("Found User - ID: %d, Username: %s, Password: %s\n", foundUser.ID, foundUser.Username, foundUser.Password)
+			} else {
+				fmt.Printf("User with ID %d not found\n", id)
+			}
+		}
+	}
+
 	// Имитируем создание книг
 	b1 := bookService.CreateBook("The Hobbit", "J.R.R Tolkien")
 	b2 := bookService.CreateBook("1984", "George Orwell")

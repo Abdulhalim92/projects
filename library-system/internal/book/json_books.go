@@ -39,9 +39,9 @@ func (b *JSONBooks) AddBook(title, author string) model.Book {
 	}
 	lastID := 0
 
-	for id := range books {
-		if id > lastID {
-			lastID = id
+	for _, book := range books {
+		if book.ID >= lastID {
+			lastID = book.ID
 		}
 	}
 	lastID++
