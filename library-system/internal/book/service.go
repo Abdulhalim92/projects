@@ -26,13 +26,13 @@ func (s *Service) ListBooks() map[int]model.Book {
 	return books
 }
 
-func (s *Service) FindBook(id int) *model.Book {
+func (s *Service) FindBook(id int) (*model.Book, bool) {
 	book, err := s.Books.GetBookByID(id)
 	if err != nil {
 		fmt.Println(err)
-		return nil
+		return nil, false
 	}
-	return book
+	return book, true
 }
 
 func (s *Service) FindBooksByAuthor(author string) []model.Book {
