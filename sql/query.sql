@@ -8,14 +8,6 @@ CREATE TABLE users (
                        password VARCHAR(100)
 );
 
-INSERT INTO users (username, password)
-VALUES
-    ('Shodmon', 'password');
-
-SELECT id, username, password FROM users WHERE id >= 1 AND id <=5;
-SELECT * FROM users;
-SELECT COUNT(*) AS all FROM users;
-
 -- Таблица authors
 --  Описание: Таблица авторов с именем и биографией. Каждый автор может иметь
 --  множество книг.
@@ -53,6 +45,18 @@ CREATE TABLE profiles (
                           email VARCHAR(255),
                           address VARCHAR(255)
 );
+
+-- Таблица reviews
+-- Описание: Таблица для хранения отзывов на книги. Связана с таблицами users и books.
+CREATE TABLE reviews (
+                         id SERIAL PRIMARY KEY,
+                         user_id INT REFERENCES users(user_id),
+                         book_id INT REFERENCES books(id),
+                         review_text TEXT,
+                         rating DECIMAL(2, 1) CHECK (rating >= 1.0 AND rating <= 5.0), -- Рейтинг с одним десятичным знаком
+                         review_date DATE DEFAULT CURRENT_DATE
+);
+
 
 -- Добавление начальных данных
 
@@ -93,3 +97,13 @@ VALUES
         (1, 'alice@example.com', '123 Maple St'),
         (2, 'bob@example.com', '456 Oak St'),
         (3, 'charlie@example.com', '789 Pine St');
+
+-- Заполнение таблицы reviews
+INSERT INTO reviews (user_id, book_id, review_text, rating)
+VALUES
+    (1, 1, 'Отличная книга, очень понравилась!', 4.0),
+    (2, 1, 'Хорошая книга, но есть недочеты.', 3.5),
+    (3, 2, 'Невероятно увлекательная книга!', 5.0),
+    (1, 2, 'Не понравилось, ожидал большего.', 2.5),
+    (2, 3, 'Интересная, но тяжеловата для чтения.', 4.5);
+
