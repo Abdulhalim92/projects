@@ -3,10 +3,10 @@ package book
 import "projects/internal/model"
 
 type Service struct {
-	Books Books
+	Books JSONBooks
 }
 
-func NewService(b Books) *Service {
+func NewService(b JSONBooks) *Service {
 	return &Service{b}
 }
 
