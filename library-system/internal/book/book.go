@@ -5,78 +5,86 @@ import (
 	"projects/library-system/internal/model"
 )
 
-var books []model.Book
-var lastID int
-
 type Books struct {
 	BooksMap map[int]model.Book
-	LASTID   int
+	LastID   int
 }
 
 func NewBooks(books map[int]model.Book) *Books {
 	return &Books{
 		BooksMap: books,
-		LASTID:   0,
+		LastID:   0,
 	}
 }
 
 func (b *Books) AddBook(title, author string) model.Book {
-	b.LASTID++
+	b.LastID++
 	book := model.Book{
-		ID:     b.LASTID,
+		ID:     b.LastID,
 		Title:  title,
 		Author: author,
 	}
-	b.BooksMap[b.LASTID] = book
+
+	b.BooksMap[book.ID] = book
 
 	fmt.Printf("Book with tittle %s and author %s is created\n", book.Title, book.Author)
 
-	return b.BooksMap[b.LASTID]
+	return book
 }
 
 func (b *Books) GetBooks() []model.Book {
-	books := make([]model.Book, 0)
-	for _, value := range b.BooksMap {
-		books = append(books, value)
+	var books []model.Book
+	for _, book := range b.BooksMap {
+		books = append(books, book)
 	}
 	return books
 }
 
 func (b *Books) GetBookByID(id int) *model.Book {
-	value, ok := b.BooksMap[id]
-	if !ok {
-		fmt.Printf("Does't exist\n")
+	book, exists := b.BooksMap[id]
+	if !exists {
+		fmt.Printf("Book with id %d not found\n", id)
 		return nil
 	}
-	return &value
+	return &book
 }
 
 func (b *Books) GetBooksByAuthor(author string) []model.Book {
 	var booksByAuthor []model.Book
-	for _, value := range b.BooksMap {
-		if value.Author == author {
-			booksByAuthor = append(booksByAuthor, value)
+	for _, book := range b.BooksMap {
+		if book.Author == author {
+			booksByAuthor = append(booksByAuthor, book)
 		}
 	}
 	return booksByAuthor
+
 }
 
 func (b *Books) UpdateBook(id int, title, author string) bool {
-	for key := range b.BooksMap {
-		if key == id {
-			b.BooksMap[key] = model.Book{Title: title, Author: author}
-			return true
-		}
+	book, exists := b.BooksMap[id]
+	if !exists {
+		fmt.Printf("Book with id %d not found\n", id)
+		return false
 	}
-	return false
+
+	book.Title = title
+	book.Author = author
+
+	b.BooksMap[id] = book
+
+	fmt.Printf("Book with id %d updated: Title: %s, Author: %s\n", id, book.Title, book.Author)
+
+	return true
 }
 
 func (b *Books) DeleteBook(id int) bool {
-	for key := range b.BooksMap {
-		if key == id {
-			delete(b.BooksMap, key)
-			return true
-		}
+	_, exists := b.BooksMap[id]
+	if !exists {
+		fmt.Printf("Book with id %d not found\n", id)
+		return false
 	}
-	return false
+
+	delete(b.BooksMap, id)
+
+	return true
 }
