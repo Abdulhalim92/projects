@@ -12,6 +12,9 @@ func main() {
 		var operation string
 		fmt.Println("Choose operation:")
 		fmt.Scan(&operation)
+		if operation == "exit" {
+			return
+		}
 		switch operation {
 		case "getbooks":
 			books := s.ListBooks()
