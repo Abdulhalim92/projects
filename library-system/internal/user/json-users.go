@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"projects/internal/model"
 	"projects/internal/utils"
+	"sort"
 )
 
 const userFile = "users.json"
@@ -31,11 +32,10 @@ func (u *JSONUsers) saveUsers(users map[int]model.User) error {
 	return utils.WriteJSONToFile(u.filename, &users)
 }
 
-func (u *JSONUsers) AddUser(username, password string) model.User {
+func (u *JSONUsers) AddUser(username, password string) (*model.User, error) {
 	users, err := u.loadUsers()
 	if err != nil {
-		fmt.Printf("Failed to load users: %v\n", err)
-		return model.User{}
+		return nil, fmt.Errorf("Failed to load users: %e\n", err)
 	}
 	lastID := len(users)
 
@@ -49,23 +49,34 @@ func (u *JSONUsers) AddUser(username, password string) model.User {
 
 	err = u.saveUsers(users)
 	if err != nil {
-		fmt.Printf("Failed to save users: %v\n", err)
-		return model.User{}
+		return nil, fmt.Errorf("Failed to save users: %e\n", err)
 	}
 
 	fmt.Printf("User with username %s and password %s is created\n", user.Username, user.Password)
 
-	return user
+	return &user, nil
 }
 
-func (u *JSONUsers) GetUsers() (map[int]model.User, error) {
+func (u *JSONUsers) GetUsers() ([]model.User, error) {
 	users, err := u.loadUsers()
 	if err != nil {
 		return nil, fmt.Errorf("Failed to load users: %v\n", err)
-
 	}
 
-	return users, nil
+	var sliceUsers []model.User
+
+	for _, v := range users {
+		sliceUsers = append(sliceUsers, v)
+	}
+
+	sort.Slice(sliceUsers, func(i, j int) bool {
+		if sliceUsers[i].ID < sliceUsers[j].ID {
+			return true
+		}
+		return false
+	})
+
+	return sliceUsers, nil
 }
 
 func (u *JSONUsers) GetUserByID(id int) (*model.User, error) {
@@ -81,21 +92,19 @@ func (u *JSONUsers) GetUserByID(id int) (*model.User, error) {
 	return nil, fmt.Errorf("User with id: %d doesn't exist\n", id)
 }
 
-func (u *JSONUsers) GetUsersByUsername(username string) ([]model.User, error) {
+func (u *JSONUsers) GetUserByUsername(usrname string) (*model.User, error) {
 	users, err := u.loadUsers()
 	if err != nil {
-		return nil, fmt.Errorf("Failed to load users: %v\n", err)
+		return nil, fmt.Errorf("Failed to load users: %e\n", err)
 	}
 
-	var filteredUsers []model.User
-
 	for _, user := range users {
-		if user.Username == username {
-			filteredUsers = append(filteredUsers, user)
+		if user.Username == usrname {
+			return &user, nil
 		}
 	}
 
-	return filteredUsers, nil
+	return nil, fmt.Errorf("Couldn't find user with username:%v", usrname)
 }
 
 func (u *JSONUsers) UpdateUser(user model.User) error {

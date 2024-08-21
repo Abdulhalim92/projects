@@ -17,7 +17,7 @@ func (s *Service) CreateBook(title, author string) model.Book {
 	return s.Books.AddBook(title, author)
 }
 
-func (s *Service) ListBooks() map[int]model.Book {
+func (s *Service) ListBooks() []model.Book {
 	books, err := s.Books.GetBooks()
 	if err != nil {
 		fmt.Println(err)

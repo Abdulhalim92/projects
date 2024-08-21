@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"os"
 	"projects/internal/book"
+	"projects/internal/model"
+	"projects/internal/user"
 	"strings"
 )
 
@@ -19,15 +21,77 @@ func main() {
 	bookService := book.NewService(*jsonBooks)
 
 	// Инициализация пользователей
-	// jsonUsers := user.NewJSONUsers("users.json")
-	// userService := user.NewService(*jsonUsers)
+	jsonUsers := user.NewJSONUsers("users.json")
+	userService := user.NewService(*jsonUsers)
 
 	var optionsInput string
+
+	var usrname string
+	var password string
+	var account *model.User
+
+Register:
+	for {
+		fmt.Print("Options: signup, login\nExit: exit\n")
+		fmt.Scan(&optionsInput)
+		if optionsInput == "exit" {
+			return
+		}
+
+		switch strings.ToLower(optionsInput) {
+		case "login":
+			if usrname == "exit" {
+				return
+			}
+
+			fmt.Print("Username: ")
+			fmt.Scan(&usrname)
+
+			if usr, ok := userService.FindUserByUsername(usrname); ok {
+				fmt.Print("Password: ")
+				fmt.Scan(&password)
+				for usr.Password != password {
+					fmt.Println("Given password is not correct.")
+					fmt.Println("To go back type 'back'")
+
+					fmt.Print("Password: ")
+					fmt.Scan(&password)
+					if password == "back" {
+						goto Register
+					}
+				}
+
+				fmt.Println("Loged")
+				account = usr
+				break Register
+			}
+
+		case "signup":
+			fmt.Print("Username: ")
+			fmt.Scan(&usrname)
+
+			fmt.Print("Password: ")
+			fmt.Scan(&password)
+
+			if usr, ok := userService.CreateUser(usrname, password); ok {
+				account = usr
+				fmt.Println("Signed up")
+				break Register
+
+			} else {
+				fmt.Println("Error occured when creating user")
+				return
+			}
+		}
+	}
+
 	dataInput := bufio.NewReader(os.Stdin)
 	var title string
 	var author string
+
 	for {
-		fmt.Print("Options: add, edit, findbyid, delete\nExit: exit\n")
+		fmt.Println(account.Username)
+		fmt.Print("Options: add, edit, find, delete\nExit: exit\n")
 		fmt.Scan(&optionsInput)
 		if optionsInput == "exit" {
 			break
@@ -70,7 +134,7 @@ func main() {
 				fmt.Println("Error occured when editing the book")
 			}
 
-		case "findbyid":
+		case "find":
 			var id int
 			fmt.Print("Type the book id\n")
 			fmt.Print(">>> ")
@@ -95,6 +159,12 @@ func main() {
 				fmt.Printf("Book with id:%d deleted successfully \n", id)
 			} else {
 				fmt.Println("Error occured when deleting the book")
+			}
+		case "list":
+			books := bookService.ListBooks()
+
+			for _, v := range books {
+				fmt.Printf("%d:\n  Title: %s\n  Author: %s\n", v.ID, v.Title, v.Author)
 			}
 		}
 	}

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"projects/internal/model"
 	"projects/internal/utils"
+	"sort"
 )
 
 const booksFile = "books.json"
@@ -65,14 +66,26 @@ func (b *JSONBooks) AddBook(title, author string) model.Book {
 	return book
 }
 
-func (b *JSONBooks) GetBooks() (map[int]model.Book, error) {
+func (b *JSONBooks) GetBooks() ([]model.Book, error) {
 	books, err := b.loadBooks()
+
 	if err != nil {
 		return nil, fmt.Errorf("Failed to load books: %v\n", err)
 
 	}
+	var sliceBooks []model.Book
+	for _, v := range books {
+		sliceBooks = append(sliceBooks, v)
+	}
 
-	return books, nil
+	sort.Slice(sliceBooks, func(i, j int) bool {
+		if sliceBooks[i].ID < sliceBooks[j].ID {
+			return true
+		}
+		return false
+	})
+
+	return sliceBooks, nil
 }
 
 func (b *JSONBooks) GetBookByID(id int) (*model.Book, error) {

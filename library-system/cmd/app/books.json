@@ -3,5 +3,25 @@
     "ID": 0,
     "Title": "The Hobbit: An Unexpected Journey",
     "Author": "J.R.R. Tolkien"
+  },
+  "1": {
+    "ID": 1,
+    "Title": "Mastery",
+    "Author": "Robert Greene"
+  },
+  "2": {
+    "ID": 2,
+    "Title": "In Search of the Lost Time",
+    "Author": "Marcel Proust"
+  },
+  "3": {
+    "ID": 3,
+    "Title": "Harry Poter",
+    "Author": "J. K. Rowling"
+  },
+  "5": {
+    "ID": 5,
+    "Title": "Deep Learning",
+    "Author": "Goodfellow"
   }
 }
