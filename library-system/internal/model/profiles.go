@@ -1,7 +1,7 @@
 package model
 
 type Profile struct {
-	user_id int
-	email   string
-	address string
+	User_id int
+	Email   string
+	Address string
 }

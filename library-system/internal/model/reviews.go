@@ -1,10 +1,10 @@
 package model
 
 type Review struct {
-	reviews_id  int
-	user_id     int
-	book_id     int
-	review_text string
-	rating      float64
-	review_data string
+	Reviews_id  int
+	User_id     int
+	Book_id     int
+	Review_text string
+	Rating      float64
+	Review_data string
 }

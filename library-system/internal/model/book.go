@@ -1,7 +1,7 @@
 package model
 
 type Book struct {
-	books_id  int
+	Books_id  int
 	Title     string
-	author_id int
+	Author_id int
 }
