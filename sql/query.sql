@@ -12,7 +12,7 @@ CREATE TABLE users (
 --  Описание: Таблица авторов с именем и биографией. Каждый автор может иметь
 --  множество книг.
 CREATE TABLE authors (
-                         id SERIAL PRIMARY KEY,
+                         author_id SERIAL PRIMARY KEY,
                          name VARCHAR(100),
                          biography TEXT
 );
@@ -21,7 +21,7 @@ CREATE TABLE authors (
 -- Описание: Таблица книг, связанная с таблицей авторов через author_id.
 -- Отношение "один к многим" между авторами и книгами.
 CREATE TABLE books (
-                       id SERIAL PRIMARY KEY,
+                       book_id SERIAL PRIMARY KEY,
                        title VARCHAR(255),
                        author_id INT REFERENCES authors(id)
 );
@@ -96,7 +96,12 @@ INSERT INTO profiles (user_id, email, address)
 VALUES
         (1, 'alice@example.com', '123 Maple St'),
         (2, 'bob@example.com', '456 Oak St'),
-        (3, 'charlie@example.com', '789 Pine St');
+        (3, 'charlie@example.com', '789 Pine St'),
+        (4, '', 'Dushanbe');
+
+INSERT INTO profiles (user_id, address)
+VALUES
+    (5, 'Dushanbe');
 
 -- Заполнение таблицы reviews
 INSERT INTO reviews (user_id, book_id, review_text, rating)
