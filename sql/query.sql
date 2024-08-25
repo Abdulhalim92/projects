@@ -3,7 +3,7 @@
 -- Таблица users
 -- Описание: Таблица пользователей для хранения учетных данных.
 CREATE TABLE users (
-                       id SERIAL PRIMARY KEY,
+                       user_id SERIAL PRIMARY KEY,
                        username VARCHAR(100),
                        password VARCHAR(100)
 );
@@ -23,25 +23,31 @@ CREATE TABLE authors (
 CREATE TABLE books (
                        book_id SERIAL PRIMARY KEY,
                        title VARCHAR(255),
-                       author_id INT REFERENCES authors(id)
+                       author_id INT REFERENCES authors(author_id)
 );
 
 -- Таблица borrow
 -- Описание: Таблица для отслеживания взятых и возвращенных книг.
 -- Связь "много ко многим" между пользователями и книгами.
 CREATE TABLE borrow (
-                        id SERIAL PRIMARY KEY,
-                        user_id INT REFERENCES users(id),
-                        book_id INT REFERENCES books(id),
+                        borrow_id SERIAL PRIMARY KEY,
+                        user_id INT REFERENCES users(user_id),
+                        book_id INT REFERENCES books(book_id),
                         borrow_date DATE,
                         return_date DATE
 );
+
+ALTER TABLE borrow
+ADD CONSTRAINT FK_borrow_user_id FOREIGN KEY (user_id) REFERENCES users(user_id);
+
+ALTER TABLE borrow
+ADD CONSTRAINT FK_borrow_book_id FOREIGN KEY (book_id) REFERENCES books(book_id);
 
 -- Таблица profiles
 -- Описание: Таблица профилей, связь "один к одному" с таблицей
 -- пользователей. Хранит email и адрес пользователя.
 CREATE TABLE profiles (
-                          user_id INT PRIMARY KEY REFERENCES users(id),
+                          user_id INT PRIMARY KEY REFERENCES users(user_id),
                           email VARCHAR(255),
                           address VARCHAR(255)
 );
@@ -49,9 +55,9 @@ CREATE TABLE profiles (
 -- Таблица reviews
 -- Описание: Таблица для хранения отзывов на книги. Связана с таблицами users и books.
 CREATE TABLE reviews (
-                         id SERIAL PRIMARY KEY,
+                         review_id SERIAL PRIMARY KEY,
                          user_id INT REFERENCES users(user_id),
-                         book_id INT REFERENCES books(id),
+                         book_id INT REFERENCES books(book_id),
                          review_text TEXT,
                          rating DECIMAL(2, 1) CHECK (rating >= 1.0 AND rating <= 5.0), -- Рейтинг с одним десятичным знаком
                          review_date DATE DEFAULT CURRENT_DATE

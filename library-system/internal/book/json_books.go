@@ -40,14 +40,14 @@ func (b *JSONBooks) AddBook(title, author string) model.Book {
 	lastID := 0
 
 	for _, book := range books {
-		if book.ID >= lastID {
-			lastID = book.ID
+		if book.BookId >= lastID {
+			lastID = book.BookId
 		}
 	}
 	lastID++
 
 	book := model.Book{
-		ID:     lastID,
+		BookId: lastID,
 		Title:  title,
 		Author: author,
 	}
@@ -83,7 +83,7 @@ func (b *JSONBooks) GetBookByID(id int) *model.Book {
 	}
 
 	for _, book := range books {
-		if book.ID == id {
+		if book.BookId == id {
 			return &book
 		}
 	}
@@ -117,7 +117,7 @@ func (b *JSONBooks) UpdateBook(id int, title, author string) bool {
 	}
 
 	for i, book := range books {
-		if book.ID == id {
+		if book.BookId == id {
 			books[i].Title = title
 			books[i].Author = author
 			err = b.saveBooks(books)
@@ -140,7 +140,7 @@ func (b *JSONBooks) DeleteBook(id int) bool {
 	}
 
 	for i, book := range books {
-		if book.ID == id {
+		if book.BookId == id {
 			books = append(books[:i], books[i+1:]...)
 			err = b.saveBooks(books)
 			if err != nil {

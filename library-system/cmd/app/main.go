@@ -2,6 +2,8 @@ package main
 
 import (
 	"fmt"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
 	"projects/internal/book"
 	"projects/internal/model"
 	"projects/internal/user"
@@ -42,7 +44,7 @@ func main() {
 			listBooks := bookService.ListBooks()
 			fmt.Println("Books in library:")
 			for _, b := range listBooks {
-				fmt.Printf("ID: %d, Title: %s, Author: %s\n", b.ID, b.Title, b.Author)
+				fmt.Printf("ID: %d, Title: %s, Author: %s\n", b.BookId, b.Title, b.Author)
 			}
 		case "create-user":
 			fmt.Println("Enter username:")
@@ -56,7 +58,7 @@ func main() {
 			listUsers := userService.ListUsers()
 			fmt.Println("Users in system:")
 			for _, u := range listUsers {
-				fmt.Printf("ID: %d, Username: %s, Password: %s\n", u.ID, u.Username, u.Password)
+				fmt.Printf("ID: %d, Username: %s, Password: %s\n", u.UserID, u.Username, u.Password)
 			}
 		case "edit-book":
 			fmt.Println("Enter book ID:")
@@ -102,7 +104,7 @@ func main() {
 			fmt.Scanln(&id)
 			foundBook := bookService.FindBook(id)
 			if foundBook != nil {
-				fmt.Printf("Found Book - ID: %d, Title: %s, Author: %s\n", foundBook.ID, foundBook.Title, foundBook.Author)
+				fmt.Printf("Found Book - ID: %d, Title: %s, Author: %s\n", foundBook.BookId, foundBook.Title, foundBook.Author)
 			} else {
 				fmt.Printf("Book with ID %d not found\n", id)
 			}
@@ -112,68 +114,22 @@ func main() {
 			fmt.Scanln(&id)
 			foundUser := userService.FindUser(id)
 			if foundUser != nil {
-				fmt.Printf("Found User - ID: %d, Username: %s, Password: %s\n", foundUser.ID, foundUser.Username, foundUser.Password)
+				fmt.Printf("Found User - ID: %d, Username: %s, Password: %s\n", foundUser.UserID, foundUser.Username, foundUser.Password)
 			} else {
 				fmt.Printf("User with ID %d not found\n", id)
 			}
 		}
 	}
 
-	// Имитируем создание книг
-	b1 := bookService.CreateBook("The Hobbit", "J.R.R Tolkien")
-	b2 := bookService.CreateBook("1984", "George Orwell")
+}
 
-	// Имитируем создание пользователей
-	u1 := userService.CreateUser("johndoe", "password123")
-	u2 := userService.CreateUser("janedoe", "securepassword")
+func connectToDB() (*gorm.DB, error) {
+	dsn := "host=localhost user=root password=root dbname=postgres port=5432 sslmode=disable TimeZone=Asia/Dushanbe"
 
-	// Имитируем получение списка пользователей
-	listUsers := userService.ListUsers()
-	fmt.Println("Users in system:")
-	for _, u := range listUsers {
-		fmt.Printf("ID: %d, Username: %s, Password: %s\n", u.ID, u.Username, u.Password)
+	db, err := gorm.Open(postgres.Open(dsn))
+	if err != nil {
+		return nil, fmt.Errorf("failed to connect database: %v", err)
 	}
 
-	// Имитируем получение списка книг
-	listBooks := bookService.ListBooks()
-	fmt.Println("Books in library:")
-	for _, b := range listBooks {
-		fmt.Printf("ID: %d, Title: %s, Author: %s\n", b.ID, b.Title, b.Author)
-	}
-
-	// Имитируем обновление пользователя
-	updatedUser := userService.EditUser(u1.ID, "johnsmith", "newpassword")
-	if updatedUser {
-		fmt.Printf("User ID %d updated successfully\n", u1.ID)
-	}
-
-	// Имитируем обновление книг
-	updatedBook := bookService.EditBook(b1.ID, "The Hobbit: An Unexpected Journey", "J.R.R. Tolkien")
-	if updatedBook {
-		fmt.Printf("Book ID %d updated successfully: Title: %s, Author: %s\n", b1.ID, b1.Title, b1.Author)
-	}
-
-	// Имитируем удаление пользователя
-	deletedUser := userService.RemoveUser(u2.ID)
-	if deletedUser {
-		fmt.Printf("User ID %d deleted successfully\n", u2.ID)
-	}
-
-	// Имитируем удаление книги
-	deletedBook := bookService.RemoveBook(b2.ID)
-	if deletedBook {
-		fmt.Printf("Book ID %d deleted successfully\n", b2.ID)
-	}
-
-	// Имитируем получение пользователя по ID
-	foundUser := userService.FindUser(u1.ID)
-	if foundUser != nil {
-		fmt.Printf("Found User - ID: %d, Username: %s, Password: %s\n", foundUser.ID, foundUser.Username, foundUser.Password)
-	}
-
-	// Имитируем получение книги по ID
-	foundBook := bookService.FindBook(b1.ID)
-	if foundBook != nil {
-		fmt.Printf("Found Book - ID: %d, Title: %s, Author: %s\n", foundBook.ID, foundBook.Title, foundBook.Author)
-	}
+	return db, nil
 }
