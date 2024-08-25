@@ -20,12 +20,12 @@ func NewBooks(books map[int]model.Book) *Books {
 func (b *Books) AddBook(title, author string) model.Book {
 	b.LastID++
 	book := model.Book{
-		ID:     b.LastID,
+		BookId: b.LastID,
 		Title:  title,
 		Author: author,
 	}
 
-	b.BooksMap[book.ID] = book
+	b.BooksMap[book.BookId] = book
 
 	fmt.Printf("Book with tittle %s and author %s is created\n", book.Title, book.Author)
 
