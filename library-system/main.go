@@ -33,11 +33,11 @@ func main() {
 
 	//3 Найти всех авторов
 
-	var authors []model.Author
-	result2 := db.Find(&authors)
-	if result2.Error != nil {
-		panic(err)
-	}
+	//var authors []model.Author
+	//result2 := db.Find(&authors)
+	//if result2.Error != nil {
+	//	panic(err)
+	//}
 
 	//4 Выбрать книги определенного автора по имени
 	var books1 []model.Book
