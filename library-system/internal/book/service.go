@@ -3,33 +3,47 @@ package book
 import "projects/internal/model"
 
 type Service struct {
-	Books JSONBooks
+	BookRepository BookRepository
 }
 
-func NewService(b JSONBooks) *Service {
+func NewService(b BookRepository) *Service {
 	return &Service{b}
 }
 
-func (s *Service) CreateBook(title, author string) model.Book {
-	return s.Books.AddBook(title, author)
+func (s *Service) CreateBook(b *model.Book) (*model.Book, error) {
+	books, err := s.BookRepository.GetBooksByAuthor(b.AuthorID)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(books) > 0 {
+		for _, book := range books {
+			fmt.Println("---------------", book)
+			if book.Title == b.Title {
+				return nil, fmt.Errorf("the book whith title %s and authorID %d is already exists", b.Title, b.AuthorID)
+			}
+		}
+	}
+
+	return s.BookRepository.AddBook(b)
 }
 
-func (s *Service) ListBooks() []model.Book {
-	return s.Books.GetBooks()
+func (s *Service) ListBooks() ([]model.Book, error) {
+	return s.BookRepository.GetBooks()
 }
 
-func (s *Service) FindBook(id int) *model.Book {
-	return s.Books.GetBookByID(id)
+func (s *Service) FindBook(id int) (*model.Book, error) {
+	return s.BookRepository.GetBookByID(id)
 }
 
-func (s *Service) FindBooksByAuthor(author string) []model.Book {
-	return s.Books.GetBooksByAuthor(author)
+func (s *Service) FindBooksByAuthor(authorID int) ([]model.Book, error) {
+	return s.BookRepository.GetBooksByAuthor(authorID)
 }
 
-func (s *Service) EditBook(id int, title, author string) bool {
-	return s.Books.UpdateBook(id, title, author)
+func (s *Service) EditBook(b *model.Book) (*model.Book, error) {
+	return s.BookRepository.UpdateBook(b)
 }
 
-func (s *Service) RemoveBook(id int) bool {
-	return s.Books.DeleteBook(id)
+func (s *Service) RemoveBook(id int) (int, error) {
+	return s.BookRepository.DeleteBook(id)
 }

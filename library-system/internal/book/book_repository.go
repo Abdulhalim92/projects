@@ -6,15 +6,15 @@ import (
 	"projects/internal/model"
 )
 
-type Repo struct {
+type BookRepository struct {
 	db *gorm.DB
 }
 
-func NewBookRepo(db *gorm.DB) *Repo {
-	return &Repo{db: db}
+func NewBookRepo(db *gorm.DB) *BookRepository {
+	return &BookRepository{db: db}
 }
 
-func (r *Repo) AddBook(b *model.Book) (*model.Book, error) {
+func (r *BookRepository) AddBook(b *model.Book) (*model.Book, error) {
 	result := r.db.Create(&b)
 	// insert into books (title, author_id) values ('War and Peace', 1)
 	if result.Error != nil {
@@ -24,22 +24,38 @@ func (r *Repo) AddBook(b *model.Book) (*model.Book, error) {
 	return b, nil
 }
 
-func (r *Repo) GetBooks() ([]model.Book, error) {
+func (r *BookRepository) GetBooks() ([]model.Book, error) {
+	var b []model.Book
 
+	// select * from books;
+	err := r.db.Find(&b).Error
+	if err != nil {
+		return nil, fmt.Errorf("Cannon find books with error: %v", err)
+	}
+
+	return b, nil
 }
 
-func (r *Repo) GetBookByID(bookID int) (*model.Book, error) {
-
+func (r *BookRepository) GetBookByID(bookID int) (*model.Book, error) {
+	return nil, nil
 }
 
-func (r *Repo) GetBooksByAuthor(authorID int) ([]model.Book, error) {
+func (r *BookRepository) GetBooksByAuthor(authorID int) ([]model.Book, error) {
+	var b []model.Book
 
+	// select * from books where author_id = authorID
+	err := r.db.Where("author_id = ?", authorID).Find(&b).Error
+	if err != nil {
+		return nil, fmt.Errorf("Cannot find books by authorID with error: %v", err)
+	}
+
+	return b, nil
 }
 
-func (r *Repo) UpdateBook(b *model.Book) (*model.Book, error) {
-
+func (r *BookRepository) UpdateBook(b *model.Book) (*model.Book, error) {
+	return nil, nil
 }
 
-func (r *Repo) DeleteBook(bookID int) (int, error) {
-
+func (r *BookRepository) DeleteBook(bookID int) (int, error) {
+	return 0, nil
 }
