@@ -16,8 +16,8 @@ func NewUsers(m map[int]model.User) *Users {
 func (u *Users) AddUser(UserName string, password string) *model.User {
 	u.LastId++
 	user := model.User{
-		UserId:   u.LastId,
-		UserName: UserName,
+		Users_id: u.LastId,
+		Username: UserName,
 		Password: password,
 	}
 
@@ -36,7 +36,7 @@ func (u Users) GetUsers() []model.User {
 }
 func (u *Users) GetUserById(id int) *model.User {
 	for _, v := range u.UserMap {
-		if v.UserId == id {
+		if v.Users_id == id {
 			return &v
 		}
 	}
@@ -44,7 +44,7 @@ func (u *Users) GetUserById(id int) *model.User {
 }
 func (u *Users) DeleteUserById(id int) bool {
 	for key, v := range u.UserMap {
-		if v.UserId == id {
+		if v.Users_id == id {
 			delete(u.UserMap, key)
 			return true
 		}

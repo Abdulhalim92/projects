@@ -1,7 +1,7 @@
 package model
 
 type Review struct {
-	Reviews_id  int
+	Reviews_id  int `gorm:"primary_key"`
 	User_id     int
 	Book_id     int
 	Review_text string

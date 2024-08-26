@@ -17,16 +17,16 @@ func NewBooks(books map[int]model.Book) *Books {
 	}
 }
 
-func (b *Books) AddBook(title, author string) model.Book {
+func (b *Books) AddBook(title string, author int) model.Book {
 	b.LASTID++
 	book := model.Book{
-		ID:     b.LASTID,
-		Title:  title,
-		Author: author,
+		Books_id:  b.LASTID,
+		Title:     title,
+		Author_id: author,
 	}
 	b.BooksMap[b.LASTID] = book
 
-	fmt.Printf("Book with tittle %s and author %s is created\n", book.Title, book.Author)
+	fmt.Printf("Book with tittle %s and author %s is created\n", book.Title, book.Author_id)
 
 	return b.BooksMap[b.LASTID]
 }
@@ -48,20 +48,20 @@ func (b *Books) GetBookByID(id int) *model.Book {
 	return &value
 }
 
-func (b *Books) GetBooksByAuthor(author string) []model.Book {
+func (b *Books) GetBooksByAuthor(author int) []model.Book {
 	var booksByAuthor []model.Book
 	for _, value := range b.BooksMap {
-		if value.Author == author {
+		if value.Author_id == author {
 			booksByAuthor = append(booksByAuthor, value)
 		}
 	}
 	return booksByAuthor
 }
 
-func (b *Books) UpdateBook(id int, title, author string) bool {
+func (b *Books) UpdateBook(id int, title string, author int) bool {
 	for key := range b.BooksMap {
 		if key == id {
-			b.BooksMap[key] = model.Book{Title: title, Author: author}
+			b.BooksMap[key] = model.Book{Title: title, Author_id: author}
 			return true
 		}
 	}

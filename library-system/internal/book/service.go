@@ -10,7 +10,7 @@ func NewService(b BookInterface) *Service {
 	return &Service{b}
 }
 
-func (s *Service) CreateBook(title, author string) model.Book {
+func (s *Service) CreateBook(title string, author int) model.Book {
 	return s.Books.AddBook(title, author)
 }
 
@@ -22,11 +22,11 @@ func (s *Service) FindBook(id int) model.Book {
 	return s.Books.GetBookByID(id)
 }
 
-func (s *Service) FindBooksByAuthor(author string) map[int]model.Book {
+func (s *Service) FindBooksByAuthor(author int) map[int]model.Book {
 	return s.Books.GetBooksByAuthor(author)
 }
 
-func (s *Service) EditBook(id int, title, author string) bool {
+func (s *Service) EditBook(id int, title string, author int) bool {
 	return s.Books.UpdateBook(id, title, author)
 }
 

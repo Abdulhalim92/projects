@@ -41,7 +41,7 @@ func main() {
 			var id int
 			fmt.Println("Enter id:")
 			fmt.Scan(&id)
-			var author string
+			var author int
 			fmt.Println("Enter author:")
 			fmt.Scan(&author)
 			var title string
@@ -53,7 +53,7 @@ func main() {
 			}
 			fmt.Println("Book edited")
 		case "getbooksbyauthor":
-			var author string
+			var author int
 			fmt.Println("Enter author:")
 			fmt.Scan(&author)
 			books := s.FindBooksByAuthor(author)
@@ -61,7 +61,8 @@ func main() {
 				fmt.Println(book)
 			}
 		case "addbook":
-			var author, title string
+			var author int
+			var title string
 			fmt.Println("Enter author:")
 			fmt.Scan(&author)
 			fmt.Println("Enter title:")
@@ -69,4 +70,5 @@ func main() {
 			s.CreateBook(title, author)
 		}
 	}
+
 }

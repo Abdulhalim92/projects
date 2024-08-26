@@ -31,7 +31,7 @@ func (b *JSONBooks) saveBooks(books map[int]model.Book) error {
 	return utils.WriteJSONToFile(b.filename, &books)
 }
 
-func (b *JSONBooks) AddBook(title, author string) model.Book {
+func (b *JSONBooks) AddBook(title string, author int) model.Book {
 	books, err := b.loadBooks()
 	if err != nil {
 		fmt.Printf("Failed to load books: %v\n", err)
@@ -47,9 +47,9 @@ func (b *JSONBooks) AddBook(title, author string) model.Book {
 	lastID++
 
 	book := model.Book{
-		ID:     lastID,
-		Title:  title,
-		Author: author,
+		Books_id:  lastID,
+		Title:     title,
+		Author_id: author,
 	}
 
 	books[lastID] = book
@@ -60,7 +60,7 @@ func (b *JSONBooks) AddBook(title, author string) model.Book {
 		return model.Book{}
 	}
 
-	fmt.Printf("Book with tittle %s and author %s is created\n", book.Title, book.Author)
+	fmt.Printf("Book with tittle %s and author %s is created\n", book.Title, book.Author_id)
 
 	return book
 }
@@ -83,7 +83,7 @@ func (b *JSONBooks) GetBookByID(id int) model.Book {
 	}
 
 	for _, book := range books {
-		if book.ID == id {
+		if book.Books_id == id {
 			return book
 		}
 	}
@@ -91,7 +91,7 @@ func (b *JSONBooks) GetBookByID(id int) model.Book {
 	return model.Book{}
 }
 
-func (b *JSONBooks) GetBooksByAuthor(author string) map[int]model.Book {
+func (b *JSONBooks) GetBooksByAuthor(author int) map[int]model.Book {
 	books, err := b.loadBooks()
 	if err != nil {
 		fmt.Printf("Failed to load books: %v\n", err)
@@ -99,7 +99,7 @@ func (b *JSONBooks) GetBooksByAuthor(author string) map[int]model.Book {
 	}
 	var formattedBooks = make(map[int]model.Book)
 	for id, book := range books {
-		if book.Author == author {
+		if book.Author_id == author {
 			formattedBooks[id] = book
 		}
 	}
@@ -107,7 +107,7 @@ func (b *JSONBooks) GetBooksByAuthor(author string) map[int]model.Book {
 	return formattedBooks
 }
 
-func (b *JSONBooks) UpdateBook(id int, title, author string) bool {
+func (b *JSONBooks) UpdateBook(id int, title string, author int) bool {
 	books, err := b.loadBooks()
 	if err != nil {
 		fmt.Printf("Failed to load books: %v\n", err)
@@ -115,8 +115,8 @@ func (b *JSONBooks) UpdateBook(id int, title, author string) bool {
 	}
 
 	for _, book := range books {
-		if book.ID == id {
-			books[id] = model.Book{ID: id, Title: title, Author: author}
+		if book.Books_id == id {
+			books[id] = model.Book{Books_id: id, Title: title, Author_id: author}
 			err = b.saveBooks(books)
 			if err != nil {
 				fmt.Printf("Failed to save books: %v\n", err)
