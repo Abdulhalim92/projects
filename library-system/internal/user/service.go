@@ -3,10 +3,10 @@ package user
 import "projects/internal/model"
 
 type Service struct {
-	Users Users
+	Users JSONUsers
 }
 
-func NewService(b Users) *Service {
+func NewService(b JSONUsers) *Service {
 	return &Service{b}
 }
 
@@ -14,8 +14,8 @@ func (s *Service) CreateUser(Login, Pasword string) model.User {
 	return s.Users.AddUser(Login, Pasword)
 }
 
-func (s *Service) ListUser() []model.User {
-	return s.Users.GetUser()
+func (s *Service) ListUsers() []model.User {
+	return s.Users.GetUsers()
 }
 
 func (s *Service) FindUser(id int) *model.User {

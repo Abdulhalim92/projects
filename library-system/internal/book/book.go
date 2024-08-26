@@ -28,44 +28,51 @@ func (b *Books) AddBook(title, author string) model.Book {
 
 	fmt.Printf("Book with tittle %s and author %s is created\n", book.Title, book.Author)
 
-	return b.BooksMap[b.Lastid]
+	return book
 }
 
 func (b *Books) GetBooks() []model.Book {
-	books := make([]model.Book, 0)
-	for _, value := range b.BooksMap {
-		books = append(books, value)
+	var books []model.Book
+	for _, book := range b.BooksMap {
+		books = append(books, book)
 	}
 	return books
 }
 
 func (b *Books) GetBookByID(id int) *model.Book {
-	value, ok := b.BooksMap[id]
-	if !ok {
+	book, exists := b.BooksMap[id]
+	if !exists {
 		fmt.Printf("Does't exist\n")
 		return nil
 	}
-	return &value
+	return &book
 }
 
 func (b *Books) GetBooksByAuthor(author string) []model.Book {
 	var booksByAuthor []model.Book
-	for _, value := range b.BooksMap {
-		if value.Author == author {
-			booksByAuthor = append(booksByAuthor, value)
+	for _, book := range b.BooksMap {
+		if book.Author == author {
+			booksByAuthor = append(booksByAuthor, book)
 		}
 	}
 	return booksByAuthor
 }
 
 func (b *Books) UpdateBook(id int, title, author string) bool {
-	for key := range b.BooksMap {
-		if key == id {
-			b.BooksMap[key] = model.Book{Title: title, Author: author}
-			return true
-		}
+book, exists := b.BooksMap[id]
+	if !exists {
+		fmt.Printf("Book with id %d not found\n", id)
+		return false
 	}
-	return false
+
+	book.Title = title
+	book.Author = author
+
+	b.BooksMap[id] = book
+
+	fmt.Printf("Book with id %d updated: Title: %s, Author: %s\n", id, book.Title, book.Author)
+
+	return true
 }
 
 func (b *Books) DeleteBook(id int) bool {
