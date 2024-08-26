@@ -1,173 +1,281 @@
 package main
 
 import (
-	"bufio"
 	"fmt"
-	"os"
-	"projects/internal/book"
-	"projects/internal/model"
-	"projects/internal/user"
-	"strings"
+	"log"
+
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
 )
 
+type User struct {
+	ID       int `gorm:"column:id;primaryKey"`
+	Username string
+	Password string
+}
+
+type Author struct {
+	ID        uint `gorm:"primaryKey"`
+	Name      string
+	Biography string
+}
+
+type Book struct {
+	ID       uint `gorm:"primaryKey"`
+	Title    string
+	AuthorID uint `gorm:"foreignKey"`
+}
+
+type Profile struct {
+	UserID  uint `gorm:"foreignKey"`
+	Email   string
+	Address string
+}
+
 func main() {
-	fmt.Println("Library System")
-
-	// Инициализация книг
-	//books := make(map[int]model.Book)
-	//newBooks := book.NewBooks(books)
-
-	jsonBooks := book.NewJSONBooks("books.json")
-	bookService := book.NewService(*jsonBooks)
-
-	// Инициализация пользователей
-	jsonUsers := user.NewJSONUsers("users.json")
-	userService := user.NewService(*jsonUsers)
-
-	var optionsInput string
-
-	var usrname string
-	var password string
-	var account *model.User
-
-Register:
-	for {
-		fmt.Print("Options: signup, login\nExit: exit\n")
-		fmt.Scan(&optionsInput)
-		if optionsInput == "exit" {
-			return
-		}
-
-		switch strings.ToLower(optionsInput) {
-		case "login":
-			if usrname == "exit" {
-				return
-			}
-
-			fmt.Print("Username: ")
-			fmt.Scan(&usrname)
-
-			if usr, ok := userService.FindUserByUsername(usrname); ok {
-				fmt.Print("Password: ")
-				fmt.Scan(&password)
-				for usr.Password != password {
-					fmt.Println("Given password is not correct.")
-					fmt.Println("To go back type 'back'")
-
-					fmt.Print("Password: ")
-					fmt.Scan(&password)
-					if password == "back" {
-						goto Register
-					}
-				}
-
-				fmt.Println("Loged")
-				account = usr
-				break Register
-			}
-
-		case "signup":
-			fmt.Print("Username: ")
-			fmt.Scan(&usrname)
-
-			fmt.Print("Password: ")
-			fmt.Scan(&password)
-
-			if usr, ok := userService.CreateUser(usrname, password); ok {
-				account = usr
-				fmt.Println("Signed up")
-				break Register
-
-			} else {
-				fmt.Println("Error occured when creating user")
-				return
-			}
-		}
+	dsn := "host=localhost user=saiddis password=__1dIslo_ dbname=library port=5432 sslmode=disable TimeZone=Asia/Dushanbe"
+	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
+	if err != nil {
+		log.Fatalf("failed to connect database: %v", err)
 	}
 
-	dataInput := bufio.NewReader(os.Stdin)
-	var title string
-	var author string
-
-	for {
-		fmt.Println(account.Username)
-		fmt.Print("Options: add, edit, find, delete\nExit: exit\n")
-		fmt.Scan(&optionsInput)
-		if optionsInput == "exit" {
-			break
-		}
-
-		switch strings.ToLower(optionsInput) {
-		case "add":
-
-			fmt.Print("Type the book title\n")
-			fmt.Print(">>> ")
-			title, _ = dataInput.ReadString('\n')
-			title = title[:len(title)-1]
-
-			fmt.Print("Type the book's author\n")
-			fmt.Print(">>> ")
-			author, _ = dataInput.ReadString('\n')
-			author = author[:len(author)-1]
-			bookService.CreateBook(title, author)
-
-		case "edit":
-			var id int
-			fmt.Print("Type the book id\n")
-			fmt.Print(">>> ")
-			fmt.Scan(&id)
-
-			fmt.Print("Type new title\n")
-			fmt.Print(">>> ")
-			title, _ = dataInput.ReadString('\n')
-			title = title[:len(title)-1]
-
-			fmt.Print("Type new author\n")
-			fmt.Print(">>> ")
-			author, _ = dataInput.ReadString('\n')
-			author = author[:len(author)-1]
-
-			result := bookService.EditBook(id, title, author)
-			if result {
-				fmt.Printf("Book with id:%d  changed successfully\n", id)
-			} else {
-				fmt.Println("Error occured when editing the book")
-			}
-
-		case "find":
-			var id int
-			fmt.Print("Type the book id\n")
-			fmt.Print(">>> ")
-			fmt.Scan(&id)
-			book, ok := bookService.FindBook(id)
-
-			if ok {
-				fmt.Println("Title: ", book.Title)
-				fmt.Println("Author: ", book.Author)
-			} else {
-				fmt.Printf("Couldn't find the book with id:%d\n", id)
-			}
-
-		case "delete":
-			var id int
-			fmt.Print("Type the book id\n")
-			fmt.Print(">>> ")
-			fmt.Scan(&id)
-
-			ok := bookService.RemoveBook(id)
-			if ok {
-				fmt.Printf("Book with id:%d deleted successfully \n", id)
-			} else {
-				fmt.Println("Error occured when deleting the book")
-			}
-		case "list":
-			books := bookService.ListBooks()
-
-			for _, v := range books {
-				fmt.Printf("%d:\n  Title: %s\n  Author: %s\n", v.ID, v.Title, v.Author)
-			}
-		}
+	fmt.Println("Ex1")
+	var u []User
+	err = db.Find(&u).Error
+	if err != nil {
+		panic(err)
 	}
+
+	for _, v := range u {
+		fmt.Println(v)
+	}
+
+	fmt.Println("---Ex2---")
+	var b []Book
+	err = db.Find(&b).Error
+	if err != nil {
+		panic(err)
+	}
+	for _, book := range b {
+		fmt.Println(book)
+	}
+	fmt.Println("---Ex3---")
+	var a []Author
+	err = db.Find(&a).Error
+	if err != nil {
+		panic(err)
+	}
+
+	for _, v := range a {
+		fmt.Println(v)
+	}
+
+	fmt.Println("---Ex4---")
+	var leoTolstoyTitles []string
+
+	db.Table("books").
+		Select("books").
+		Joins("JOIN authors ON books.author_id = authors.id").
+		Where("authors.name = ?", "Leo Tolstoy").Scan(&leoTolstoyTitles)
+
+	for _, book := range leoTolstoyTitles {
+		fmt.Println(book)
+	}
+
+	fmt.Println("---Ex4---")
+	var p []Profile
+	err = db.Find(&p).Error
+	if err != nil {
+		panic(err)
+	}
+
+	var usersWithEmail []string
+
+	db.Table("users").
+		Select("users").
+		Joins("JOIN profiles ON profiles.user_id = users.id").
+		Where("profiles.email IS NOT NULL").Scan(&usersWithEmail)
+	for _, user := range usersWithEmail {
+		fmt.Println(user)
+	}
+
+	fmt.Println("---Ex5---")
+	var alice string
+	db.Save(&User{ID: 1, Username: "alice", Password: "newpassword"})
+	db.Table("users").
+		Select("users").
+		Where("username = ?", "alice").Scan(&alice)
+	fmt.Println(alice)
+	// var user
+	// var us User
+	// err = db.Find(&us).Error
+	// if err != nil {
+	// 	panic(err)
+	// }
+	// fmt.Println(us)
+	// for _, user := range u {
+	// 	fmt.Printf("id: %d username: %s password: %s\n", user.ID, user.Username, user.Password)
+	// }
+
+	// db.First(&us).Where("id = ?", 1)
+	// db.Raw("SELECT * FROM users WHERE id = 1").Scan(&us)
+	// 	fmt.Println("Library System")
+
+	// 	// Инициализация книг
+	// 	//books := make(map[int]model.Book)
+	// 	//newBooks := book.NewBooks(books)
+
+	// 	jsonBooks := book.NewJSONBooks("books.json")
+	// 	bookService := book.NewService(*jsonBooks)
+
+	// 	// Инициализация пользователей
+	// 	jsonUsers := user.NewJSONUsers("users.json")
+	// 	userService := user.NewService(*jsonUsers)
+
+	// 	var optionsInput string
+
+	// 	var usrname string
+	// 	var password string
+	// 	var account *model.User
+
+	// Register:
+	// 	for {
+	// 		fmt.Print("Options: signup, login\nExit: exit\n")
+	// 		fmt.Scan(&optionsInput)
+	// 		if optionsInput == "exit" {
+	// 			return
+	// 		}
+
+	// 		switch strings.ToLower(optionsInput) {
+	// 		case "login":
+	// 			if usrname == "exit" {
+	// 				return
+	// 			}
+
+	// 			fmt.Print("Username: ")
+	// 			fmt.Scan(&usrname)
+
+	// 			if usr, ok := userService.FindUserByUsername(usrname); ok {
+	// 				fmt.Print("Password: ")
+	// 				fmt.Scan(&password)
+	// 				for usr.Password != password {
+	// 					fmt.Println("Given password is not correct.")
+	// 					fmt.Println("To go back type 'back'")
+
+	// 					fmt.Print("Password: ")
+	// 					fmt.Scan(&password)
+	// 					if password == "back" {
+	// 						goto Register
+	// 					}
+	// 				}
+
+	// 				fmt.Println("Loged")
+	// 				account = usr
+	// 				break Register
+	// 			}
+
+	// 		case "signup":
+	// 			fmt.Print("Username: ")
+	// 			fmt.Scan(&usrname)
+
+	// 			fmt.Print("Password: ")
+	// 			fmt.Scan(&password)
+
+	// 			if usr, ok := userService.CreateUser(usrname, password); ok {
+	// 				account = usr
+	// 				fmt.Println("Signed up")
+	// 				break Register
+
+	// 			} else {
+	// 				fmt.Println("Error occured when creating user")
+	// 				return
+	// 			}
+	// 		}
+	// 	}
+
+	// 	dataInput := bufio.NewReader(os.Stdin)
+	// 	var title string
+	// 	var author string
+
+	// 	for {
+	// 		fmt.Println(account.Username)
+	// 		fmt.Print("Options: add, edit, find, delete\nExit: exit\n")
+	// 		fmt.Scan(&optionsInput)
+	// 		if optionsInput == "exit" {
+	// 			break
+	// 		}
+
+	// 		switch strings.ToLower(optionsInput) {
+	// 		case "add":
+
+	// 			fmt.Print("Type the book title\n")
+	// 			fmt.Print(">>> ")
+	// 			title, _ = dataInput.ReadString('\n')
+	// 			title = title[:len(title)-1]
+
+	// 			fmt.Print("Type the book's author\n")
+	// 			fmt.Print(">>> ")
+	// 			author, _ = dataInput.ReadString('\n')
+	// 			author = author[:len(author)-1]
+	// 			bookService.CreateBook(title, author)
+
+	// 		case "edit":
+	// 			var id int
+	// 			fmt.Print("Type the book id\n")
+	// 			fmt.Print(">>> ")
+	// 			fmt.Scan(&id)
+
+	// 			fmt.Print("Type new title\n")
+	// 			fmt.Print(">>> ")
+	// 			title, _ = dataInput.ReadString('\n')
+	// 			title = title[:len(title)-1]
+
+	// 			fmt.Print("Type new author\n")
+	// 			fmt.Print(">>> ")
+	// 			author, _ = dataInput.ReadString('\n')
+	// 			author = author[:len(author)-1]
+
+	// 			result := bookService.EditBook(id, title, author)
+	// 			if result {
+	// 				fmt.Printf("Book with id:%d  changed successfully\n", id)
+	// 			} else {
+	// 				fmt.Println("Error occured when editing the book")
+	// 			}
+
+	// 		case "find":
+	// 			var id int
+	// 			fmt.Print("Type the book id\n")
+	// 			fmt.Print(">>> ")
+	// 			fmt.Scan(&id)
+	// 			book, ok := bookService.FindBook(id)
+
+	// 			if ok {
+	// 				fmt.Println("Title: ", book.Title)
+	// 				fmt.Println("Author: ", book.Author)
+	// 			} else {
+	// 				fmt.Printf("Couldn't find the book with id:%d\n", id)
+	// 			}
+
+	// 		case "delete":
+	// 			var id int
+	// 			fmt.Print("Type the book id\n")
+	// 			fmt.Print(">>> ")
+	// 			fmt.Scan(&id)
+
+	// 			ok := bookService.RemoveBook(id)
+	// 			if ok {
+	// 				fmt.Printf("Book with id:%d deleted successfully \n", id)
+	// 			} else {
+	// 				fmt.Println("Error occured when deleting the book")
+	// 			}
+	// 		case "list":
+	// 			books := bookService.ListBooks()
+
+	// 			for _, v := range books {
+	// 				fmt.Printf("%d:\n  Title: %s\n  Author: %s\n", v.ID, v.Title, v.Author)
+	// 			}
+	// 		}
+	// 	}
 
 	// // Имитируем создание книг
 	// b1 := bookService.CreateBook("The Hobbit", "J.R.R Tolkien")
