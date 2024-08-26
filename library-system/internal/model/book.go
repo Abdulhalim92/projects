@@ -3,9 +3,9 @@ package model
 import "time"
 
 type Book struct {
-	BookId int
-	Title  string
-	Author string
+	BookId   int
+	Title    string
+	AuthorID int
 }
 
 type Reviews struct {
