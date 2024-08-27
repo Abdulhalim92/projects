@@ -1,6 +1,9 @@
 package book
 
-import "projects/internal/model"
+import (
+	"fmt"
+	"projects/internal/model"
+)
 
 type Service struct {
 	BookRepository BookRepository
@@ -18,7 +21,6 @@ func (s *Service) CreateBook(b *model.Book) (*model.Book, error) {
 
 	if len(books) > 0 {
 		for _, book := range books {
-			fmt.Println("---------------", book)
 			if book.Title == b.Title {
 				return nil, fmt.Errorf("the book whith title %s and authorID %d is already exists", b.Title, b.AuthorID)
 			}
@@ -41,9 +43,25 @@ func (s *Service) FindBooksByAuthor(authorID int) ([]model.Book, error) {
 }
 
 func (s *Service) EditBook(b *model.Book) (*model.Book, error) {
+	book, err := s.BookRepository.GetBookByID(b.BookId)
+	if err != nil {
+		return nil, err
+	}
+	if book == nil {
+		return nil, fmt.Errorf("book with id %d not found", b.BookId)
+	}
+
 	return s.BookRepository.UpdateBook(b)
 }
 
 func (s *Service) RemoveBook(id int) (int, error) {
+	book, err := s.BookRepository.GetBookByID(id)
+	if err != nil {
+		return 0, err
+	}
+	if book == nil {
+		return 0, fmt.Errorf("book with id %d not found", id)
+	}
+
 	return s.BookRepository.DeleteBook(id)
 }

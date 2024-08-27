@@ -3,7 +3,7 @@ package model
 import "time"
 
 type Book struct {
-	BookId   int
+	BookId   int 
 	Title    string
 	AuthorID int
 }
