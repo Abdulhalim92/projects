@@ -2,14 +2,32 @@ package main
 
 import (
 	"fmt"
-	"projects/internal/book"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
+	"log"
+	"projects/internal/BookDataBase"
 )
 
 func main() {
+	db, err := ConnectToDb()
+	if err != nil {
+		log.Fatal(err)
+	}
+	BookRep := BookDataBase.NewBookRepository(db)
+	ser := BookDataBase.NewService(BookRep)
+	books, err := ser.ListBooks()
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println(books)
+	books2, err := ser.FindBookByAuthor(2)
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println(books2)
+	//userNew := model.User{Username: "NewUser", Password: "Newusername"}
 
-	x := book.NewJSONBooks("file.json")
-	s := book.NewService(x)
-	for {
+	/*for {
 		var operation string
 		fmt.Println("Choose operation:")
 		fmt.Scan(&operation)
@@ -61,14 +79,21 @@ func main() {
 				fmt.Println(book)
 			}
 		case "addbook":
-			var author int
-			var title string
+			var model.M
 			fmt.Println("Enter author:")
 			fmt.Scan(&author)
 			fmt.Println("Enter title:")
 			fmt.Scan(&title)
-			s.CreateBook(title, author)
+			s.CreateBook()
 		}
+	} */
+}
+func ConnectToDb() (*gorm.DB, error) {
+	dsn := "host=localhost user=humo password=humo dbname=Humo port=5432 sslmode=disable"
+	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
+	if err != nil {
+		log.Fatal("Error connecting to db: %v", err)
+		return nil, err
 	}
-
+	return db, nil
 }

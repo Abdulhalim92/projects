@@ -1,7 +1,7 @@
 package model
 
 type Profile struct {
-	User_id int `gorm:"primary_key"`
+	Userid  int
 	Email   string
 	Address string
 }

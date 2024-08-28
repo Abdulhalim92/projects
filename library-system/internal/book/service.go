@@ -3,14 +3,14 @@ package book
 import "projects/internal/model"
 
 type Service struct {
-	Books BookInterface
+	Books BookRepository
 }
 
-func NewService(b BookInterface) *Service {
+func NewService(b BookRepository) *Service {
 	return &Service{b}
 }
 
-func (s *Service) CreateBook(title string, author int) model.Book {
+func (s *Service) CreateBook(b *model.Book) *model.Book {
 	return s.Books.AddBook(title, author)
 }
 
@@ -19,7 +19,7 @@ func (s *Service) ListBooks() map[int]model.Book {
 }
 
 func (s *Service) FindBook(id int) model.Book {
-	return s.Books.GetBookByID(id)
+	return s.Books.GetBookByID(&model.Book{BooksId: id})
 }
 
 func (s *Service) FindBooksByAuthor(author int) map[int]model.Book {

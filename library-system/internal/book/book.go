@@ -2,36 +2,33 @@ package book
 
 import (
 	"fmt"
+	"gorm.io/gorm"
 	"projects/internal/model"
 )
 
-type Books struct {
-	BooksMap map[int]model.Book
-	LASTID   int
+type BookRepository struct {
+	db *gorm.DB
 }
 
-func NewBooks(books map[int]model.Book) *Books {
-	return &Books{
-		BooksMap: books,
-		LASTID:   0,
-	}
+func NewBooks(db *gorm.DB) *BookRepository {
+	return &BookRepository{db}
 }
 
-func (b *Books) AddBook(title string, author int) model.Book {
+func (b *BookRepository) AddBook(title string, author int) *model.Book {
 	b.LASTID++
 	book := model.Book{
-		Books_id:  b.LASTID,
-		Title:     title,
-		Author_id: author,
+		BooksId:  b.LASTID,
+		Title:    title,
+		AuthorId: author,
 	}
 	b.BooksMap[b.LASTID] = book
 
-	fmt.Printf("Book with tittle %s and author %s is created\n", book.Title, book.Author_id)
+	fmt.Printf("Book with tittle %s and author %s is created\n", book.Title, book.AuthorId)
 
 	return b.BooksMap[b.LASTID]
 }
 
-func (b *Books) GetBooks() []model.Book {
+func (b *BookRepository) GetBooks() []model.Book {
 	books := make([]model.Book, 0)
 	for _, value := range b.BooksMap {
 		books = append(books, value)
@@ -39,7 +36,7 @@ func (b *Books) GetBooks() []model.Book {
 	return books
 }
 
-func (b *Books) GetBookByID(id int) *model.Book {
+func (b *BookRepository) GetBookByID(id int) *model.Book {
 	value, ok := b.BooksMap[id]
 	if !ok {
 		fmt.Printf("Does't exist\n")
@@ -48,7 +45,7 @@ func (b *Books) GetBookByID(id int) *model.Book {
 	return &value
 }
 
-func (b *Books) GetBooksByAuthor(author int) []model.Book {
+func (b *BookRepository) GetBooksByAuthor(author int) []model.Book {
 	var booksByAuthor []model.Book
 	for _, value := range b.BooksMap {
 		if value.Author_id == author {
@@ -58,17 +55,17 @@ func (b *Books) GetBooksByAuthor(author int) []model.Book {
 	return booksByAuthor
 }
 
-func (b *Books) UpdateBook(id int, title string, author int) bool {
+func (b *BookRepository) UpdateBook(id int, title string, author int) bool {
 	for key := range b.BooksMap {
 		if key == id {
-			b.BooksMap[key] = model.Book{Title: title, Author_id: author}
+			b.BooksMap[key] = model.Book{Title: title, AuthorId: author}
 			return true
 		}
 	}
 	return false
 }
 
-func (b *Books) DeleteBook(id int) bool {
+func (b *BookRepository) DeleteBook(id int) bool {
 	for key := range b.BooksMap {
 		if key == id {
 			delete(b.BooksMap, key)

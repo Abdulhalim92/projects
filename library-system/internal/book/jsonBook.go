@@ -47,9 +47,9 @@ func (b *JSONBooks) AddBook(title string, author int) model.Book {
 	lastID++
 
 	book := model.Book{
-		Books_id:  lastID,
-		Title:     title,
-		Author_id: author,
+		BooksId:  lastID,
+		Title:    title,
+		AuthorId: author,
 	}
 
 	books[lastID] = book
@@ -60,7 +60,7 @@ func (b *JSONBooks) AddBook(title string, author int) model.Book {
 		return model.Book{}
 	}
 
-	fmt.Printf("Book with tittle %s and author %s is created\n", book.Title, book.Author_id)
+	fmt.Printf("Book with tittle %s and author %s is created\n", book.Title, book.AuthorId)
 
 	return book
 }
@@ -83,7 +83,7 @@ func (b *JSONBooks) GetBookByID(id int) model.Book {
 	}
 
 	for _, book := range books {
-		if book.Books_id == id {
+		if book.BooksId == id {
 			return book
 		}
 	}
@@ -99,7 +99,7 @@ func (b *JSONBooks) GetBooksByAuthor(author int) map[int]model.Book {
 	}
 	var formattedBooks = make(map[int]model.Book)
 	for id, book := range books {
-		if book.Author_id == author {
+		if book.AuthorId == author {
 			formattedBooks[id] = book
 		}
 	}
@@ -115,8 +115,8 @@ func (b *JSONBooks) UpdateBook(id int, title string, author int) bool {
 	}
 
 	for _, book := range books {
-		if book.Books_id == id {
-			books[id] = model.Book{Books_id: id, Title: title, Author_id: author}
+		if book.BooksId == id {
+			books[id] = model.Book{BooksId: id, Title: title, AuthorId: author}
 			err = b.saveBooks(books)
 			if err != nil {
 				fmt.Printf("Failed to save books: %v\n", err)

@@ -11,7 +11,7 @@ func ShowAmountOfBooksOfEachAuthor(db *gorm.DB) {
 		amount int
 	}
 	var n x
-	db.Raw("SELECT authors.name, count(*) AS Author_name FROM books JOIN authors ON books.author_id = authors.authors_id  GROUP BY authors_id;").Scan(&n)
+	db.Raw("SELECT authors.name, count(*) AS Author_name FROM books JOIN authors ON books.authorId = authors.authorId  GROUP BY authorId;").Scan(&n)
 	fmt.Println(n)
 
 }
