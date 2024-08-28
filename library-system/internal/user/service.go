@@ -2,47 +2,33 @@ package user
 
 import (
 	"fmt"
-	"projects/internal/model"
+	"library-system/internal/model"
 )
 
 type Service struct {
-	users JSONUsers
+	ur UserRepository
 }
 
-func NewService(u JSONUsers) *Service {
-	return &Service{u}
+func NewService(ur UserRepository) *Service {
+	return &Service{ur}
 }
 
-func (s *Service) CreateUser(username, password string) (*model.User, bool) {
-	user, err := s.users.AddUser(username, password)
-	if err != nil {
-		fmt.Println(err)
-		return nil, false
-	}
-
-	return user, true
+func (s *Service) CreateUser(u *model.User) (*model.User, error) {
+	return s.ur.AddUser(u)
 }
 
 func (s *Service) ListUsers() []model.User {
-	users, err := s.users.GetUsers()
+	users, err := s.ur.GetUsers()
 	if err != nil {
 		fmt.Println(err)
 		return nil
 	}
+
 	return users
 }
 
 func (s *Service) FindUser(id int) (*model.User, bool) {
-	user, err := s.users.GetUserByID(id)
-	if err != nil {
-		fmt.Println(err)
-		return nil, false
-	}
-	return user, true
-}
-
-func (s *Service) FindUserByUsername(usrname string) (*model.User, bool) {
-	user, err := s.users.GetUserByUsername(usrname)
+	user, err := s.ur.GetUserByID(id)
 	if err != nil {
 		fmt.Println(err)
 		return nil, false
@@ -52,12 +38,13 @@ func (s *Service) FindUserByUsername(usrname string) (*model.User, bool) {
 }
 
 func (s *Service) EditUser(id int, username, password string) bool {
-	user := model.User{
-		ID:       id,
-		Username: username,
-		Password: password,
+	user, err := s.ur.GetUserByID(id)
+	if err != nil {
+		fmt.Println(err)
+		return false
 	}
-	err := s.users.UpdateUser(user)
+
+	err = s.ur.UpdateUser(user)
 	if err != nil {
 		fmt.Println(err)
 		return false
@@ -66,7 +53,7 @@ func (s *Service) EditUser(id int, username, password string) bool {
 }
 
 func (s *Service) RemoveUser(id int) bool {
-	err := s.users.DeleteUser(id)
+	err := s.ur.DeleteUser(id)
 	if err != nil {
 		fmt.Println(err)
 		return false
