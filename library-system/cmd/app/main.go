@@ -5,88 +5,173 @@ import (
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"log"
-	"projects/internal/BookDataBase"
 )
 
 func main() {
-	db, err := ConnectToDb()
-	if err != nil {
-		log.Fatal(err)
+	const emailToSend = 3
+	var emailSent = 0
+	for emailSent < emailToSend {
+		fmt.Println("sending email...")
+		emailSent++
 	}
-	BookRep := BookDataBase.NewBookRepository(db)
-	ser := BookDataBase.NewService(BookRep)
-	books, err := ser.ListBooks()
-	if err != nil {
-		log.Fatal(err)
-	}
-	fmt.Println(books)
-	books2, err := ser.FindBookByAuthor(2)
-	if err != nil {
-		log.Fatal(err)
-	}
-	fmt.Println(books2)
-	//userNew := model.User{Username: "NewUser", Password: "Newusername"}
+	fmt.Println("end of the program")
 
-	/*for {
-		var operation string
-		fmt.Println("Choose operation:")
-		fmt.Scan(&operation)
-		if operation == "exit" {
-			return
+	/*
+		db, err := ConnectToDb()
+		if err != nil {
+			log.Fatal(err)
 		}
-		switch operation {
-		case "getbooks":
-			books := s.ListBooks()
-			for _, book := range books {
-				fmt.Println(book)
+		UserRep := UserDataBase.NewUserRepository(db)
+		UserService := UserDataBase.NewService(UserRep)
+		BookRep := BookDataBase.NewBookRepository(db)
+		BookService := BookDataBase.NewService(BookRep)
+		for {
+			var object string
+			fmt.Println("Choose an object: ")
+			fmt.Scan(&object)
+			if object == "user" {
+				var operation string
+				fmt.Println("Choose an operation: ")
+				fmt.Scan(&operation)
+				if operation == "add" {
+					var user model.User
+					fmt.Println("Username:")
+					fmt.Scan(&user.Username)
+					fmt.Println("Password:")
+					fmt.Scan(&user.Password)
+					u, err := UserService.CreateUser(user)
+					if err != nil {
+						log.Println(err)
+					} else {
+						fmt.Printf("%v successfully created\n", *u)
+					}
+				} else if operation == "delete" {
+					var id int
+					fmt.Println("Id of the user: ")
+					fmt.Scan(&id)
+					b, err := UserService.RemoveUser(id)
+					if !b {
+						log.Println(err)
+					} else {
+						fmt.Printf("User with id %d successfully deleted\n", id)
+					}
+				} else if operation == "edit" {
+					var user model.User
+					fmt.Println("Id of the user: ")
+					fmt.Scan(&user.Userid)
+					fmt.Println("New Username: ")
+					fmt.Scan(&user.Username)
+					fmt.Println("New Password: ")
+					fmt.Scan(&user.Password)
+					b, err := UserService.EditUser(user)
+					if !b {
+						log.Println(err)
+					} else {
+						fmt.Printf("User with id %d successfully edited\n", user.Userid)
+					}
+				} else if operation == "getall" {
+					users, err := UserService.ListUsers()
+					if err != nil {
+						log.Println(err)
+					} else {
+						for _, user := range users {
+							fmt.Printf("User: %d %s %s\n", user.Userid, user.Username, user.Password)
+						}
+					}
+				} else if operation == "getuser" {
+					var id int
+					fmt.Println("ID of the user: ")
+					fmt.Scan(&id)
+					user, err := UserService.ListUserById(id)
+					if err != nil {
+						log.Println(err)
+					} else {
+						fmt.Printf("User: %d %s %s\n", user.Userid, user.Username, user.Password)
+					}
+				} else {
+					fmt.Println("Such operation doesn't exist!!!")
+				}
+			} else if object == "book" {
+				var operation string
+				fmt.Println("choose an operation: ")
+				fmt.Scan(&operation)
+				if operation == "getall" {
+					books, err := BookService.ListBooks()
+					if err != nil {
+						log.Println(err)
+					} else {
+						for _, book := range books {
+							fmt.Printf("Book: %d %s %d\n", book.Bookid, book.Title, book.Authorid)
+						}
+					}
+				} else if operation == "add" {
+					var book model.Book
+					fmt.Println("Title: ")
+					fmt.Scan(&book.Title)
+					fmt.Println("Its AuthorID: ")
+					fmt.Scan(&book.Authorid)
+					b, err := BookService.CreateBook(book)
+					if err != nil {
+						log.Println(err)
+					} else {
+						fmt.Printf("Book %v successfully created\n", *b)
+					}
+				} else if operation == "getbook" {
+					var id int
+					fmt.Println("ID: ")
+					fmt.Scan(&id)
+					book, err := BookService.FindBook(id)
+					if err != nil {
+						log.Println(err)
+					} else {
+						fmt.Printf("Book: %d %s %d\n", book.Bookid, book.Title, book.Authorid)
+					}
+				} else if operation == "getallbooksbyauthor" {
+					var AuthorID int
+					fmt.Println("AuthorID: ")
+					fmt.Scan(&AuthorID)
+					books, err := BookService.FindBooksByAuthor(AuthorID)
+					if err != nil {
+						log.Println(err)
+					} else {
+						for _, book := range books {
+							fmt.Printf("Book: %d %s %d\n", book.Bookid, book.Title, book.Authorid)
+						}
+					}
+				} else if operation == "delete" {
+					var id int
+					fmt.Println("ID: ")
+					fmt.Scan(&id)
+					b, err := BookService.RemoveBook(id)
+					if !b {
+						log.Println(err)
+					} else {
+						fmt.Printf("Book with id %d successfully deleted\n", id)
+					}
+				} else if operation == "edit" {
+					var book model.Book
+					fmt.Println("ID: ")
+					fmt.Scan(&book.Bookid)
+					fmt.Println("NewTitle: ")
+					fmt.Scan(&book.Title)
+					fmt.Println("NewAuthorID: ")
+					fmt.Scan(&book.Bookid)
+					b, err := BookService.EditBook(book)
+					if !b {
+						log.Println(err)
+					} else {
+						fmt.Printf("Book with id %d successfully edited\n", book.Bookid)
+					}
+				} else {
+					fmt.Println("Such operation doesn't exist!!!")
+				}
+			} else if object == "exit" {
+				return
+			} else {
+				fmt.Println("no such object")
 			}
-		case "getbookbyid":
-			var id int
-			fmt.Println("Enter id:")
-			fmt.Scan(&id)
-			book := s.FindBook(id)
-			fmt.Println(book)
-		case "deletebookbyid":
-			var id int
-			fmt.Println("Enter id:")
-			fmt.Scan(&id)
-			b := s.RemoveBook(id)
-			if !b {
-				fmt.Println("Error while deleting")
-			}
-			fmt.Println("Book deleted")
-		case "changebookbyid":
-			var id int
-			fmt.Println("Enter id:")
-			fmt.Scan(&id)
-			var author int
-			fmt.Println("Enter author:")
-			fmt.Scan(&author)
-			var title string
-			fmt.Println("Enter title:")
-			fmt.Scan(&title)
-			b := s.EditBook(id, title, author)
-			if !b {
-				fmt.Println("Error while editing a book")
-			}
-			fmt.Println("Book edited")
-		case "getbooksbyauthor":
-			var author int
-			fmt.Println("Enter author:")
-			fmt.Scan(&author)
-			books := s.FindBooksByAuthor(author)
-			for _, book := range books {
-				fmt.Println(book)
-			}
-		case "addbook":
-			var model.M
-			fmt.Println("Enter author:")
-			fmt.Scan(&author)
-			fmt.Println("Enter title:")
-			fmt.Scan(&title)
-			s.CreateBook()
 		}
-	} */
+	*/
 }
 func ConnectToDb() (*gorm.DB, error) {
 	dsn := "host=localhost user=humo password=humo dbname=Humo port=5432 sslmode=disable"

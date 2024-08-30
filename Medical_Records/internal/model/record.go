@@ -3,10 +3,10 @@ package model
 import "time"
 
 type Record struct {
-	RecordID int
-	Patient   Patient
-	Doctor    Doctor
-	Illness   string
+	RecordID  int
+	Patientid int
+	Doctorid  int
+	Illnessid int
 	StartDate time.Time
 	EndDate   time.Time
 }
@@ -21,4 +21,8 @@ type Doctor struct {
 	Name         string
 	Surname      string
 	TypeOfDoctor string
+}
+type Illness struct {
+	ID   int
+	name string
 }

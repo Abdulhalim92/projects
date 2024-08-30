@@ -40,12 +40,12 @@ func (s *Service) FindBook(id int) (model.Book, error) {
 	}
 	return book, nil
 }
-func (s *Service) FindBookByAuthor(id int) ([]model.Book, error) {
+func (s *Service) FindBooksByAuthor(id int) ([]model.Book, error) {
 	books, err := s.b.GetBooksByAuthor(id)
 	if err != nil {
 		return nil, err
 	} else if len(books) == 0 {
-		return nil, fmt.Errorf("no books with such author")
+		return nil, fmt.Errorf("no books with such author id")
 	}
 	return books, nil
 }
@@ -54,7 +54,7 @@ func (s *Service) EditBook(book model.Book) (bool, error) {
 	if err != nil {
 		return false, err
 	} else if bookById == (model.Book{}) {
-		return false, fmt.Errorf("no booo with such id")
+		return false, fmt.Errorf("no book with such id")
 	}
 	return s.b.UpdateBook(book)
 }

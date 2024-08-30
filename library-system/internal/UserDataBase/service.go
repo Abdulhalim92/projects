@@ -12,6 +12,7 @@ type Service struct {
 func NewService(U *UserRepository) *Service {
 	return &Service{U: U}
 }
+
 func (s *Service) CreateUser(user model.User) (*model.User, error) {
 	users, err := s.U.GetUsers()
 	if err != nil {

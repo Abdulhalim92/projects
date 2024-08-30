@@ -197,7 +197,7 @@ VALUES
     (14, 14, NULL, 4.4),                           -- Пустое поле review_text
     (15, 15, 'An epic tale from antiquity.', 4.9);
 DELETE FROM books WHERE books.bookId = 0;
-DELETE FROM books;
+SELECT * FROM books;
 DELETE FROM users;
 DELETE FROM borrow;
 DELETE FROM profiles;
