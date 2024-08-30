@@ -19,6 +19,10 @@ func (b *BookRepository) AddBook(book model.Book) (*model.Book, error) {
 	if err != nil {
 		return nil, fmt.Errorf("error adding the book: %v", err)
 	}
+	err = b.db.Table("books").Last(&book).Error
+	if err != nil {
+		return nil, fmt.Errorf("error while getting a book back")
+	}
 	return &book, nil
 }
 

@@ -19,6 +19,7 @@ func (u *UserRepository) AddUser(user model.User) (*model.User, error) {
 	if err != nil {
 		return nil, fmt.Errorf("error while adding a user: %v", err)
 	}
+	u.Db.Table("users").Last(&user)
 	return &user, nil
 }
 func (u *UserRepository) GetUsers() ([]model.User, error) {

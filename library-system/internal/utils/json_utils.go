@@ -44,6 +44,5 @@ func WriteJSONToFile(filename string, b interface{}) error {
 	if err != nil {
 		return fmt.Errorf("failed to write JSON to file: %w", err)
 	}
-
 	return nil
 }

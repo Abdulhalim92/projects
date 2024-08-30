@@ -1,21 +1,45 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
+	"io"
 	"log"
+	"os"
+	"projects/internal/BookDataBase"
+	"projects/internal/model"
 )
 
 func main() {
-	const emailToSend = 3
-	var emailSent = 0
-	for emailSent < emailToSend {
-		fmt.Println("sending email...")
-		emailSent++
+	db, err := ConnectToDb()
+	if err != nil {
+		log.Fatal(err)
 	}
-	fmt.Println("end of the program")
-
+	NewBookRep := BookDataBase.NewBookRepository(db)
+	BookSer := BookDataBase.NewService(NewBookRep)
+	f, err := os.OpenFile("book.json", os.O_RDWR, 0777)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer f.Close()
+	data, err := io.ReadAll(f)
+	if err != nil {
+		log.Fatal(err)
+	}
+	var book1 model.Book
+	err = json.Unmarshal(data, &book1)
+	b, err := BookSer.CreateBook(book1)
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println(*b)
+	book2, err := BookSer.FindBook(b.Bookid)
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println(book2)
 	/*
 		db, err := ConnectToDb()
 		if err != nil {
@@ -177,7 +201,7 @@ func ConnectToDb() (*gorm.DB, error) {
 	dsn := "host=localhost user=humo password=humo dbname=Humo port=5432 sslmode=disable"
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
-		log.Fatal("Error connecting to db: %v", err)
+		log.Fatalf("Error connecting to db: %v", err)
 		return nil, err
 	}
 	return db, nil
