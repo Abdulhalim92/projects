@@ -14,13 +14,12 @@ func NewUserRepository(db *gorm.DB) *UserRepository {
 	return &UserRepository{Db: db}
 }
 
-func (u *UserRepository) AddUser(user model.User) (*model.User, error) {
+func (u *UserRepository) AddUser(user *model.User) (*model.User, error) {
 	err := u.Db.Create(&user).Error
 	if err != nil {
 		return nil, fmt.Errorf("error while adding a user: %v", err)
 	}
-	u.Db.Table("users").Last(&user)
-	return &user, nil
+	return user, nil
 }
 func (u *UserRepository) GetUsers() ([]model.User, error) {
 	var users []model.User
@@ -30,25 +29,25 @@ func (u *UserRepository) GetUsers() ([]model.User, error) {
 	}
 	return users, nil
 }
-func (u *UserRepository) GetUserById(id int) (model.User, error) {
+func (u *UserRepository) GetUserById(id int) (*model.User, error) {
 	var user model.User
-	err := u.Db.Table("users").Where("userid = ?", id).Select("userid", "username", "password").Scan(&user).Error
+	err := u.Db.Table("users").Where("user_id = ?", id).Select("userID", "username", "password").Scan(&user).Error
 	if err != nil {
-		return model.User{}, fmt.Errorf("error while getting a user: %v", err)
+		return nil, fmt.Errorf("error while getting a user: %v", err)
+	}
+	return &user, nil
+}
+func (u *UserRepository) UpdateUser(user *model.User) (*model.User, error) {
+	err := u.Db.Updates(user).Error
+	if err != nil {
+		return nil, fmt.Errorf("error while updating a user: %v", err)
 	}
 	return user, nil
 }
-func (u *UserRepository) UpdateUser(user model.User) (bool, error) {
-	err := u.Db.Updates(&user).Error
-	if err != nil {
-		return false, fmt.Errorf("error while updating a user: %v", err)
-	}
-	return true, nil
-}
-func (u *UserRepository) DeleteUserById(id int) (bool, error) {
+func (u *UserRepository) DeleteUserById(id int) (int, error) {
 	err := u.Db.Table("users").Delete(&model.User{}, id).Error
 	if err != nil {
-		return false, fmt.Errorf("error while deleting: %v", err)
+		return 0, fmt.Errorf("error while deleting: %v", err)
 	}
-	return true, nil
+	return id, nil
 }

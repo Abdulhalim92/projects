@@ -33,7 +33,6 @@ func ReadJSONFromFile(filename string, b interface{}) error {
 
 	return nil
 }
-
 func WriteJSONToFile(filename string, b interface{}) error {
 	data, err := json.MarshalIndent(b, "", "  ")
 	if err != nil {

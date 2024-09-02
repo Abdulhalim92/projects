@@ -1,9 +1,9 @@
 package model
 
 type Review struct {
-	Reviewid   int `gorm:"primaryKey"`
-	Userid     int
-	Bookid     int
+	ReviewID   int `gorm:"primaryKey"`
+	UserID     int
+	BookID     int
 	ReviewText string
 	Rating     float64
 	ReviewData string

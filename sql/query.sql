@@ -3,7 +3,7 @@
 -- Таблица users
 -- Описание: Таблица пользователей для хранения учетных данных.
 CREATE TABLE users (
-                       userId SERIAL PRIMARY KEY,
+                       user_id SERIAL PRIMARY KEY,
                        username VARCHAR(100),
                        password VARCHAR(100)
 );
@@ -12,7 +12,7 @@ CREATE TABLE users (
 --  Описание: Таблица авторов с именем и биографией. Каждый автор может иметь
 --  множество книг.
 CREATE TABLE authors (
-                         authorId SERIAL PRIMARY KEY,
+                         author_id SERIAL PRIMARY KEY,
                          name VARCHAR(100),
                          biography TEXT
 );
@@ -21,33 +21,33 @@ CREATE TABLE authors (
 -- Описание: Таблица книг, связанная с таблицей авторов через author_id.
 -- Отношение "один к многим" между авторами и книгами.
 CREATE TABLE books (
-                       bookId SERIAL PRIMARY KEY,
+                       book_id SERIAL PRIMARY KEY,
                        title VARCHAR(255) UNIQUE,
-                       authorId INT REFERENCES authors(authorId)
+                       author_id INT REFERENCES authors(author_id)
 );
 
 -- Таблица borrow
 -- Описание: Таблица для отслеживания взятых и возвращенных книг.
 -- Связь "много ко многим" между пользователями и книгами.
 CREATE TABLE borrow (
-                        borrowId SERIAL PRIMARY KEY,
-                        userId INT REFERENCES users(userId),
-                        bookId INT REFERENCES books(bookId),
+                        borrow_id SERIAL PRIMARY KEY,
+                        user_id INT REFERENCES users(user_id),
+                        book_id INT REFERENCES books(book_id),
                         borrowDate DATE,
                         returnDate DATE
 );
 
 ALTER TABLE borrow
-    ADD CONSTRAINT FK_borrow_user_id FOREIGN KEY (userId) REFERENCES users(userId);
+    ADD CONSTRAINT FK_borrow_userID FOREIGN KEY (user_id) REFERENCES users(user_id);
 
 ALTER TABLE borrow
-    ADD CONSTRAINT FK_borrow_book_id FOREIGN KEY (bookId) REFERENCES books(bookId);
+    ADD CONSTRAINT FK_borrow_bookID FOREIGN KEY (book_id) REFERENCES books(book_id);
 
 -- Таблица profiles
 -- Описание: Таблица профилей, связь "один к одному" с таблицей
 -- пользователей. Хранит email и адрес пользователя.
 CREATE TABLE profiles (
-                          userId INT PRIMARY KEY REFERENCES users(userId),
+                          user_id INT PRIMARY KEY REFERENCES users(user_id),
                           email VARCHAR(255),
                           address VARCHAR(255)
 );
@@ -55,9 +55,9 @@ CREATE TABLE profiles (
 -- Таблица reviews
 -- Описание: Таблица для хранения отзывов на книги. Связана с таблицами users и books.
 CREATE TABLE reviews (
-                         reviewId SERIAL PRIMARY KEY,
-                         userId INT REFERENCES users(userId),
-                         bookId INT REFERENCES books(bookId),
+                         review_id SERIAL PRIMARY KEY,
+                         user_id INT REFERENCES users(user_id),
+                         book_id INT REFERENCES books(book_id),
                          reviewText TEXT,
                          rating DECIMAL(2, 1) CHECK (rating >= 1.0 AND rating <= 5.0), -- Рейтинг с одним десятичным знаком
                          reviewDate DATE DEFAULT CURRENT_DATE
@@ -92,7 +92,7 @@ VALUES
     ('Oscar Wilde', 'writer of Wilde'),
     ('Homer', 'writer of Homer');
 
-INSERT INTO books (title, authorId)
+INSERT INTO books (title, author_id)
 VALUES
     ('Harry Potter and the Philosophers Stone', 1),
     ('Harry Potter and the Chamber of Secrets', 1),
@@ -143,7 +143,7 @@ VALUES
     ('leo', 'leopass'),
     ('mia', 'miapass');
 
-INSERT INTO profiles (userId, email, address)
+INSERT INTO profiles (user_id, email, address)
 VALUES
     (1, 'johndoe@example.com', '123 Main St'),
     (2, 'janedoe@example.com', NULL),          -- Пустое поле адреса
@@ -161,7 +161,7 @@ VALUES
     (14, NULL, '369 Pine St'),
     (15, 'mia@example.com', '159 Cedar St');
 
-INSERT INTO borrow (userId, bookId, borrowDate, returnDate)
+INSERT INTO borrow (user_id, book_id, borrowDate, returnDate)
 VALUES
     (1, 1, '2024-08-01', '2024-08-15'),
     (2, 2, '2024-08-05', '2024-08-20'),
@@ -179,7 +179,7 @@ VALUES
     (14, 14, '2024-09-30', NULL),
     (15, 15, '2024-10-05', '2024-10-20');
 
-INSERT INTO reviews (userId, bookId, reviewText, rating)
+INSERT INTO reviews (user_id, book_id, reviewText, rating)
 VALUES
     (1, 1, 'An amazing start to a magical series.', 5.0),
     (2, 2, 'A gripping tale of power and betrayal.', 4.5),
@@ -196,7 +196,7 @@ VALUES
     (13, 13, 'A complex and engaging story.', 4.8),
     (14, 14, NULL, 4.4),                           -- Пустое поле review_text
     (15, 15, 'An epic tale from antiquity.', 4.9);
-DELETE FROM books WHERE books.bookId = 0;
+DELETE FROM books WHERE books.BookID = 0;
 SELECT * FROM books;
 DELETE FROM users;
 DELETE FROM borrow;
@@ -205,4 +205,4 @@ DELETE FroM reviews;
 DELETE FroM authors;
 
 INSERT INTO users(username, password) VALUES ('Said', 'something');
-SELECT * FROM users;
+SELECT * FROM books;

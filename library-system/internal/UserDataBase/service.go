@@ -13,7 +13,7 @@ func NewService(U *UserRepository) *Service {
 	return &Service{U: U}
 }
 
-func (s *Service) CreateUser(user model.User) (*model.User, error) {
+func (s *Service) CreateUser(user *model.User) (*model.User, error) {
 	users, err := s.U.GetUsers()
 	if err != nil {
 		return nil, err
@@ -34,26 +34,26 @@ func (s *Service) ListUserById(id int) (*model.User, error) {
 	user, err := s.U.GetUserById(id)
 	if err != nil {
 		return nil, err
-	} else if user == (model.User{}) {
+	} else if user.UserID == 0 {
 		return nil, fmt.Errorf("no user with such id")
 	}
-	return &user, nil
+	return user, nil
 }
-func (s *Service) EditUser(NewUser model.User) (bool, error) {
-	user, err := s.U.GetUserById(NewUser.Userid)
+func (s *Service) EditUser(NewUser *model.User) (*model.User, error) {
+	user, err := s.U.GetUserById(NewUser.UserID)
 	if err != nil {
-		return false, err
-	} else if user == (model.User{}) {
-		return false, fmt.Errorf("no user with sich id")
+		return nil, err
+	} else if user.UserID == 0 {
+		return nil, fmt.Errorf("no user with sich id")
 	}
 	return s.U.UpdateUser(NewUser)
 }
-func (s *Service) RemoveUser(id int) (bool, error) {
+func (s *Service) RemoveUser(id int) (int, error) {
 	user, err := s.U.GetUserById(id)
 	if err != nil {
-		return false, err
-	} else if user == (model.User{}) {
-		return false, fmt.Errorf("no user with such id")
+		return 0, err
+	} else if user.UserID == 0 {
+		return 0, fmt.Errorf("no user with such id")
 	}
 	return s.U.DeleteUserById(id)
 }

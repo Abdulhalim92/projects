@@ -12,9 +12,8 @@ type Service struct {
 func NewService(b *BookRepository) *Service {
 	return &Service{b}
 }
-
-func (s *Service) CreateBook(book model.Book) (*model.Book, error) {
-	books, err := s.b.GetBooksByAuthor(book.Authorid)
+func (s *Service) CreateBook(book *model.Book) (*model.Book, error) {
+	books, err := s.b.GetBooksByAuthor(book.AuthorID)
 	if err != nil {
 		return nil, err
 	}
@@ -31,12 +30,13 @@ func (s *Service) CreateBook(book model.Book) (*model.Book, error) {
 func (s *Service) ListBooks() ([]model.Book, error) {
 	return s.b.GetBooks()
 }
-func (s *Service) FindBook(id int) (model.Book, error) {
+func (s *Service) FindBook(id int) (*model.Book, error) {
 	book, err := s.b.GetBookById(id)
 	if err != nil {
-		return model.Book{}, err
-	} else if book == (model.Book{}) {
-		return book, fmt.Errorf("book with such id doesn't exist")
+		return nil, err
+	}
+	if book.BookID == 0 {
+		return nil, fmt.Errorf("no such book")
 	}
 	return book, nil
 }
@@ -49,21 +49,23 @@ func (s *Service) FindBooksByAuthor(id int) ([]model.Book, error) {
 	}
 	return books, nil
 }
-func (s *Service) EditBook(book model.Book) (bool, error) {
-	bookById, err := s.b.GetBookById(book.Bookid)
+func (s *Service) EditBook(book *model.Book) (*model.Book, error) {
+	bookById, err := s.b.GetBookById(book.BookID)
 	if err != nil {
-		return false, err
-	} else if bookById == (model.Book{}) {
-		return false, fmt.Errorf("no book with such id")
+		return nil, err
+	}
+	if bookById.BookID == 0 {
+		return nil, fmt.Errorf("no such book")
 	}
 	return s.b.UpdateBook(book)
 }
-func (s *Service) RemoveBook(id int) (bool, error) {
+func (s *Service) RemoveBook(id int) (int, error) {
 	book, err := s.b.GetBookById(id)
 	if err != nil {
-		return false, err
-	} else if book == (model.Book{}) {
-		return false, fmt.Errorf("no book with such id")
+		return 0, err
+	}
+	if book.BookID == 0 {
+		return 0, fmt.Errorf("no book with such id")
 	}
 	return s.b.DeleteBook(id)
 }

@@ -1,45 +1,13 @@
 package main
 
 import (
-	"encoding/json"
-	"fmt"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
-	"io"
 	"log"
-	"os"
-	"projects/internal/BookDataBase"
-	"projects/internal/model"
 )
 
 func main() {
-	db, err := ConnectToDb()
-	if err != nil {
-		log.Fatal(err)
-	}
-	NewBookRep := BookDataBase.NewBookRepository(db)
-	BookSer := BookDataBase.NewService(NewBookRep)
-	f, err := os.OpenFile("book.json", os.O_RDWR, 0777)
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer f.Close()
-	data, err := io.ReadAll(f)
-	if err != nil {
-		log.Fatal(err)
-	}
-	var book1 model.Book
-	err = json.Unmarshal(data, &book1)
-	b, err := BookSer.CreateBook(book1)
-	if err != nil {
-		log.Fatal(err)
-	}
-	fmt.Println(*b)
-	book2, err := BookSer.FindBook(b.Bookid)
-	if err != nil {
-		log.Fatal(err)
-	}
-	fmt.Println(book2)
+
 	/*
 		db, err := ConnectToDb()
 		if err != nil {

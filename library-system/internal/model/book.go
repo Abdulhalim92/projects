@@ -1,7 +1,7 @@
 package model
 
 type Book struct {
-	Bookid   int `gorm:"primaryKey"`
-	Title    string
-	Authorid int
+	BookID   int    `gorm:"primaryKey:book_id"`
+	Title    string `gorm:"column:title"`
+	AuthorID int    `gorm:"column:author_id"`
 }
