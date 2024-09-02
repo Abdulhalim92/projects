@@ -6,50 +6,49 @@ import (
 )
 
 type Service struct {
-	ur UserRepository
+	ur UserRepo
 }
 
-func NewService(ur UserRepository) *Service {
+func NewService(ur UserRepo) *Service {
 	return &Service{ur}
 }
 
-func (s *Service) CreateUser(u *model.User) (*model.User, error) {
-	return s.ur.AddUser(u)
+func (s *Service) CreateUser(username, password string) (*model.User, error) {
+	user := model.User{Username: username, Password: password}
+	return s.ur.AddUser(&user)
 }
 
-func (s *Service) ListUsers() []model.User {
+func (s *Service) ListUsers() ([]model.User, error) {
 	users, err := s.ur.GetUsers()
 	if err != nil {
-		fmt.Println(err)
-		return nil
+
+		return nil, fmt.Errorf("Error when listing the users: %e", err)
 	}
 
-	return users
+	return users, nil
 }
 
-func (s *Service) FindUser(id int) (*model.User, bool) {
+func (s *Service) FindUser(id int) (*model.User, error) {
 	user, err := s.ur.GetUserByID(id)
 	if err != nil {
 		fmt.Println(err)
-		return nil, false
+		return nil, fmt.Errorf("Error occured when retrieiving user with id:%d\n%e", id, err)
 	}
 
-	return user, true
+	return user, nil
 }
 
-func (s *Service) EditUser(id int, username, password string) bool {
-	user, err := s.ur.GetUserByID(id)
+func (s *Service) EditUser(id int, username, password string) error {
+	user, err := s.FindUserByUsername(username)
 	if err != nil {
-		fmt.Println(err)
-		return false
+		return err
 	}
 
 	err = s.ur.UpdateUser(user)
 	if err != nil {
-		fmt.Println(err)
-		return false
+		return fmt.Errorf("Error occured when editing user with id:%d\n%e", id, err)
 	}
-	return true
+	return nil
 }
 
 func (s *Service) RemoveUser(id int) bool {
@@ -59,4 +58,15 @@ func (s *Service) RemoveUser(id int) bool {
 		return false
 	}
 	return true
+}
+
+func (s *Service) FindUserByUsername(name string) (*model.User, error) {
+	var user model.User
+	err := s.ur.db.First(&user, "username = ?", name).Error
+	if err != nil {
+		fmt.Println(err)
+		return nil, fmt.Errorf("Couldn't find user with username:%s\n%e", name, err)
+	}
+
+	return &user, nil
 }

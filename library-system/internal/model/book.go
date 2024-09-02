@@ -8,19 +8,19 @@ type Book struct {
 	AuthorId int `gorm:"foreignKey"`
 }
 
-type Reviews struct {
-	ReviewID   int
-	UserID     int
-	BookID     int
+type Review struct {
+	ReviewId   int
+	UserId     int
+	BookId     int
 	ReviewText string
 	Rating     float64
 	ReviewDate time.Time
 }
 
 type Borrow struct {
-	BorrowID   int
-	UserID     int
-	BookID     int
+	BorrowId   int
+	UserId     int
+	BookId     int
 	BorrowDate time.Time
 	ReturnDate time.Time
 }

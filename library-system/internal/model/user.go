@@ -1,13 +1,13 @@
 package model
 
 type User struct {
-	UserID   int `gorm:"column:id;primaryKey"`
+	UserId   int `gorm:"column:id;primaryKey"`
 	Username string
 	Password string
 }
 
-type Profiles struct {
-	UserID  int
+type Profile struct {
+	UserId  int
 	Email   string
 	Address string
 }

@@ -1,7 +1,7 @@
 package model
 
 type Author struct {
-	AuthorID  int `gorm:"primaryKey"`
+	AuthorId  int `gorm:"column:id;primaryKey"`
 	Name      string
 	Biography string
 	Address   string

@@ -8,15 +8,15 @@ import (
 	"gorm.io/gorm"
 )
 
-type UserRepository struct {
+type UserRepo struct {
 	db *gorm.DB
 }
 
-func NewUserRepo(db *gorm.DB) *UserRepository {
-	return &UserRepository{db: db}
+func NewUserRepo(db *gorm.DB) *UserRepo {
+	return &UserRepo{db: db}
 }
 
-func (r *UserRepository) AddUser(u *model.User) (*model.User, error) {
+func (r *UserRepo) AddUser(u *model.User) (*model.User, error) {
 	// insert into users (username, password) values ('admin', 'admin')
 	result := r.db.Create(&u)
 	if result.Error != nil {
@@ -27,7 +27,7 @@ func (r *UserRepository) AddUser(u *model.User) (*model.User, error) {
 	return u, nil
 }
 
-func (r *UserRepository) GetUsers() ([]model.User, error) {
+func (r *UserRepo) GetUsers() ([]model.User, error) {
 	var users []model.User
 
 	// select * from users
@@ -39,7 +39,7 @@ func (r *UserRepository) GetUsers() ([]model.User, error) {
 	return users, nil
 }
 
-func (r *UserRepository) GetUserByID(id int) (*model.User, error) {
+func (r *UserRepo) GetUserByID(id int) (*model.User, error) {
 	var user model.User
 
 	// select * from users where user_id = id
@@ -51,7 +51,7 @@ func (r *UserRepository) GetUserByID(id int) (*model.User, error) {
 	return &user, nil
 }
 
-func (r *UserRepository) UpdateUser(u *model.User) error {
+func (r *UserRepo) UpdateUser(u *model.User) error {
 	// update users set username = 'admin', password = 'admin' where user_id = 1
 	result := r.db.Model(&u).Updates(&u)
 	if result.Error != nil {
@@ -62,7 +62,7 @@ func (r *UserRepository) UpdateUser(u *model.User) error {
 	return nil
 }
 
-func (r *UserRepository) DeleteUser(id int) error {
+func (r *UserRepo) DeleteUser(id int) error {
 	// delete from users where user_id = id
 	result := r.db.Delete(&model.User{}, id)
 	if result.Error != nil {

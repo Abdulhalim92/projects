@@ -3,19 +3,20 @@ package book
 import (
 	"fmt"
 	"library-system/internal/model"
+	"log"
 
 	"gorm.io/gorm"
 )
 
-type BookRepository struct {
+type BookRepo struct {
 	db *gorm.DB
 }
 
-func NewBookRepository(db *gorm.DB) *BookRepository {
-	return &BookRepository{db: db}
+func NewBookRepo(db *gorm.DB) *BookRepo {
+	return &BookRepo{db: db}
 }
 
-func (r *BookRepository) AddBook(b *model.Book) (*model.Book, error) {
+func (r *BookRepo) AddBook(b *model.Book) (*model.Book, error) {
 	result := r.db.Create(&b)
 	// insert into books (title, author_id) values ('War and Peace', 1)
 	if result.Error != nil {
@@ -25,7 +26,7 @@ func (r *BookRepository) AddBook(b *model.Book) (*model.Book, error) {
 	return b, nil
 }
 
-func (r *BookRepository) GetBooks() ([]model.Book, error) {
+func (r *BookRepo) GetBooks() ([]model.Book, error) {
 	var books []model.Book
 
 	err := r.db.Find(&books).Error
@@ -35,7 +36,7 @@ func (r *BookRepository) GetBooks() ([]model.Book, error) {
 	return books, nil
 }
 
-func (r *BookRepository) GetBookByID(bookID int) (*model.Book, error) {
+func (r *BookRepo) GetBookByID(bookID int) (*model.Book, error) {
 	var book model.Book
 	err := r.db.First(&book, "id = ?", bookID).Error
 	if err != nil {
@@ -45,7 +46,7 @@ func (r *BookRepository) GetBookByID(bookID int) (*model.Book, error) {
 	return &book, nil
 }
 
-func (r *BookRepository) GetBooksByAuthor(authorID int) ([]model.Book, error) {
+func (r *BookRepo) GetBooksByAuthor(authorID int) ([]model.Book, error) {
 	var book []model.Book
 	err := r.db.Find(&book, "author_id = ?", authorID).Error
 	if err != nil {
@@ -55,17 +56,17 @@ func (r *BookRepository) GetBooksByAuthor(authorID int) ([]model.Book, error) {
 	return book, nil
 }
 
-func (r *BookRepository) UpdateBook(b *model.Book) error {
-	err := r.db.Save(&model.Book{BookId: b.BookId, AuthorId: b.AuthorId, Title: b.Title}).Error
-
-	if err != nil {
-		return err
+func (r *BookRepo) UpdateBook(b *model.Book) error {
+	result := r.db.Model(&b).Updates(&b)
+	if result.Error != nil {
+		log.Printf("UpdateBook: Failed to update book: %v\n", result.Error)
+		return fmt.Errorf("Failed to update book: %v\n", result.Error)
 	}
 
 	return nil
 }
 
-func (r *BookRepository) DeleteBook(bookID int) error {
+func (r *BookRepo) DeleteBook(bookID int) error {
 	book, err := r.GetBookByID(bookID)
 	if err != nil {
 		return err
