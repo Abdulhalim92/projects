@@ -1,33 +1,33 @@
 package user
 
-import "projects/internal/model"
+import (
+	"projects/internal/model"
+)
 
 type Service struct {
-	users Users
+	UsersRepo Repository
 }
 
-func NewService(users Users) *Service {
-	return &Service{
-		users: users,
-	}
+func NewService(u Repository) *Service {
+	return &Service{u}
 }
 
-func (s *Service) CreateUser(username, password string) model.User {
-	return s.users.AddUser(username, password)
+func (s *Service) CreateUser(u *model.User) (*model.User, error) {
+	return s.UsersRepo.AddUser(u)
 }
 
-func (s *Service) ListUsers() []model.User {
-	return s.users.GetUsers()
+func (s *Service) ListUsers() ([]model.User, error) {
+	return s.UsersRepo.GetUsers()
 }
 
-func (s *Service) FindUser(id int) *model.User {
-	return s.users.GetUserByID(id)
+func (s *Service) FindUser(id int) (*model.User, error) {
+	return s.UsersRepo.GetUserByID(id)
 }
 
-func (s *Service) EditUser(id int, username, password string) bool {
-	return s.users.UpdateUser(id, username, password)
+func (s *Service) EditUser(u *model.User) (*model.User, error) {
+	return s.UsersRepo.UpdateUser(u)
 }
 
-func (s *Service) RemoveUser(id int) bool {
-	return s.users.DeleteUser(id)
+func (s *Service) RemoveUser(id int) (int, error) {
+	return s.UsersRepo.DeleteUser(id)
 }

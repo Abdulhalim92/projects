@@ -20,12 +20,12 @@ func NewUsers(users map[int]model.User) *Users {
 func (u *Users) AddUser(username, password string) model.User {
 	u.LastID++
 	user := model.User{
-		ID:       u.LastID,
+		UserID:   u.LastID,
 		Username: username,
 		Password: password,
 	}
 
-	u.UsersMap[user.ID] = user
+	u.UsersMap[user.UserID] = user
 
 	fmt.Printf("User with username %s is created\n", user.Username)
 
@@ -61,7 +61,7 @@ func (u *Users) UpdateUser(id int, username, password string) bool {
 
 	u.UsersMap[id] = user
 
-	fmt.Printf("User with id %d updated: Username: %s\n", id, user.Username)
+	// fmt.Printf("User with id %d updated: Username: %s\n", id, user.Username)
 
 	return true
 }
