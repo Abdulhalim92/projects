@@ -1,0 +1,9 @@
+docker-compose -f docker-compose.dev.yml down -v    используется для остановки и удаления контейнеров
+docker-compose -f docker-compose.dev.yml up         команду для создания и запуска контейнеров:
+docker-compose -f docker-compose.dev.yml ps         эта команда позволяет вам увидеть, какие контейнеры в данный момент работают, их статус и другую информацию, определенную в файле docker-compose.dev.yml.
+
+
+goose create create_sources sql
+goose create create_articles sql
+goose postgres "host=localhost user=postgres database=news_feed_bot password=postgres sslmode=disable" status
+goose postgres "host=localhost user=postgres database=news_feed_bot password=postgres sslmode=disable" up
