@@ -1,45 +1,16 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
-	"io/ioutil"
-	"library-system/internal/book"
-	"library-system/internal/user"
-	"os"
-
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
+	"library-system/internal/book"
+	"library-system/internal/user"
+	"net/http"
 )
 
 func main() {
 	fmt.Println("Library System")
-	type BookJSON struct {
-		title     string
-		author_id int
-	}
-
-	var books []BookJSON
-
-	data, err := ioutil.ReadFile("books.json")
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-	f, err := os.OpenFile("books.json", os.O_RDWR, 0064)
-	if err != nil {
-		fmt.Println("error when opening file", err)
-		return
-	}
-	defer f.Close()
-	buf := make([]byte, 64)
-	f.Read(buf)
-
-	err = json.Unmarshal(data, &books)
-	if err != nil {
-		fmt.Println("error when unmarshaling", err)
-		return
-	}
 
 	db, err := connectToDB()
 	if err != nil {
@@ -53,6 +24,16 @@ func main() {
 	// Инициализация пользователей
 	userRepo := user.NewUserRepo(db)
 	userService := user.NewService(*userRepo)
+
+	mux := http.NewServeMux()
+	bookHandler := book.NewBookHandler(mux, bookService)
+	bookHandler.InitRoutes()
+
+	fmt.Printf("Server is starting... address: %v", ":8080\n")
+	err = http.ListenAndServe("localhost:8080", bookHandler)
+	if err != nil {
+		panic(err)
+	}
 
 	for {
 		fmt.Println("Enter command:")
