@@ -2,11 +2,16 @@ package main
 
 import (
 	"fmt"
-	"gorm.io/driver/postgres"
-	"gorm.io/gorm"
+	"library-system/internal/author"
 	"library-system/internal/book"
+	"library-system/internal/borrow"
+	"library-system/internal/profile"
+	"library-system/internal/review"
 	"library-system/internal/user"
 	"net/http"
+
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
 )
 
 func main() {
@@ -17,17 +22,38 @@ func main() {
 		panic(err) // TODO
 	}
 
-	// Инициализация книг
 	bookRepo := book.NewBookRepo(db)
 	bookService := book.NewService(*bookRepo)
 
-	// Инициализация пользователей
 	userRepo := user.NewUserRepo(db)
 	userService := user.NewService(*userRepo)
 
+	authorRepo := author.NewAuthorRepo(db)
+	authorService := author.NewService(*authorRepo)
+
+	profileRepo := profile.NewProfileRepo(db)
+	profileService := profile.NewService(*profileRepo)
+
+	reviewRepo := review.NewReviewRepo(db)
+	reviewService := review.NewService(*reviewRepo)
+
+	borrowRepo := borrow.NewBorrowRepo(db)
+	borrowService := borrow.NewService(*borrowRepo)
+
 	mux := http.NewServeMux()
 	bookHandler := book.NewBookHandler(mux, bookService)
+	userHandler := user.NewUserHandler(mux, userService)
+	authorHandler := author.NewAuthorHandler(mux, authorService)
+	profileHandler := profile.NewProfileHandler(mux, profileService)
+	reviewHandler := review.NewReviewHandler(mux, reviewService)
+	borrowHandler := borrow.NewBorrowHandler(mux, borrowService)
+
 	bookHandler.InitRoutes()
+	userHandler.InitRoutes()
+	authorHandler.InitRoutes()
+	profileHandler.InitRoutes()
+	reviewHandler.InitRoutes()
+	borrowHandler.InitRoutes()
 
 	fmt.Printf("Server is starting... address: %v", ":8080\n")
 	err = http.ListenAndServe("localhost:8080", bookHandler)

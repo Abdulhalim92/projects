@@ -12,7 +12,7 @@ type AuthorRepo struct {
 	db *gorm.DB
 }
 
-func NewUserRepo(db *gorm.DB) *AuthorRepo {
+func NewAuthorRepo(db *gorm.DB) *AuthorRepo {
 	return &AuthorRepo{db: db}
 }
 

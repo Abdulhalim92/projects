@@ -117,7 +117,7 @@ func (h *ProfileHandler) AddProfile(w http.ResponseWriter, r *http.Request) {
 		Address: addr,
 	}
 
-	profile, err = h.profileService.ur.AddProfile(profile)
+	profile, err = h.profileService.pr.AddProfile(profile)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte(err.Error()))
