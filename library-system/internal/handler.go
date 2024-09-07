@@ -42,6 +42,13 @@ func (h *Handler) InitRoutes() {
 		h.mux.HandleFunc("/users/delete/{id}", h.DeleteUser)
 		h.mux.HandleFunc("/users/update/{id}", h.UpdateUser)
 	}
+	{
+		h.mux.HandleFunc("/authors", h.GetAuthors)
+		// h.mux.HandleFunc("/author/{id}", h.GetAuthorByID)
+		// h.mux.HandleFunc("/author/add", h.AddUser)
+		// h.mux.HandleFunc("/author/delete/{id}", h.DeleteUser)
+		// h.mux.HandleFunc("/author/update/{id}", h.UpdateUser)	
+	}
 }
 
 // BookHandlers
@@ -425,3 +432,42 @@ func (h *Handler) DeleteUser(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte("User deleted"))
 }
+
+// UserHandlers
+
+func (h *Handler) GetAuthors(w http.ResponseWriter, r *http.Request){
+	users, err := h.service.ListAuthors()
+	if err != nil {
+		log.Printf("GetAuthors - h.service.ListAuthors error: %v", err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+
+	data, err := json.MarshalIndent(users, "", "    ")
+	if err != nil {
+		log.Printf("GetAuthors - json.MarshalIndent error: %v", err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	w.Write(data)
+}
+
+// func (s *Handler) GetAuthorByID(authorID int) (*model.Author, error) {
+// 	return s.Repository.GetAuthorByID(authorID)
+// }
+
+// func (s *Handler) AddAuthor(a *model.Author) (*model.Author, error) {
+// 	return s.Repository.AddAuthor(a)
+// }
+
+// func (s *Handler) UpdateAuthor(a *model.Author) (*model.Author, error) {
+// 	return s.Repository.UpdateAuthor(a)
+// }
+
+// func (s *Handler) DeleteAuthor(authorID int) (int, error) {
+// 	return s.Repository.DeleteAuthor(authorID)
+// }

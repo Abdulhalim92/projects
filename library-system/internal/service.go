@@ -149,3 +149,65 @@ func (s *Service) RemoveUser(id int) (int, error) {
 
 	return s.Repository.DeleteUser(id)
 }
+
+// AuthorService
+
+func (s *Service) CreateAuthor(u *model.Author) (*model.Author, error) {
+	authorByID, err := s.Repository.GetAuthorByID(u.AuthorID)
+	if err != nil {
+		return nil, err
+	}
+	if authorByID != nil {
+		return nil, fmt.Errorf("author with id %d already exists", u.AuthorID)
+	}
+
+	return s.Repository.AddAuthor(u)
+}
+
+func (s *Service) ListAuthors() ([]model.Author, error) {
+	authors, err := s.Repository.GetAuthors()
+	if err != nil {
+		return nil, err
+	}
+	if len(authors) == 0 {
+		return nil, fmt.Errorf("no users found")
+	}
+
+	return s.Repository.GetAuthors()
+}
+
+func (s *Service) FindAuthor(id int) (*model.User, error) {
+	userByID, err := s.Repository.GetUserByID(id)
+	if err != nil {
+		return nil, err
+	}
+	if userByID == nil {
+		return nil, fmt.Errorf("user with id %d not found", id)
+	}
+
+	return s.Repository.GetUserByID(id)
+}
+
+func (s *Service) EditAuthor(u *model.User) (*model.User, error) {
+	userByID, err := s.Repository.GetUserByID(u.UserID)
+	if err != nil {
+		return nil, err
+	}
+	if userByID == nil {
+		return nil, fmt.Errorf("user with id %d not found", u.UserID)
+	}
+
+	return s.Repository.UpdateUser(u)
+}
+
+func (s *Service) RemoveAuthor(id int) (int, error) {
+	userByID, err := s.Repository.GetUserByID(id)
+	if err != nil {
+		return 0, err
+	}
+	if userByID == nil {
+		return 0, fmt.Errorf("user with id %d not found", id)
+	}
+
+	return s.Repository.DeleteUser(id)
+}
