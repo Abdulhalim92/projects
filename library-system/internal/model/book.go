@@ -3,7 +3,7 @@ package model
 import "time"
 
 type Book struct {
-	BookId   int    `json:"bookd_id" gorm:"primaryKey"`
+	BookID   int    `json:"book_id" gorm:"primaryKey"`
 	Title    string `json:"title"`
 	AuthorID int    `json:"author_id"`
 }
@@ -23,4 +23,10 @@ type Borrow struct {
 	BookID     int
 	BorrowDate time.Time
 	ReturnDate time.Time
+}
+
+type ReviewFilter struct {
+	ReviewID int
+	BookID   int
+	UserID   int
 }
