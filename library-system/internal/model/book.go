@@ -3,9 +3,9 @@ package model
 import "time"
 
 type Book struct {
-	BookId int
-	Title  string
-	Author string
+	BookId   int    `json:"bookd_id" gorm:"primaryKey"`
+	Title    string `json:"title"`
+	AuthorID int    `json:"author_id"`
 }
 
 type Reviews struct {
