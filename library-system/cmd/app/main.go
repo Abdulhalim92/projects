@@ -21,17 +21,17 @@ func main() {
 	}
 
 	// Инициализация репозитория
-	repository := repository.NewRepository(db)
+	newRepository := repository.NewRepository(db)
 	// Инициализация сервиса
-	service := service.NewService(*repository)
+	newService := service.NewService(*newRepository)
 	//
 	mux := http.NewServeMux()
 	// Инициализация обработчика
-	handler := handler.NewHandler(mux, service)
-	handler.InitRoutes()
+	newHandler := handler.NewHandler(mux, newService)
+	newHandler.InitRoutes()
 
 	fmt.Printf("Server is starting... address: %v", ":8080\n")
-	err = http.ListenAndServe("localhost:8080", handler)
+	err = http.ListenAndServe("localhost:8080", newHandler)
 	if err != nil {
 		panic(err)
 	}
