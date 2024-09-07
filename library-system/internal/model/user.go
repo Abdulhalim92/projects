@@ -9,7 +9,7 @@ type User struct {
 	//UpdatedAt time.Time
 }
 
-type Profiles struct {
+type Profile struct {
 	UserID  int
 	Email   string
 	Address string
