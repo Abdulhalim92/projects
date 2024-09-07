@@ -1,19 +1,9 @@
-package internal
+package service
 
 import (
 	"fmt"
 	"projects/internal/model"
 )
-
-type Service struct {
-	Repository Repository
-}
-
-func NewService(r Repository) *Service {
-	return &Service{Repository: r}
-}
-
-// BookService
 
 func (s *Service) CreateBook(b *model.Book) (*model.Book, error) {
 	books, err := s.Repository.GetBooksByAuthor(b.AuthorID)
@@ -33,6 +23,14 @@ func (s *Service) CreateBook(b *model.Book) (*model.Book, error) {
 }
 
 func (s *Service) ListBooks() ([]model.Book, error) {
+	books, err := s.Repository.GetBooks()
+	if err != nil {
+		return nil, err
+	}
+	if len(books) == 0 {
+		return nil, fmt.Errorf("no books found")
+	}
+
 	return s.Repository.GetBooks()
 }
 
@@ -61,12 +59,12 @@ func (s *Service) FindBooksByAuthor(authorID int) ([]model.Book, error) {
 }
 
 func (s *Service) EditBook(b *model.Book) (*model.Book, error) {
-	book, err := s.Repository.GetBookByID(b.BookId)
+	book, err := s.Repository.GetBookByID(b.BookID)
 	if err != nil {
 		return nil, err
 	}
 	if book == nil {
-		return nil, fmt.Errorf("book with id %d not found", b.BookId)
+		return nil, fmt.Errorf("book with id %d not found", b.BookID)
 	}
 
 	return s.Repository.UpdateBook(b)
@@ -86,66 +84,4 @@ func (s *Service) RemoveBook(id int) (int, error) {
 
 func (s *Service) GetBooksByAuthor(authorID int) ([]model.Book, error) {
 	return s.Repository.GetBooksByAuthor(authorID)
-}
-
-// UserService
-
-func (s *Service) CreateUser(u *model.User) (*model.User, error) {
-	userByID, err := s.Repository.GetUserByID(u.UserID)
-	if err != nil {
-		return nil, err
-	}
-	if userByID != nil {
-		return nil, fmt.Errorf("user with id %d already exists", u.UserID)
-	}
-
-	return s.Repository.AddUser(u)
-}
-
-func (s *Service) ListUsers() ([]model.User, error) {
-	users, err := s.Repository.GetUsers()
-	if err != nil {
-		return nil, err
-	}
-	if len(users) == 0 {
-		return nil, fmt.Errorf("no users found")
-	}
-
-	return s.Repository.GetUsers()
-}
-
-func (s *Service) FindUser(id int) (*model.User, error) {
-	userByID, err := s.Repository.GetUserByID(id)
-	if err != nil {
-		return nil, err
-	}
-	if userByID == nil {
-		return nil, fmt.Errorf("user with id %d not found", id)
-	}
-
-	return s.Repository.GetUserByID(id)
-}
-
-func (s *Service) EditUser(u *model.User) (*model.User, error) {
-	userByID, err := s.Repository.GetUserByID(u.UserID)
-	if err != nil {
-		return nil, err
-	}
-	if userByID == nil {
-		return nil, fmt.Errorf("user with id %d not found", u.UserID)
-	}
-
-	return s.Repository.UpdateUser(u)
-}
-
-func (s *Service) RemoveUser(id int) (int, error) {
-	userByID, err := s.Repository.GetUserByID(id)
-	if err != nil {
-		return 0, err
-	}
-	if userByID == nil {
-		return 0, fmt.Errorf("user with id %d not found", id)
-	}
-
-	return s.Repository.DeleteUser(id)
 }
