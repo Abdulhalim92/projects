@@ -7,8 +7,8 @@ import (
 )
 
 func (r *Repository) AddBook(b *model.Book) (*model.Book, error) {
-	result := r.db.Create(&b)
 	// insert into books (title, author_id) values ('War and Peace', 1)
+	result := r.db.Create(&b)
 	if result.Error != nil {
 		log.Printf("Addbook: Failed to add book: %v\n", result.Error)
 		return nil, fmt.Errorf("Failed to add book: %v\n", result.Error)
@@ -24,7 +24,7 @@ func (r *Repository) GetBooks() ([]model.Book, error) {
 	err := r.db.Find(&b).Error
 	if err != nil {
 		log.Printf("GetBooks: Failed to get books: %v\n", err)
-		return nil, fmt.Errorf("Cannon find books with error: %v", err)
+		return nil, fmt.Errorf("cannon find books with error: %v", err)
 	}
 
 	return b, nil
@@ -37,7 +37,7 @@ func (r *Repository) GetBookByID(bookID int) (*model.Book, error) {
 	err := r.db.Where("book_id = ?", bookID).Find(&b).Error
 	if err != nil {
 		log.Printf("GetBookByID: Failed to get book: %v\n", err)
-		return nil, fmt.Errorf("Cannot find book with error: %v", err)
+		return nil, fmt.Errorf("cannot find book with error: %v", err)
 	}
 
 	return &b, nil
