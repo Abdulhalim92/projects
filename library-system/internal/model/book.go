@@ -9,20 +9,20 @@ type Book struct {
 }
 
 type Reviews struct {
-	ReviewID   int
-	UserID     int
-	BookID     int
-	ReviewText string
-	Rating     float64
-	ReviewDate time.Time
+	ReviewID   int       `json:"review_id" gorm:"primaryKey"`
+	UserID     int       `json:"user_id"`
+	BookID     int       `json:"book_id"`
+	ReviewText string    `json:"review_text"`
+	Rating     float64   `json:"rating"`
+	ReviewDate time.Time `json:"review_date"`
 }
 
 type Borrow struct {
-	BorrowID   int
-	UserID     int
-	BookID     int
-	BorrowDate time.Time
-	ReturnDate time.Time
+	BorrowID   int       `json:"borrow_id" gorm:"primaryKey"`
+	UserID     int       `json:"user_id"`
+	BookID     int       `json:"book_id"`
+	BorrowDate time.Time `json:"borrow_date"`
+	ReturnDate time.Time `json:"return_date"`
 }
 
 type ReviewFilter struct {
