@@ -1,26 +1,19 @@
-package ReviewDataBase
+package repository
 
 import (
 	"fmt"
-	"gorm.io/gorm"
+	"log"
 	"projects/internal/model"
 )
 
-type ReviewRep struct {
-	db *gorm.DB
-}
-
-func NewReviewRep(db *gorm.DB) *ReviewRep {
-	return &ReviewRep{db: db}
-}
-func (r *ReviewRep) AddReview(review *model.Review) (*model.Review, error) {
+func (r *Repository) AddReview(review *model.Review) (*model.Review, error) {
 	err := r.db.Table("reviews").Create(review).Error
 	if err != nil {
 		return nil, fmt.Errorf("error adding a review: %v", err)
 	}
 	return review, nil
 }
-func (r *ReviewRep) GetReviews() ([]model.Review, error) {
+func (r *Repository) GetReviews() ([]model.Review, error) {
 	var reviews []model.Review
 	err := r.db.Table("reviews").Find(&reviews).Error
 	if err != nil {
@@ -28,7 +21,7 @@ func (r *ReviewRep) GetReviews() ([]model.Review, error) {
 	}
 	return reviews, nil
 }
-func (r *ReviewRep) GetReviewById(id int) (*model.Review, error) {
+func (r *Repository) GetReviewById(id int) (*model.Review, error) {
 	var review model.Review
 	err := r.db.Table("reviews").Where("review_id = ?", id).Scan(&review).Error
 	if err != nil {
@@ -36,21 +29,21 @@ func (r *ReviewRep) GetReviewById(id int) (*model.Review, error) {
 	}
 	return &review, err
 }
-func (r *ReviewRep) UpdateReview(review *model.Review) (*model.Review, error) {
+func (r *Repository) UpdateReview(review *model.Review) (*model.Review, error) {
 	err := r.db.Updates(review).Error
 	if err != nil {
 		return nil, fmt.Errorf("error updating a review: %v", err)
 	}
 	return review, nil
 }
-func (r *ReviewRep) DeleteReviewById(id int) (int, error) {
+func (r *Repository) DeleteReviewById(id int) (int, error) {
 	err := r.db.Delete(&model.Review{}, id).Error
 	if err != nil {
 		return 0, fmt.Errorf("error deleting a review: %v", err)
 	}
 	return id, nil
 }
-func (r *ReviewRep) GetReviewsByBookID(BookID int) ([]model.Review, error) {
+func (r *Repository) GetReviewsByBookID(BookID int) ([]model.Review, error) {
 	var reviews []model.Review
 	err := r.db.Table("reviews").Where("book_id = ?", BookID).Scan(&reviews).Error
 	if err != nil {
@@ -58,11 +51,23 @@ func (r *ReviewRep) GetReviewsByBookID(BookID int) ([]model.Review, error) {
 	}
 	return reviews, nil
 }
-func (r *ReviewRep) GetReviewsByUserID(UserID int) ([]model.Review, error) {
+func (r *Repository) GetReviewsByUserID(UserID int) ([]model.Review, error) {
 	var reviews []model.Review
 	err := r.db.Table("reviews").Where("user_id = ?", UserID).Scan(&reviews).Error
 	if err != nil {
 		return nil, fmt.Errorf("error while getting reviews by userID: %v", err)
 	}
+	return reviews, nil
+}
+func (r *Repository) GetReviewsByFilter(filter model.ReviewFilter) ([]model.Review, error) {
+	var reviews []model.Review
+
+	// select * from reviews where book_id = bookID
+	err := r.db.Where(filter).Find(&reviews).Error
+	if err != nil {
+		log.Printf("GetReviewsByFilter: Failed to get reviews: %v\n", err)
+		return nil, fmt.Errorf("cannot find reviews with error: %v", err)
+	}
+
 	return reviews, nil
 }

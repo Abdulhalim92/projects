@@ -1,22 +1,15 @@
-package ReviewDataBase
+package service
 
 import (
 	"fmt"
 	"projects/internal/model"
 )
 
-type Service struct {
-	r *ReviewRep
-}
-
-func NewService(r *ReviewRep) *Service {
-	return &Service{r: r}
-}
 func (s *Service) CreateReview(r *model.Review) (*model.Review, error) {
-	return s.r.AddReview(r)
+	return s.Repository.AddReview(r)
 }
 func (s *Service) ListReviews() ([]model.Review, error) {
-	reviews, err := s.r.GetReviews()
+	reviews, err := s.Repository.GetReviews()
 	if err != nil {
 		return nil, err
 	} else if len(reviews) == 0 {
@@ -25,7 +18,7 @@ func (s *Service) ListReviews() ([]model.Review, error) {
 	return reviews, nil
 }
 func (s *Service) ListReviewById(id int) (*model.Review, error) {
-	review, err := s.r.GetReviewById(id)
+	review, err := s.Repository.GetReviewById(id)
 	if err != nil {
 		return nil, err
 	} else if review.ReviewID == 0 {
@@ -34,7 +27,7 @@ func (s *Service) ListReviewById(id int) (*model.Review, error) {
 	return review, nil
 }
 func (s *Service) ListReviewsByUserId(UserID int) ([]model.Review, error) {
-	reviews, err := s.r.GetReviewsByUserID(UserID)
+	reviews, err := s.Repository.GetReviewsByUserID(UserID)
 	if err != nil {
 		return nil, err
 	} else if len(reviews) == 0 {
@@ -43,7 +36,7 @@ func (s *Service) ListReviewsByUserId(UserID int) ([]model.Review, error) {
 	return reviews, nil
 }
 func (s *Service) ListReviewsByBookId(BookID int) ([]model.Review, error) {
-	reviews, err := s.r.GetReviewsByBookID(BookID)
+	reviews, err := s.Repository.GetReviewsByBookID(BookID)
 	if err != nil {
 		return nil, err
 	} else if len(reviews) == 0 {
@@ -52,20 +45,32 @@ func (s *Service) ListReviewsByBookId(BookID int) ([]model.Review, error) {
 	return reviews, nil
 }
 func (s *Service) EditReview(rev *model.Review) (*model.Review, error) {
-	review, err := s.r.GetReviewById(rev.ReviewID)
+	review, err := s.Repository.GetReviewById(rev.ReviewID)
 	if err != nil {
 		return nil, err
 	} else if review.ReviewID == 0 {
 		return nil, fmt.Errorf("no review with such id")
 	}
-	return s.r.UpdateReview(rev)
+	return s.Repository.UpdateReview(rev)
 }
 func (s *Service) RemoveReviewById(id int) (int, error) {
-	review, err := s.r.GetReviewById(id)
+	review, err := s.Repository.GetReviewById(id)
 	if err != nil {
 		return 0, err
 	} else if review.ReviewID == 0 {
 		return 0, fmt.Errorf("such review doesn't exist")
 	}
-	return s.r.DeleteReviewById(id)
+	return s.Repository.DeleteReviewById(id)
+}
+func (s *Service) GetReviewsByFilter(filter model.ReviewFilter) ([]model.Review, error) {
+	reviewsByFilter, err := s.Repository.GetReviewsByFilter(filter)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(reviewsByFilter) == 0 {
+		return nil, fmt.Errorf("no reviews found")
+	}
+
+	return reviewsByFilter, nil
 }

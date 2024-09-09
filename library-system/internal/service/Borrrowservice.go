@@ -1,19 +1,12 @@
-package borrowDataBase
+package service
 
 import (
 	"fmt"
 	"projects/internal/model"
 )
 
-type Service struct {
-	b *BorrowRep
-}
-
-func NewService(b *BorrowRep) *Service {
-	return &Service{b: b}
-}
 func (s *Service) CreateBorrow(b *model.Borrow) (*model.Borrow, error) {
-	borrows, err := s.b.GetBorrows()
+	borrows, err := s.Repository.GetBorrows()
 	if err != nil {
 		return nil, err
 	}
@@ -24,10 +17,10 @@ func (s *Service) CreateBorrow(b *model.Borrow) (*model.Borrow, error) {
 			}
 		}
 	}
-	return s.b.AddBorrow(b)
+	return s.Repository.AddBorrow(b)
 }
 func (s *Service) ListBorrows() ([]model.Borrow, error) {
-	borrows, err := s.b.GetBorrows()
+	borrows, err := s.Repository.GetBorrows()
 	if err != nil {
 		return nil, err
 	} else if len(borrows) == 0 {
@@ -36,7 +29,7 @@ func (s *Service) ListBorrows() ([]model.Borrow, error) {
 	return borrows, nil
 }
 func (s *Service) ListBorrowById(id int) (*model.Borrow, error) {
-	b, err := s.b.GetBorrowById(id)
+	b, err := s.Repository.GetBorrowById(id)
 	if err != nil {
 		return nil, err
 	} else if b.BorrowID == 0 {
@@ -45,7 +38,7 @@ func (s *Service) ListBorrowById(id int) (*model.Borrow, error) {
 	return b, nil
 }
 func (s *Service) ListBorrowByUserId(UserID int) ([]model.Borrow, error) {
-	borrows, err := s.b.GetBorrowsByUser(UserID)
+	borrows, err := s.Repository.GetBorrowsByUser(UserID)
 	if err != nil {
 		return nil, err
 	} else if len(borrows) == 0 {
@@ -54,20 +47,20 @@ func (s *Service) ListBorrowByUserId(UserID int) ([]model.Borrow, error) {
 	return borrows, nil
 }
 func (s *Service) EditBorrow(b *model.Borrow) (*model.Borrow, error) {
-	bor, err := s.b.GetBorrowById(b.BorrowID)
+	bor, err := s.Repository.GetBorrowById(b.BorrowID)
 	if err != nil {
 		return nil, err
 	} else if bor.BorrowID == 0 {
 		return nil, fmt.Errorf("no borrow with such id")
 	}
-	return s.b.UpdateBorrow(b)
+	return s.Repository.UpdateBorrow(b)
 }
 func (s *Service) RemoveBorrow(id int) (int, error) {
-	bor, err := s.b.GetBorrowById(id)
+	bor, err := s.Repository.GetBorrowById(id)
 	if err != nil {
 		return 0, err
 	} else if bor.BorrowID == 0 {
 		return 0, fmt.Errorf("no borrow with such id")
 	}
-	return s.b.DeleteBorrowById(id)
+	return s.Repository.DeleteBorrowById(id)
 }

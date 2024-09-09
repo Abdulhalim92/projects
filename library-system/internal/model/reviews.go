@@ -8,3 +8,8 @@ type Review struct {
 	Rating     float64
 	ReviewData string
 }
+type ReviewFilter struct {
+	ReviewID int
+	BookID   int
+	UserID   int
+}

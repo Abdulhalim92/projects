@@ -1,19 +1,12 @@
-package BookDataBase
+package service
 
 import (
 	"fmt"
 	"projects/internal/model"
 )
 
-type Service struct {
-	b *BookRepository
-}
-
-func NewService(b *BookRepository) *Service {
-	return &Service{b}
-}
 func (s *Service) CreateBook(book *model.Book) (*model.Book, error) {
-	books, err := s.b.GetBooksByAuthor(book.AuthorID)
+	books, err := s.Repository.GetBooksByAuthor(book.AuthorID)
 	if err != nil {
 		return nil, err
 	}
@@ -24,14 +17,14 @@ func (s *Service) CreateBook(book *model.Book) (*model.Book, error) {
 			}
 		}
 	}
-	return s.b.AddBook(book)
+	return s.Repository.AddBook(book)
 }
 
 func (s *Service) ListBooks() ([]model.Book, error) {
-	return s.b.GetBooks()
+	return s.Repository.GetBooks()
 }
 func (s *Service) FindBook(id int) (*model.Book, error) {
-	book, err := s.b.GetBookById(id)
+	book, err := s.Repository.GetBookById(id)
 	if err != nil {
 		return nil, err
 	}
@@ -41,7 +34,7 @@ func (s *Service) FindBook(id int) (*model.Book, error) {
 	return book, nil
 }
 func (s *Service) FindBooksByAuthor(id int) ([]model.Book, error) {
-	books, err := s.b.GetBooksByAuthor(id)
+	books, err := s.Repository.GetBooksByAuthor(id)
 	if err != nil {
 		return nil, err
 	} else if len(books) == 0 {
@@ -50,22 +43,22 @@ func (s *Service) FindBooksByAuthor(id int) ([]model.Book, error) {
 	return books, nil
 }
 func (s *Service) EditBook(book *model.Book) (*model.Book, error) {
-	bookById, err := s.b.GetBookById(book.BookID)
+	bookById, err := s.Repository.GetBookById(book.BookID)
 	if err != nil {
 		return nil, err
 	}
 	if bookById.BookID == 0 {
 		return nil, fmt.Errorf("no such book")
 	}
-	return s.b.UpdateBook(book)
+	return s.Repository.UpdateBook(book)
 }
 func (s *Service) RemoveBook(id int) (int, error) {
-	book, err := s.b.GetBookById(id)
+	book, err := s.Repository.GetBookById(id)
 	if err != nil {
 		return 0, err
 	}
 	if book.BookID == 0 {
 		return 0, fmt.Errorf("no book with such id")
 	}
-	return s.b.DeleteBook(id)
+	return s.Repository.DeleteBook(id)
 }

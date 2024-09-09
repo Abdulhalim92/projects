@@ -73,7 +73,8 @@ TRUNCATE TABLE profiles RESTART IDENTITY;
 TRUNCATE TABLE reviews RESTART IDENTITY;
 TRUNCATE TABLE authors RESTART IDENTITY CASCADE;
 
-
+SELECT * FROM books;
+DELETE FROM books WHERE book_id = 4;
 INSERT INTO authors (name, biography)
 VALUES
     ('J. K. Rowling', 'writer of Harry Potter'),
