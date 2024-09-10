@@ -111,7 +111,7 @@ func (h *Handler) AddBook(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	//log.Printf("AddBook - incoming request: %v", string(data))
+	//log.Printf("AddBook - incoming request: %v\n", string(data))
 
 	var book model.Book
 

@@ -3,6 +3,7 @@ package service
 import (
 	"fmt"
 	"projects/internal/model"
+	"projects/internal/utils"
 )
 
 func (s *Service) CreateUser(u *model.User) (*model.User, error) {
@@ -14,7 +15,26 @@ func (s *Service) CreateUser(u *model.User) (*model.User, error) {
 		return nil, fmt.Errorf("user with id %d already exists", u.UserID)
 	}
 
+	hashedPassword, err := utils.HashPassword(u.Password)
+	if err != nil {
+		// TODO
+	}
+
+	u.Password = hashedPassword
+
 	return s.Repository.AddUser(u)
+}
+
+func (s *Service) SignIn(u *model.User) (token, error) {
+	user, err := s.Repository.GetUserByUsername(u.Username)
+
+	b := utils.CheckPasswordHash(u.Password, user.Password)
+	if !b {
+		// TODO
+	}
+
+	token, err2 := utils.GenerateJWT(u.Username)
+
 }
 
 func (s *Service) ListUsers() ([]model.User, error) {
