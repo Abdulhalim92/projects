@@ -12,19 +12,28 @@ import (
 )
 
 func main() {
+	fmt.Println("Library System")
+
+	// Подключение к базе данных
 	db, err := ConnectToDb()
 	if err != nil {
-		log.Fatal(err)
+		log.Panicf("Failed to connect to database: %v", err)
 	}
+
+	// Инициализация репозитория
+	newRepository := repository.NewRepository(db)
+	// Инициализация сервиса
+	newService := service.NewService(*newRepository)
+	//
 	mux := http.NewServeMux()
-	b := repository.NewBookRepository(db)
-	BookService := service.NewService(b)
-	BookHandler := handler.NewBookHandler(mux, BookService)
-	BookHandler.InitRoutes()
-	fmt.Printf("server is starring on port: %v", ":8080/n")
-	err = http.ListenAndServe("localhost:8080", mux)
+	// Инициализация обработчика
+	newHandler := handler.NewHandler(mux, newService)
+	newHandler.InitRoutes()
+
+	fmt.Printf("Server is starting... address: %v", ":8080\n")
+	err = http.ListenAndServe("localhost:8080", newHandler)
 	if err != nil {
-		log.Fatal(err)
+		panic(err)
 	}
 }
 func ConnectToDb() (*gorm.DB, error) {

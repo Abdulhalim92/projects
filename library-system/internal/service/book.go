@@ -24,7 +24,7 @@ func (s *Service) ListBooks() ([]model.Book, error) {
 	return s.Repository.GetBooks()
 }
 func (s *Service) FindBook(id int) (*model.Book, error) {
-	book, err := s.Repository.GetBookById(id)
+	book, err := s.Repository.GetBookByID(id)
 	if err != nil {
 		return nil, err
 	}
@@ -43,7 +43,7 @@ func (s *Service) FindBooksByAuthor(id int) ([]model.Book, error) {
 	return books, nil
 }
 func (s *Service) EditBook(book *model.Book) (*model.Book, error) {
-	bookById, err := s.Repository.GetBookById(book.BookID)
+	bookById, err := s.Repository.GetBookByID(book.BookID)
 	if err != nil {
 		return nil, err
 	}
@@ -53,7 +53,7 @@ func (s *Service) EditBook(book *model.Book) (*model.Book, error) {
 	return s.Repository.UpdateBook(book)
 }
 func (s *Service) RemoveBook(id int) (int, error) {
-	book, err := s.Repository.GetBookById(id)
+	book, err := s.Repository.GetBookByID(id)
 	if err != nil {
 		return 0, err
 	}

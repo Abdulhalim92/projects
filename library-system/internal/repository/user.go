@@ -2,43 +2,63 @@ package repository
 
 import (
 	"fmt"
+	"log"
 	"projects/internal/model"
 )
 
-func (r *Repository) AddUser(user *model.User) (*model.User, error) {
-	err := r.db.Create(&user).Error
-	if err != nil {
-		return nil, fmt.Errorf("error while adding a user: %v", err)
+func (r *Repository) AddUser(u *model.User) (*model.User, error) {
+	// insert into users (username, password) values ('admin', 'admin')
+	result := r.db.Create(&u)
+	if result.Error != nil {
+		log.Printf("AddUser: Failed to add user: %v\n", result.Error)
+		return nil, fmt.Errorf("Failed to add user: %v\n", result.Error)
 	}
-	return user, nil
+
+	return u, nil
 }
+
 func (r *Repository) GetUsers() ([]model.User, error) {
 	var users []model.User
-	err := r.db.Find(&users).Error
-	if err != nil {
-		return nil, fmt.Errorf("error while getting users: %v", err)
+
+	// select * from users
+	result := r.db.Find(&users)
+	if result.Error != nil {
+		log.Printf("GetUsers: Failed to get users: %v\n", result.Error)
+		return nil, fmt.Errorf("Failed to get users: %v\n", result.Error)
 	}
 	return users, nil
 }
-func (r *Repository) GetUserById(id int) (*model.User, error) {
+
+func (r *Repository) GetUserByID(id int) (*model.User, error) {
 	var user model.User
-	err := r.db.Table("users").Where("user_id = ?", id).Select("userID", "username", "password").Scan(&user).Error
-	if err != nil {
-		return nil, fmt.Errorf("error while getting a user: %v", err)
+
+	// select * from users where user_id = id
+	result := r.db.First(&user, id)
+	if result.Error != nil {
+		log.Printf("GetUserByID: Failed to get user: %v\n", result.Error)
+		return nil, fmt.Errorf("Failed to get user: %v\n", result.Error)
 	}
 	return &user, nil
 }
-func (r *Repository) UpdateUser(user *model.User) (*model.User, error) {
-	err := r.db.Updates(user).Error
-	if err != nil {
-		return nil, fmt.Errorf("error while updating a user: %v", err)
+
+func (r *Repository) UpdateUser(u *model.User) (*model.User, error) {
+	// update users set username = 'admin', password = 'admin' where user_id = 1
+	result := r.db.Model(&u).Updates(&u)
+	if result.Error != nil {
+		log.Printf("UpdateUser: Failed to update user: %v\n", result.Error)
+		return nil, fmt.Errorf("Failed to update user: %v\n", result.Error)
 	}
-	return user, nil
+
+	return u, nil
 }
-func (r *Repository) DeleteUserById(id int) (int, error) {
-	err := r.db.Table("users").Delete(&model.User{}, id).Error
-	if err != nil {
-		return 0, fmt.Errorf("error while deleting: %v", err)
+
+func (r *Repository) DeleteUser(id int) (int, error) {
+	// delete from users where user_id = id
+	result := r.db.Delete(&model.User{}, id)
+	if result.Error != nil {
+		log.Printf("DeleteUser: Failed to delete user: %v\n", result.Error)
+		return 0, fmt.Errorf("Failed to delete user: %v\n", result.Error)
 	}
+
 	return id, nil
 }

@@ -1,7 +1,8 @@
 package model
 
 type Author struct {
-	Authorid  int `gorm:"primaryKey"`
+	AuthorID  int
 	Name      string
 	Biography string
+	Address   string
 }

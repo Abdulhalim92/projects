@@ -47,7 +47,7 @@ func (h *Handler) AddReview(w http.ResponseWriter, r *http.Request) {
 
 	//log.Printf("CreateReview - incoming request: %v", string(data))
 
-	var review model.Review
+	var review model.Reviews
 	err = json.Unmarshal(data, &review)
 	if err != nil {
 		log.Printf("CreateReview - json.Unmarshal error: %v", err)
@@ -82,7 +82,7 @@ func (h *Handler) AddReview(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) GetReviewByID(w http.ResponseWriter, r *http.Request) {
-	idStr := strings.TrimPrefix(r.URL.Path, "/reviews/get/")
+	idStr := strings.TrimPrefix(r.URL.Path, "/reviews/")
 
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
@@ -91,7 +91,7 @@ func (h *Handler) GetReviewByID(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	review, err := h.service.GetReviewById(id)
+	review, err := h.service.GetReviewByID(id)
 	if err != nil {
 		log.Printf("GetReview - h.service.GetReviewByID error: %v", err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -125,7 +125,7 @@ func (h *Handler) GetReviewsByBook(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	reviews, err := h.service.ListReviewsByBookId(id)
+	reviews, err := h.service.GetReviewsByBook(id)
 	if err != nil {
 		log.Printf("GetReviewsByBookID - h.service.GetReviewsByBookID error: %v", err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -159,7 +159,7 @@ func (h *Handler) GetReviewsByUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	reviews, err := h.service.ListReviewsByUserId(id)
+	reviews, err := h.service.GetReviewsByUser(id)
 	if err != nil {
 		log.Printf("GetReviewsByUserID - h.service.GetReviewsByUser error: %v", err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -242,7 +242,7 @@ func (h *Handler) UpdateReview(w http.ResponseWriter, r *http.Request) {
 
 	//log.Printf("EditReview - incoming request: %v", string(data))
 
-	var review model.Review
+	var review model.Reviews
 	err = json.Unmarshal(data, &review)
 	if err != nil {
 		log.Printf("EditReview - json.Unmarshal error: %v", err)
@@ -286,7 +286,7 @@ func (h *Handler) DeleteReview(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_, err = h.service.RemoveReviewById(id)
+	_, err = h.service.DeleteReview(id)
 	if err != nil {
 		log.Printf("DeleteReview - h.service.DeleteReview error: %v", err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)

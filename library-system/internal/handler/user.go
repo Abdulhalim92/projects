@@ -3,112 +3,185 @@ package handler
 import (
 	"encoding/json"
 	"io"
+	"log"
 	"net/http"
 	"projects/internal/model"
-	"projects/internal/service"
 	"strconv"
+	"strings"
 )
 
-type UserHandler struct {
-	mux     *http.ServeMux
-	Service *service.Service
+func (h *Handler) GetUsers(w http.ResponseWriter, r *http.Request) {
+	users, err := h.service.ListUsers()
+	if err != nil {
+		log.Printf("GetUsers - h.service.ListUsers error: %v", err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+
+	data, err := json.MarshalIndent(users, "", "    ")
+	if err != nil {
+		log.Printf("GetUsers - json.MarshalIndent error: %v", err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	w.Write(data)
 }
 
-func (u *UserHandler) InitUsers() {
-	u.mux.HandleFunc("/users", u.AddUser)
-	u.mux.HandleFunc("/users/{id}", u.GetUserById)
-	u.mux.HandleFunc("/users/delete/{id}", u.DeleteUser)
-	u.mux.HandleFunc("/users/update", u.DeleteUser)
-}
-func CreateUserHandler(mux *http.ServeMux, Service *service.Service) *UserHandler {
-	return &UserHandler{
-		mux:     mux,
-		Service: Service,
+func (h *Handler) GetUserByID(w http.ResponseWriter, r *http.Request) {
+
+	idStr := strings.TrimPrefix(r.URL.Path, "/users/")
+
+	if idStr == "" {
+		log.Printf("GetUserByID - id is required")
+		http.Error(w, "id is required", http.StatusBadRequest)
+		return
 	}
-}
-func (u *UserHandler) AddUser(w http.ResponseWriter, r *http.Request) {
-	defer r.Body.Close()
-	data, err := io.ReadAll(r.Body)
+
+	id, err := strconv.Atoi(idStr)
 	if err != nil {
+		log.Printf("GetUserByID - strconv.Atoi error: %v", err)
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	user, err := h.service.ListUserById(id)
+	if err != nil {
+		log.Printf("GetUserByID - h.service.GetUserByID error: %v", err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+
+	w.Header().Set("Content-Type", "application/json")
+	data, err := json.MarshalIndent(user, "", "    ")
+	if err != nil {
+		log.Printf("GetUserByID - json.MarshalIndent error: %v", err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	w.Write(data)
+}
+
+func (h *Handler) AddUser(w http.ResponseWriter, r *http.Request) {
+	defer r.Body.Close()
+
+	data, err := io.ReadAll(r.Body)
+	if err != nil {
+		log.Printf("AddUser - io.ReadAll error: %v", err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	//log.Printf("AddUser - incoming request: %v", string(data))
+
 	var user model.User
 	err = json.Unmarshal(data, &user)
 	if err != nil {
+		log.Printf("AddUser - json.Unmarshal error: %v", err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	_, err = u.Service.CreateUser(&user)
+
+	//log.Printf("AddUser - data after unmarshalling: %v", user)
+
+	createUser, err := h.service.CreateUser(&user)
 	if err != nil {
+		log.Printf("AddUser - h.service.CreateUser error: %v", err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	w.WriteHeader(http.StatusCreated)
-}
-func (u *UserHandler) GetUsers(w http.ResponseWriter, r *http.Request) {
-	users, err := u.Service.ListUsers()
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-	}
-	data, err := json.MarshalIndent(users, " ", "    ")
-	if err != nil {
-		http.Error(w, err.Error(), 0777)
-	}
+
+	//log.Printf("AddUser - created user: %v", createUser)
+
 	w.Header().Set("Content-Type", "application/json")
-	_, err = w.Write(data)
+
+	data, err = json.MarshalIndent(createUser, "", "    ")
 	if err != nil {
+		log.Printf("AddUser - json.MarshalIndent error: %v", err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
 	}
+
+	//log.Printf("AddUser - response to client: %v", string(data))
+
 	w.WriteHeader(http.StatusOK)
+	w.Write([]byte(data))
 }
-func (u *UserHandler) GetUserById(w http.ResponseWriter, r *http.Request) {
-	id, err := strconv.Atoi(r.PathValue("id"))
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-	}
-	user, err := u.Service.ListUserById(id)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-	}
-	data, err := json.MarshalIndent(user, " ", "    ")
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-	}
-	w.Header().Set("Content-Type", "application/json")
-	_, err = w.Write(data)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-	}
-	w.WriteHeader(http.StatusOK)
-}
-func (u *UserHandler) UpdateUser(w http.ResponseWriter, r *http.Request) {
+
+func (h *Handler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
+
 	data, err := io.ReadAll(r.Body)
 	if err != nil {
+		log.Printf("UpdateUser - io.ReadAll error: %v", err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
 	}
+
+	//log.Printf("UpdateUser - incoming request: %v", string(data))
+
 	var user model.User
 	err = json.Unmarshal(data, &user)
 	if err != nil {
+		log.Printf("UpdateUser - json.Unmarshal error: %v", err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
 	}
-	_, err = u.Service.EditUser(&user)
+
+	//log.Printf("UpdateUser - data after unmarshalling: %v", user)
+
+	updateUser, err := h.service.EditUser(&user)
 	if err != nil {
+		log.Printf("UpdateUser - h.service.UpdateUser error: %v", err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
 	}
+
+	//log.Printf("UpdateUser - updated user: %v", updateUser)
+
+	w.Header().Set("Content-Type", "application/json")
+
+	data, err = json.MarshalIndent(updateUser, "", "    ")
+	if err != nil {
+		log.Printf("UpdateUser - json.MarshalIndent error: %v", err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	//log.Printf("UpdateUser - response to client: %v", string(data))
+
 	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("User Upgraded"))
+	w.Write(data)
 }
-func (u *UserHandler) DeleteUser(w http.ResponseWriter, r *http.Request) {
-	id, err := strconv.Atoi(r.PathValue("id"))
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+
+func (h *Handler) DeleteUser(w http.ResponseWriter, r *http.Request) {
+	idStr := strings.TrimPrefix(r.URL.Path, "/users/delete/")
+
+	if idStr == "" {
+		log.Printf("DeleteUser - id is required")
+		http.Error(w, "id is required", http.StatusBadRequest)
+		return
 	}
-	_, err = u.Service.RemoveUser(id)
+
+	id, err := strconv.Atoi(idStr)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		log.Printf("DeleteUser - strconv.Atoi error: %v", err)
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
 	}
+
+	_, err = h.service.RemoveUser(id)
+	if err != nil {
+		log.Printf("DeleteUser - h.service.DeleteUser error: %v", err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
 	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("User Delete"))
+	w.Write([]byte("User deleted"))
 }
