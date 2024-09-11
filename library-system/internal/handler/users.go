@@ -1,19 +1,20 @@
-package user
+package handler
 
 import (
 	"encoding/json"
 	"io"
 	"net/http"
 	"projects/internal/model"
+	"projects/internal/service"
 	"strconv"
 )
 
 type UserHandler struct {
 	mux     *http.ServeMux
-	service *Service
+	service *service.UserService
 }
 
-func NewUserHandler(mux *http.ServeMux, s *Service) *UserHandler {
+func NewUserHandler(mux *http.ServeMux, s *service.UserService) *UserHandler {
 	return &UserHandler{mux: mux, service: s}
 }
 

@@ -1,23 +1,24 @@
-package book
+package handler
 
 import (
 	"encoding/json"
 	"io"
 	"net/http"
 	"projects/internal/model"
+	"projects/internal/service"
 	"strconv"
 )
 
 type BookHandler struct {
 	mux     *http.ServeMux
-	service *Service
+	service *service.BooksService
 }
 
 func (h *BookHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	h.mux.ServeHTTP(w, r)
 }
 
-func NewBookHandler(mux *http.ServeMux, s *Service) *BookHandler {
+func NewBookHandler(mux *http.ServeMux, s *service.BooksService) *BookHandler {
 	return &BookHandler{
 		mux:     mux,
 		service: s,

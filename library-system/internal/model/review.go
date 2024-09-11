@@ -10,3 +10,13 @@ type Review struct {
 	Rating     int       `gorm:"column:rating"`
 	ReviewDate time.Time `gorm:"column:review_date"`
 }
+
+type ReviewFilter struct {
+	ReviewID    int
+	BookID      int
+	UserID      int
+	CountOnPage int
+	Page        int
+	DateFrom    time.Time
+	DateTo      time.Time
+}

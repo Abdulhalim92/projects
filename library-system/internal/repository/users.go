@@ -1,4 +1,4 @@
-package user
+package repository
 
 import (
 	"fmt"
@@ -6,15 +6,15 @@ import (
 	"projects/internal/model"
 )
 
-type Repository struct {
+type UsersRepo struct {
 	db *gorm.DB
 }
 
-func NewUserRepo(db *gorm.DB) *Repository {
-	return &Repository{db: db}
+func NewUserRepo(db *gorm.DB) *UsersRepo {
+	return &UsersRepo{db: db}
 }
 
-func (r *Repository) AddUser(u *model.User) (*model.User, error) {
+func (r *UsersRepo) AddUser(u *model.User) (*model.User, error) {
 	result := r.db.Create(&u)
 	if result.Error != nil {
 		return nil, fmt.Errorf("Failed to add user: %v\n", result.Error)
@@ -22,7 +22,7 @@ func (r *Repository) AddUser(u *model.User) (*model.User, error) {
 	return u, nil
 }
 
-func (r *Repository) GetUsers() ([]model.User, error) {
+func (r *UsersRepo) GetUsers() ([]model.User, error) {
 	var users []model.User
 	result := r.db.Find(&users)
 	if result.Error != nil {
@@ -31,7 +31,7 @@ func (r *Repository) GetUsers() ([]model.User, error) {
 	return users, nil
 }
 
-func (r *Repository) GetUserByID(id int) (*model.User, error) {
+func (r *UsersRepo) GetUserByID(id int) (*model.User, error) {
 	var u model.User
 	result := r.db.Find(&u, id)
 	if result.Error != nil {
@@ -40,7 +40,7 @@ func (r *Repository) GetUserByID(id int) (*model.User, error) {
 	return &u, nil
 }
 
-func (r *Repository) UpdateUser(u *model.User) (*model.User, error) {
+func (r *UsersRepo) UpdateUser(u *model.User) (*model.User, error) {
 	result := r.db.Save(u)
 	if result.Error != nil {
 		return nil, fmt.Errorf("Failed to update user: %v\n", result.Error)
@@ -48,7 +48,7 @@ func (r *Repository) UpdateUser(u *model.User) (*model.User, error) {
 	return u, nil
 }
 
-func (r *Repository) DeleteUser(id int) (int, error) {
+func (r *UsersRepo) DeleteUser(id int) (int, error) {
 	result := r.db.Delete(&model.User{}, id)
 	if result.Error != nil {
 		return 0, fmt.Errorf("Failed to delete user: %v\n", result.Error)

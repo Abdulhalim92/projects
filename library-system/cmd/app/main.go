@@ -6,8 +6,9 @@ import (
 	"gorm.io/gorm"
 	"net/http"
 	"projects/internal"
-	"projects/internal/book"
-	"projects/internal/user"
+	"projects/internal/handler"
+	"projects/internal/repository"
+	"projects/internal/service"
 )
 
 func OperateThroughCL() {
@@ -22,7 +23,7 @@ func OperateThroughCL() {
 }
 
 func main() {
-	//cd projects/library-system/cmd/app
+	//cd library-system/cmd/app
 	fmt.Println("Library System")
 
 	db, err := connectToDB()
@@ -33,17 +34,17 @@ func main() {
 	mux := http.NewServeMux()
 
 	// Инициализация книг
-	BookRepo := book.NewBookRepo(db)
-	bookService := book.NewService(*BookRepo)
+	BookRepo := repository.NewBookRepo(db)
+	bookService := service.NewBookService(*BookRepo)
 
-	bookHandler := book.NewBookHandler(mux, bookService)
+	bookHandler := handler.NewBookHandler(mux, bookService)
 	bookHandler.InitRoutes()
 
 	// Инициализация пользователей
-	UserRepo := user.NewUserRepo(db)
-	userService := user.NewService(*UserRepo)
+	UserRepo := repository.NewUserRepo(db)
+	userService := service.NewUserService(*UserRepo)
 
-	userHandler := user.NewUserHandler(mux, userService)
+	userHandler := handler.NewUserHandler(mux, userService)
 	userHandler.InitRoutes()
 
 	handler := internal.NewMyHandler(mux, *bookHandler, *userHandler)
@@ -54,7 +55,7 @@ func main() {
 
 	//// Инициализация пользователей
 	//UserRepo := user.NewUserRepo(db)
-	//userService := user.NewService(*UserRepo)
+	//userService := user.NewBookService(*UserRepo)
 	//
 	//// Имитируем создание книг
 	//bookService.CreateBook(&model.Book{Title: "The Hobbit", AuthorID: 3})
@@ -66,7 +67,7 @@ func main() {
 	//
 	//// Имитируем получение списка пользователей
 	//listUsers, err := userService.ListUsers()
-	//fmt.Println("Users in system:")
+	//fmt.Println("UsersRepo in system:")
 	//for _, u := range listUsers {
 	//	fmt.Printf("ID: %d, Username: %s, Password: %s\n", u.UserID, u.Username, u.Password)
 	//}
@@ -74,7 +75,7 @@ func main() {
 	////// Имитируем получение списка книг
 	//listBooks, err := bookService.ListBooks()
 	//
-	//fmt.Println("Books in library:")
+	//fmt.Println("BooksRepo in library:")
 	//for _, b := range listBooks {
 	//	fmt.Printf("ID: %d, Title: %s, Author: %d\n", b.BookID, b.Title, b.AuthorID)
 	//}
@@ -113,7 +114,7 @@ func main() {
 	//}
 	//// Имитируем получение книги по author_id
 	//booksByAuthor, err := bookService.FindBooksByAuthor(3)
-	//fmt.Println("Books by author:")
+	//fmt.Println("BooksRepo by author:")
 	//for _, b := range booksByAuthor {
 	//	fmt.Printf("ID: %d, Title: %s, Author: %d\n", b.BookID, b.Title, b.AuthorID)
 	//}

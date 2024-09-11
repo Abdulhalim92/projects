@@ -1,4 +1,4 @@
-package book
+package repository
 
 import (
 	"fmt"
@@ -6,15 +6,15 @@ import (
 	"projects/internal/model"
 )
 
-type Repository struct {
+type BooksRepo struct {
 	db *gorm.DB
 }
 
-func NewBookRepo(db *gorm.DB) *Repository {
-	return &Repository{db: db}
+func NewBookRepo(db *gorm.DB) *BooksRepo {
+	return &BooksRepo{db: db}
 }
 
-func (r *Repository) AddBook(b *model.Book) (*model.Book, error) {
+func (r *BooksRepo) AddBook(b *model.Book) (*model.Book, error) {
 	result := r.db.Create(&b)
 	if result.Error != nil {
 		return nil, fmt.Errorf("Failed to add book: %v\n", result.Error)
@@ -22,7 +22,7 @@ func (r *Repository) AddBook(b *model.Book) (*model.Book, error) {
 	return b, nil
 }
 
-func (r *Repository) GetBooks() ([]model.Book, error) {
+func (r *BooksRepo) GetBooks() ([]model.Book, error) {
 	var books []model.Book
 	result := r.db.Find(&books)
 	if result.Error != nil {
@@ -31,7 +31,7 @@ func (r *Repository) GetBooks() ([]model.Book, error) {
 	return books, nil
 }
 
-func (r *Repository) GetBookByID(bookID int) (*model.Book, error) {
+func (r *BooksRepo) GetBookByID(bookID int) (*model.Book, error) {
 	var book model.Book
 	result := r.db.First(&book, bookID)
 	if result.Error != nil {
@@ -40,7 +40,7 @@ func (r *Repository) GetBookByID(bookID int) (*model.Book, error) {
 	return &book, nil
 }
 
-func (r *Repository) GetBooksByAuthor(authorID int) ([]model.Book, error) {
+func (r *BooksRepo) GetBooksByAuthor(authorID int) ([]model.Book, error) {
 	var books []model.Book
 	result := r.db.Where("author_id = ?", authorID).Find(&books)
 	if result.Error != nil {
@@ -49,7 +49,7 @@ func (r *Repository) GetBooksByAuthor(authorID int) ([]model.Book, error) {
 	return books, nil
 }
 
-func (r *Repository) UpdateBook(b *model.Book) (*model.Book, error) {
+func (r *BooksRepo) UpdateBook(b *model.Book) (*model.Book, error) {
 	var book model.Book
 	result := r.db.First(&book, b.BookID)
 	if result.Error != nil {
@@ -62,7 +62,7 @@ func (r *Repository) UpdateBook(b *model.Book) (*model.Book, error) {
 	return &book, nil
 }
 
-func (r *Repository) DeleteBook(bookID int) (int, error) {
+func (r *BooksRepo) DeleteBook(bookID int) (int, error) {
 	result := r.db.Delete(model.Book{BookID: bookID})
 	if result.Error != nil {
 		return 0, fmt.Errorf("Failed to delete book: %v\n", result.Error)
