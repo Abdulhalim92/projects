@@ -111,7 +111,7 @@ func (h *Handler) AddBook(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	//log.Printf("AddBook - incoming request: %v", string(data))
+	//log.Printf("AddBook - incoming request: %v\n", string(data))
 
 	var book model.Book
 
@@ -127,7 +127,7 @@ func (h *Handler) AddBook(w http.ResponseWriter, r *http.Request) {
 	createBook, err := h.service.CreateBook(&book)
 	if err != nil {
 		log.Printf("AddBook - h.service.CreateBook error: %v", err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Error(w, err.Error(), http.StatusInternalServerError) // TODO
 		return
 	}
 

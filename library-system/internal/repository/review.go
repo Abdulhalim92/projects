@@ -34,6 +34,15 @@ func (r *Repository) GetReviews() ([]model.Reviews, error) {
 func (r *Repository) GetReviewsByFilter(filter model.ReviewFilter) ([]model.Reviews, error) {
 	var reviews []model.Reviews
 
+	query := r.db
+
+	if filter.ReviewID > 0 {
+		query = query.Where("review_id = ?", filter.ReviewID)
+	}
+	if filter.BookID > 0 {
+		query = query.Where("book_id = ?", filter.BookID)
+	}
+
 	// select * from reviews where book_id = bookID
 	err := r.db.Where(filter).Find(&reviews).Error
 	if err != nil {

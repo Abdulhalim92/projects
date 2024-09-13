@@ -36,7 +36,7 @@ SELECT COUNT(*) FROM books;
 -- Вывести список книг, которые в данный момент находятся на руках у
 -- пользователей.
 SELECT b.title FROM books b
-JOIN borrow br
+JOIN borrows br
 ON b.id = br.book_id
 WHERE br.return_date IS NULL;
 
@@ -51,7 +51,7 @@ WHERE p.email = 'alice@example.com';
 
 -- Вывести список всех книг, которые были когда-либо взяты.
 SELECT DISTINCT b.title FROM books b
-JOIN borrow br
+JOIN borrows br
 ON b.id = br.book_id;
 
 -- Добавить нового пользователя с профилем.
@@ -86,12 +86,12 @@ GROUP BY a.name;
 
 -- Выбрать книги, которые возвращены позже установленной даты.
 SELECT b.title FROM books b
-JOIN borrow br USING (book_id)
+JOIN borrows br USING (book_id)
 WHERE br.return_date > '2022-01-30';
 
 -- Вывести список книг, которые никогда не были возвращены.
 SELECT b.title FROM books b
-JOIN borrow br USING (book_id)
+JOIN borrows br USING (book_id)
 WHERE br.return_date IS NULL;
 
 -- Выбрать всех пользователей, у которых нет профиля.
@@ -111,26 +111,26 @@ WHERE name = 'Leo Tolstoy';
 
 -- Показать всех пользователей, которые взяли книгу более одного раза.
 SELECT u.username, COUNT(br.book_id) FROM users u
-JOIN borrow br
+JOIN borrows br
 ON u.user_id = br.user_id
 GROUP BY u.username
 HAVING COUNT(br.book_id) > 1;
 
 -- Вывести список книг, возвращенных в течение последнего месяца.
 SELECT b.title FROM books b
-JOIN borrow br
+JOIN borrows br
 ON b.id = br.book_id
 WHERE br.return_date BETWEEN NOW() - INTERVAL '1 month' AND NOW();
 
 -- Выбрать книги, которые взяты, но не возвращены, и количество дней просрочки.
 SELECT b.title, CURRENT_DATE - br.borrow_date AS overdue_days FROM books b
-JOIN borrow br ON
+JOIN borrows br ON
 b.id = br.book_id
 WHERE br.return_date IS NULL;
 
 -- Выбрать книги, которые были возвращены и имеют отзывы.
 SELECT DISTINCT b.title FROM books b
-JOIN borrow br
+JOIN borrows br
 ON b.id = br.book_id
 JOIN reviews r
 ON b.id = r.book_id
@@ -157,20 +157,20 @@ HAVING COUNT(b.id) > 2;
 
 -- Показать книги, которые не были возвращены в течение 30 дней после взятия.
 SELECT b.title FROM books b
-JOIN borrow br
+JOIN borrows br
 ON b.book_id = br.book_id
 WHERE br.return_date IS NULL AND CURRENT_DATE - br.borrow_date > 30;
 
 -- Выбрать книги, которые были взяты более пяти раз.
 SELECT b.title, COUNT(*) FROM books b
-JOIN borrow br
+JOIN borrows br
 ON b.id = br.book_id
 GROUP BY b.title
 HAVING COUNT(*) > 5;
 
 -- Вывести список книг, которые были взяты в текущем году.
 SELECT b.title FROM books b
-JOIN borrow br
+JOIN borrows br
 ON b.id = br.book_id
 WHERE EXTRACT(YEAR FROM br.borrow_date) = EXTRACT(YEAR FROM CURRENT_DATE);
 
@@ -178,7 +178,7 @@ WHERE EXTRACT(YEAR FROM br.borrow_date) = EXTRACT(YEAR FROM CURRENT_DATE);
 
 -- Выбрать книги, которые взяли пользователи с более чем одним адресом.
 SELECT DISTINCT b.title FROM books b
-JOIN borrow br
+JOIN borrows br
 ON b.id = br.book_id
 JOIN profiles p
 ON br.user_id = p.user_id
@@ -202,7 +202,7 @@ INSERT INTO profiles (user_id, email, address)
 -- Показать всех пользователей, которые взяли книги, но не оставили отзывы
 -- на них.
 SELECT DISTINCT u.username FROM users u
-JOIN borrow br
+JOIN borrows br
 ON u.user_id = br.user_id
 LEFT JOIN reviews r
 ON br.book_id = r.book_id AND br.user_id = r.user_id
@@ -212,14 +212,14 @@ WHERE r.id IS NULL;
 -- address на 'Updated Address'.
 UPDATE profiles SET address = 'Updated Address'
 WHERE user_id IN (
-        SELECT DISTINCT br.user_id FROM borrow br
+        SELECT DISTINCT br.user_id FROM borrows br
         WHERE br.return_date IS NOT NULL
         );
 
 -- Выбрать книги, которые взяты, но не возвращены, и количество дней
 -- просрочки.
 SELECT b.title, CURRENT_DATE - br.borrow_date AS overdue_days FROM books b
-JOIN borrow br
+JOIN borrows br
 ON b.id = br.book_id
 WHERE br.return_date IS NULL AND CURRENT_DATE > br.borrow_date;
 
@@ -235,18 +235,18 @@ HAVING COUNT(DISTINCT r.rating) > 1;
 UPDATE users SET password = 'new2023pass'
 WHERE users.user_id NOT IN
       (
-        SELECT DISTINCT br.user_id FROM borrow br
+        SELECT DISTINCT br.user_id FROM borrows br
         WHERE EXTRACT(YEAR FROM br.borrow_date) = EXTRACT(YEAR FROM CURRENT_DATE)
         );
 
 -- Выбрать пользователей, которые взяли книги, исключая тех, кто взял книги
 -- определенного автора.
 SELECT DISTINCT u.username FROM users u
-JOIN borrow br
+JOIN borrows br
 ON u.user_id = br.user_id
 WHERE NOT EXISTS
     (
-        SELECT 1 FROM borrow br2
+        SELECT 1 FROM borrows br2
         JOIN books b
         ON br2.book_id = b.id
         WHERE b.author_id = (SELECT id FROM authors WHERE name = 'Leo Tolstoy') AND br2.user_id = u.user_id
@@ -254,7 +254,7 @@ WHERE NOT EXISTS
 
 -- Выбрать книги, которые были взяты и возвращены более трех раз.
 SELECT b.title, COUNT(*) FROM books b
-JOIN borrow br ON b.id = br.book_id
+JOIN borrows br ON b.id = br.book_id
 WHERE br.return_date IS NOT NULL
 GROUP BY b.title
 HAVING COUNT(*) > 3;
@@ -269,7 +269,7 @@ LIMIT 1;
 -- Показать пользователей, которые взяли книги более 5 раз, но не оставили
 -- ни одного отзыва.
 SELECT u.username FROM users u
-JOIN borrow br
+JOIN borrows br
 ON u.user_id = br.user_id
 LEFT JOIN reviews r
 ON br.user_id = r.user_id AND br.book_id = r.book_id
@@ -278,12 +278,12 @@ HAVING COUNT(br.id) > 5 AND COUNT(r.id) = 0;
 
 -- Выбрать книги, которые были взяты в прошлом году, но не в этом.
 SELECT DISTINCT b.title FROM books b
-JOIN borrow br
+JOIN borrows br
 ON b.id = br.book_id
 WHERE EXTRACT(YEAR FROM br.borrow_date) = EXTRACT(YEAR FROM CURRENT_DATE) - 1
   AND b.id NOT IN
       (
-        SELECT br2.book_id FROM borrow br2
+        SELECT br2.book_id FROM borrows br2
         WHERE EXTRACT(YEAR FROM br2.borrow_date) = EXTRACT(YEAR FROM CURRENT_DATE)
         );
 
@@ -295,7 +295,7 @@ GROUP BY b.title
 HAVING MIN(r.rating) > 3;
 
 -- Обновить return_date в borrow для всех книг определенного автора.
-UPDATE borrow SET return_date = CURRENT_DATE
+UPDATE borrows SET return_date = CURRENT_DATE
 WHERE book_id IN
       (
         SELECT id FROM books
@@ -304,7 +304,7 @@ WHERE book_id IN
 
 -- Выбрать книги, которые взяты пользователями из определенного адреса.
 SELECT b.title FROM books b
-JOIN borrow br
+JOIN borrows br
 ON b.id = br.book_id
 JOIN profiles p
 ON br.user_id = p.user_id

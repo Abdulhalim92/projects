@@ -21,7 +21,13 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	h.mux.ServeHTTP(w, r)
 }
 
+func (h *Handler) HealthCheck(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte("The service is up and running"))
+}
+
 func (h *Handler) InitRoutes() {
+	h.mux.HandleFunc("/health", h.HealthCheck)
 	{
 		h.mux.HandleFunc("/books", h.GetBooks)
 		h.mux.HandleFunc("/books/{id}", h.GetBookByID)
@@ -34,6 +40,7 @@ func (h *Handler) InitRoutes() {
 		h.mux.HandleFunc("/users", h.GetUsers)
 		h.mux.HandleFunc("/users/{id}", h.GetUserByID)
 		h.mux.HandleFunc("/users/add", h.AddUser)
+		h.mux.HandleFunc("/users/login", h.SignIn)
 		h.mux.HandleFunc("/users/delete/{id}", h.DeleteUser)
 		h.mux.HandleFunc("/users/update/{id}", h.UpdateUser)
 	}
@@ -60,5 +67,13 @@ func (h *Handler) InitRoutes() {
 		h.mux.HandleFunc("/profiles/add", h.CreateProfile)
 		h.mux.HandleFunc("/profiles/delete/{id}", h.DeleteProfile)
 		h.mux.HandleFunc("/profiles/update/{id}", h.UpdateProfile)
+	}
+	{
+		h.mux.HandleFunc("/borrows", h.GetBorrows)
+		h.mux.HandleFunc("/borrows/{id}", h.GetBorrowByID)
+		h.mux.HandleFunc("/borrows/user/{id}", h.GetBorrowByUser)
+		h.mux.HandleFunc("/borrows/book/{id}", h.GetBorrowByBook)
+		h.mux.HandleFunc("/borrows/add", h.CreateBorrow)
+		h.mux.HandleFunc("/borrows/return/{id}", h.ReturnBook)
 	}
 }

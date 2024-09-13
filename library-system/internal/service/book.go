@@ -2,14 +2,28 @@ package service
 
 import (
 	"fmt"
+	"gorm.io/gorm"
 	"projects/internal/model"
 )
 
 func (s *Service) CreateBook(b *model.Book) (*model.Book, error) {
+	_, err := s.Repository.GetAuthorByID(b.AuthorID)
+	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return nil, fmt.Errorf("author with id %d doesn't exists", b.AuthorID)
+		}
+		return nil, err
+	}
+	//if authorByID == nil {
+	//	return nil, fmt.Errorf("author with id %d doesn't exists", b.AuthorID)
+	//}
+
 	books, err := s.Repository.GetBooksByAuthor(b.AuthorID)
 	if err != nil {
 		return nil, err
 	}
+
+	fmt.Println("---------------------", books)
 
 	if len(books) > 0 {
 		for _, book := range books {

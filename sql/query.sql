@@ -1,73 +1,115 @@
+DROP TABLE IF EXISTS users CASCADE;
+DROP TABLE IF EXISTS profiles CASCADE;
+DROP TABLE IF EXISTS reviews CASCADE;
+DROP TABLE IF EXISTS authors CASCADE;
+DROP TABLE IF EXISTS books CASCADE;
+DROP TABLE IF EXISTS borrows CASCADE;
+DROP TABLE IF EXISTS borrow_history CASCADE;
+
 -- Создание таблиц
 
 -- Таблица users
 -- Описание: Таблица пользователей для хранения учетных данных.
 CREATE TABLE users (
-                       user_id SERIAL PRIMARY KEY,
-                       username VARCHAR(100),
-                       password VARCHAR(100)
+                    user_id SERIAL PRIMARY KEY,
+                    username VARCHAR(100),
+                    password VARCHAR(100)
 );
+
+ALTER TABLE users ADD UNIQUE (username);
+ALTER TABLE users ADD COLUMN created_at DATE DEFAULT NOW();
+ALTER TABLE users ADD COLUMN updated_at DATE;
+ALTER TABLE users ALTER COLUMN password TYPE VARCHAR(255);
 
 -- Таблица authors
 --  Описание: Таблица авторов с именем и биографией. Каждый автор может иметь
 --  множество книг.
 CREATE TABLE authors (
-                         author_id SERIAL PRIMARY KEY,
-                         name VARCHAR(100),
-                         biography TEXT
+                        author_id SERIAL PRIMARY KEY,
+                        name VARCHAR(100),
+                        biography TEXT
 );
+
+ALTER TABLE authors ADD COLUMN address VARCHAR(100);
+ALTER TABLE authors ADD COLUMN created_at DATE NOT NULL DEFAULT NOW();
+ALTER TABLE authors ADD COLUMN updated_at DATE;
 
 -- Таблица books
 -- Описание: Таблица книг, связанная с таблицей авторов через author_id.
 -- Отношение "один к многим" между авторами и книгами.
 CREATE TABLE books (
-                       book_id SERIAL PRIMARY KEY,
-                       title VARCHAR(255) UNIQUE,
-                       author_id INT REFERENCES authors(author_id)
+                   book_id SERIAL PRIMARY KEY,
+                   title VARCHAR(255),
+                   author_id INT,
+                   CONSTRAINT UQ_books_title UNIQUE (title),
+                   CONSTRAINT FK_books_author_id FOREIGN KEY (author_id) REFERENCES authors(author_id)
 );
+
+ALTER TABLE books ADD COLUMN created_at DATE NOT NULL DEFAULT NOW();
+ALTER TABLE books ADD COLUMN updated_at DATE;
 
 -- Таблица borrow
 -- Описание: Таблица для отслеживания взятых и возвращенных книг.
 -- Связь "много ко многим" между пользователями и книгами.
-CREATE TABLE borrow (
+CREATE TABLE borrows (
                         borrow_id SERIAL PRIMARY KEY,
-                        user_id INT REFERENCES users(user_id),
-                        book_id INT REFERENCES books(book_id),
+                        user_id INT NOT NULL,
+                        book_id INT NOT NULL,
                         borrow_date DATE,
                         return_date DATE
 );
 
-ALTER TABLE borrow
+ALTER TABLE borrows
 ADD CONSTRAINT FK_borrow_user_id FOREIGN KEY (user_id) REFERENCES users(user_id);
 
-ALTER TABLE borrow
+ALTER TABLE borrows
 ADD CONSTRAINT FK_borrow_book_id FOREIGN KEY (book_id) REFERENCES books(book_id);
+
+-- Таблица borrow_history
+-- Описание: Таблица для хранения истории получения и возврата книг.
+-- Каждое действие (взятие или возврат книги) будет записываться в этой таблице.
+CREATE TABLE borrow_history (
+                                history_id SERIAL PRIMARY KEY,
+                                borrow_id INT NOT NULL,
+                                action_type VARCHAR(50) CHECK (action_type IN ('borrow', 'return')), -- Тип действия: 'borrow' для взятия, 'return' для возврата
+                                action_date DATE NOT NULL DEFAULT CURRENT_DATE,
+                                CONSTRAINT FK_borrow_history_borrow_id FOREIGN KEY (borrow_id) REFERENCES borrows(borrow_id)
+);
 
 -- Таблица profiles
 -- Описание: Таблица профилей, связь "один к одному" с таблицей
 -- пользователей. Хранит email и адрес пользователя.
 CREATE TABLE profiles (
-                          user_id INT PRIMARY KEY REFERENCES users(user_id),
+                          user_id INT PRIMARY KEY,
                           email VARCHAR(255),
-                          address VARCHAR(255)
+                          address VARCHAR(255),
+                          CONSTRAINT FK_profiles_user_id FOREIGN KEY (user_id) REFERENCES users(user_id)
 );
+
+
+ALTER TABLE profiles ADD COLUMN created_at DATE NOT NULL DEFAULT NOW();
+ALTER TABLE profiles ADD COLUMN updated_at DATE;
 
 -- Таблица reviews
 -- Описание: Таблица для хранения отзывов на книги. Связана с таблицами users и books.
 CREATE TABLE reviews (
                          review_id SERIAL PRIMARY KEY,
-                         user_id INT REFERENCES users(user_id),
-                         book_id INT REFERENCES books(book_id),
+                         user_id INT NOT NULL,
+                         book_id INT NOT NULL,
                          review_text TEXT,
                          rating DECIMAL(2, 1) CHECK (rating >= 1.0 AND rating <= 5.0), -- Рейтинг с одним десятичным знаком
-                         review_date DATE DEFAULT CURRENT_DATE
+                         review_date DATE DEFAULT CURRENT_DATE,
+                         CONSTRAINT FK_reviews_user_id FOREIGN KEY (user_id) REFERENCES users(user_id),
+                         CONSTRAINT FK_reviews_book_id FOREIGN KEY (book_id) REFERENCES books(book_id)
 );
 
+ALTER TABLE reviews ADD COLUMN created_at DATE NOT NULL DEFAULT NOW();
+ALTER TABLE reviews ADD COLUMN updated_at DATE;
 
 -- Добавление начальных данных
 
 TRUNCATE TABLE books RESTART IDENTITY;
-TRUNCATE TABLE borrow RESTART IDENTITY;
+TRUNCATE TABLE borrows RESTART IDENTITY;
 TRUNCATE TABLE users RESTART IDENTITY CASCADE;
 TRUNCATE TABLE profiles RESTART IDENTITY;
 TRUNCATE TABLE reviews RESTART IDENTITY;
@@ -161,7 +203,7 @@ VALUES
     (14, NULL, '369 Pine St'),
     (15, 'mia@example.com', '159 Cedar St');
 
-INSERT INTO borrow (user_id, book_id, borrow_date, return_date)
+INSERT INTO borrows (user_id, book_id, borrow_date, return_date)
 VALUES
     (1, 1, '2024-08-01', '2024-08-15'),
     (2, 2, '2024-08-05', '2024-08-20'),

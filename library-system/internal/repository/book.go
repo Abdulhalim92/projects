@@ -56,6 +56,36 @@ func (r *Repository) GetBooksByAuthor(authorID int) ([]model.Book, error) {
 	return b, nil
 }
 
+func (r *Repository) GetBooksByBorrower(borrowerID int) ([]model.Book, error) {
+	var books []model.Book
+
+	// select * from books join borrows on books.book_id = borrows.book_id where borrows.user_id = borrowerID
+	err := r.db.Joins("join borrows on books.book_id = borrows.book_id").
+		Where("borrows.user_id = ?", borrowerID).
+		Find(&books).Error
+	if err != nil {
+		log.Printf("GetBookByBorrower: Failed to get books: %v\n", err)
+		return nil, fmt.Errorf("cannot find books by borrowerID with error: %v", err)
+	}
+
+	return books, nil
+}
+
+func (r *Repository) GetBookByBorrow(borrowID int) (*model.Book, error) {
+	var book model.Book
+
+	// Выполнить запрос, выбирая только поля из таблицы books
+	err := r.db.Select("books.*").Joins("join borrows on books.book_id = borrows.book_id").
+		Where("borrows.borrow_id = ?", borrowID).
+		Find(&book).Error
+	if err != nil {
+		log.Printf("GetBookByBorrow: Failed to get book: %v\n", err)
+		return nil, fmt.Errorf("cannot find book by borrowID with error: %v", err)
+	}
+
+	return &book, nil
+}
+
 func (r *Repository) UpdateBook(b *model.Book) (*model.Book, error) {
 	// update books set title = 'War and Peace', author_id = 1 where book_id = 1
 	result := r.db.Model(&b).Updates(&b)
