@@ -41,6 +41,18 @@ func (r *Repository) GetUserByID(id int) (*model.User, error) {
 	return &user, nil
 }
 
+func (r *Repository) GetUserByUsername(username string) (*model.User, error) {
+	var user model.User
+
+	// select * from users where username = username
+	result := r.db.First(&user, user)
+	if result.Error != nil {
+		log.Printf("GetUserByUsername: Failed to get user: %v\n", result.Error)
+		return nil, fmt.Errorf("Failed to get user: %v\n", result.Error)
+	}
+	return &user, nil
+}
+
 func (r *Repository) UpdateUser(u *model.User) (*model.User, error) {
 	// update users set username = 'admin', password = 'admin' where user_id = 1
 	result := r.db.Model(&u).Updates(&u)

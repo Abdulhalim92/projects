@@ -2,14 +2,20 @@ package service
 
 import (
 	"fmt"
+	"gorm.io/gorm"
 	"projects/internal/model"
 	"projects/internal/utils"
 )
 
 func (s *Service) CreateUser(u *model.User) (*model.User, error) {
 	userByID, err := s.Repository.GetUserByID(u.UserID)
-	if err != nil {
-		return nil, err
+	//if err != nil && err != gorm.ErrRecordNotFound {
+	//	return nil, err
+	//}
+	if err == gorm.ErrRecordNotFound {
+		if err != nil {
+			return nil, err
+		}
 	}
 	if userByID != nil {
 		return nil, fmt.Errorf("user with id %d already exists", u.UserID)
@@ -25,16 +31,25 @@ func (s *Service) CreateUser(u *model.User) (*model.User, error) {
 	return s.Repository.AddUser(u)
 }
 
-func (s *Service) SignIn(u *model.User) (token, error) {
+func (s *Service) SignIn(u *model.User) (string, error) {
 	user, err := s.Repository.GetUserByUsername(u.Username)
+	if err == gorm.ErrRecordNotFound {
+		if err != nil {
+			return "", err
+		}
+	}
 
 	b := utils.CheckPasswordHash(u.Password, user.Password)
 	if !b {
-		// TODO
+		return "", fmt.Errorf("Введен неправильный пароль")
 	}
 
-	token, err2 := utils.GenerateJWT(u.Username)
+	token, err := utils.GenerateJWT(u.Username)
+	if err != nil {
+		return "", err
+	}
 
+	return token, nil
 }
 
 func (s *Service) ListUsers() ([]model.User, error) {

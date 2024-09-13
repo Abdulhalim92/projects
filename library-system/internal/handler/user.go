@@ -113,6 +113,35 @@ func (h *Handler) AddUser(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte(data))
 }
 
+func (h *Handler) SignIn(w http.ResponseWriter, r *http.Request) {
+	defer r.Body.Close()
+
+	data, err := io.ReadAll(r.Body)
+	if err != nil {
+		log.Printf("SignIn - io.ReadAll error: %v", err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	var user model.User
+	err = json.Unmarshal(data, &user)
+	if err != nil {
+		log.Printf("SignIn - json.Unmarshal error: %v", err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	signIn, err := h.service.SignIn(&user)
+	if err != nil {
+		log.Printf("SignIn - h.service.SignIn error: %v", err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte(signIn))
+}
+
 func (h *Handler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 

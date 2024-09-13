@@ -3,11 +3,11 @@ package model
 import "time"
 
 type Book struct {
-	BookID    int       `json:"book_id" gorm:"primaryKey"`
-	Title     string    `json:"title"`
-	AuthorID  int       `json:"author_id"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
+	BookID    int        `json:"book_id,omitempty" gorm:"primaryKey"`
+	Title     string     `json:"title,omitempty"`
+	AuthorID  int        `json:"author_id,omitempty"`
+	CreatedAt *time.Time `json:"created_at,omitempty"`
+	UpdatedAt *time.Time `json:"updated_at,omitempty"`
 }
 
 type Reviews struct {

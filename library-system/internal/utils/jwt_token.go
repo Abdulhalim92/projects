@@ -8,12 +8,12 @@ import (
 )
 
 // Секретный ключ для подписи токенов (держите его в секрете)
-var jwtSecret = []byte("your_secret_key")
+var jwtSecret = []byte("secret")
 
 // GenerateJWT создает новый JWT токен для пользователя
 func GenerateJWT(username string) (string, error) {
 	// Определяем срок действия токена
-	expirationTime := time.Now().Add(24 * time.Hour)
+	expirationTime := time.Now().Add(15 * time.Minute)
 
 	// Создаем токен с помощью стандарта HMAC и алгоритма подписи
 	claims := &jwt.MapClaims{

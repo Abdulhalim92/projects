@@ -25,12 +25,14 @@ func CheckPasswordHash(password, hash string) bool {
 	decodeString, err := hex.DecodeString(hash)
 	if err != nil {
 		// TODO
+		return false
 	}
 
 	// Сравнение пароля с хешем
 	err = bcrypt.CompareHashAndPassword(decodeString, []byte(password))
 	if err != nil {
 		// TODO
+		return false
 	}
 
 	return true

@@ -2,6 +2,7 @@ package repository
 
 import (
 	"fmt"
+	"gorm.io/gorm"
 	"log"
 	"projects/internal/model"
 )
@@ -35,6 +36,10 @@ func (r *Repository) GetAuthorByID(authorID int) (*model.Author, error) {
 
 	// select * from authors where author_id = authorID
 	result := r.db.First(&author, authorID)
+	if result.Error == gorm.ErrRecordNotFound {
+		log.Printf("GetAuthorByID: error: %v", result.Error)
+		return nil, result.Error
+	}
 	if result.Error != nil {
 		log.Printf("GetAuthorByID: Failed to get author: %v\n", result.Error)
 		return nil, fmt.Errorf("Failed to get author: %v\n", result.Error)

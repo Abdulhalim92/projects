@@ -19,6 +19,7 @@ CREATE TABLE users (
 ALTER TABLE users ADD UNIQUE (username);
 ALTER TABLE users ADD COLUMN created_at DATE DEFAULT NOW();
 ALTER TABLE users ADD COLUMN updated_at DATE;
+ALTER TABLE users ALTER COLUMN password TYPE VARCHAR(255);
 
 -- Таблица authors
 --  Описание: Таблица авторов с именем и биографией. Каждый автор может иметь
