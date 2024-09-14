@@ -39,10 +39,10 @@ func (h *Handler) InitRoutes() {
 	{
 		h.mux.HandleFunc("/users", h.GetUsers)
 		h.mux.HandleFunc("/users/{id}", h.GetUserByID)
-		h.mux.HandleFunc("/users/add", h.AddUser)
+		h.mux.HandleFunc("/users/add", h.SignUp)
 		h.mux.HandleFunc("/users/login", h.SignIn)
 		h.mux.HandleFunc("/users/delete/{id}", h.DeleteUser)
-		h.mux.HandleFunc("/users/update/{id}", h.UpdateUser)
+		h.mux.HandleFunc("/users/update", h.UpdateUser)
 	}
 	{
 		h.mux.HandleFunc("/authors", h.GetAuthors)

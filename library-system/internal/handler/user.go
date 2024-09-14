@@ -67,50 +67,50 @@ func (h *Handler) GetUserByID(w http.ResponseWriter, r *http.Request) {
 	w.Write(data)
 }
 
-func (h *Handler) AddUser(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) SignUp(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 
 	data, err := io.ReadAll(r.Body)
 	if err != nil {
-		log.Printf("AddUser - io.ReadAll error: %v", err)
+		log.Printf("SignUp - io.ReadAll error: %v", err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	//log.Printf("AddUser - incoming request: %v", string(data))
+	//log.Printf("SignUp - incoming request: %v", string(data))
 
 	var user model.User
 	err = json.Unmarshal(data, &user)
 	if err != nil {
-		log.Printf("AddUser - json.Unmarshal error: %v", err)
+		log.Printf("SignUp - json.Unmarshal error: %v", err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	//log.Printf("AddUser - data after unmarshalling: %v", user)
+	//log.Printf("SignUp - data after unmarshalling: %v", user)
 
 	createUser, err := h.service.CreateUser(&user)
 	if err != nil {
-		log.Printf("AddUser - h.service.CreateUser error: %v", err)
+		log.Printf("SignUp - h.service.CreateUser error: %v", err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	//log.Printf("AddUser - created user: %v", createUser)
+	//log.Printf("SignUp - created user: %v", createUser)
 
 	w.Header().Set("Content-Type", "application/json")
 
 	data, err = json.MarshalIndent(createUser, "", "    ")
 	if err != nil {
-		log.Printf("AddUser - json.MarshalIndent error: %v", err)
+		log.Printf("SignUp - json.MarshalIndent error: %v", err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	//log.Printf("AddUser - response to client: %v", string(data))
+	//log.Printf("SignUp - response to client: %v", string(data))
 
 	w.WriteHeader(http.StatusOK)
-	w.Write([]byte(data))
+	w.Write(data)
 }
 
 func (h *Handler) SignIn(w http.ResponseWriter, r *http.Request) {

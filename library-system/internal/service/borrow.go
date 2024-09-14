@@ -13,6 +13,16 @@ var (
 )
 
 func (s *Service) CreateBorrow(borrow *model.Borrow) (*model.Borrow, error) {
+	// Проверяем, существует ли пользователь
+	_, err := s.Repository.GetUserByID(borrow.UserID)
+	if err != nil {
+		if errors.Is(err, ErrRecordNotFound) {
+			return nil, fmt.Errorf("user with id %d doesn't exists", borrow.UserID)
+		}
+		return nil, err
+	}
+
+	// Проверяем, имеется ли книга в наличии
 	bookAvailable, err := s.Repository.IsBookAvailable(borrow.BookID)
 	if err != nil {
 		return nil, err
@@ -41,12 +51,21 @@ func (s *Service) ReturnBook(borrowID int) error {
 		return fmt.Errorf("book already returned with ID %d", borrowID)
 	}
 	// Получаем информацию о книге по ID
-	bookByBorrow, err := s.Repository.GetBookByBorrow(borrowID)
+	_, err = s.Repository.GetBookByBorrow(borrowID)
 	if err != nil {
+		if errors.Is(err, ErrRecordNotFound) {
+			return fmt.Errorf("book not found with borrow ID %d", borrowID)
+		}
 		return err
 	}
-	if bookByBorrow == nil {
-		return fmt.Errorf("book not found with borrow ID %d", borrowID)
+
+	// Проверяем, существует ли пользователь
+	_, err = s.Repository.GetUserByID(borrowByID.UserID)
+	if err != nil {
+		if errors.Is(err, ErrRecordNotFound) {
+			return fmt.Errorf("user not found with ID %d", borrowByID.UserID)
+		}
+		return err
 	}
 
 	return s.Repository.ReturnBook(borrowID)
@@ -67,16 +86,26 @@ func (s *Service) GetBorrows() ([]model.Borrow, error) {
 func (s *Service) GetBorrowByID(borrowID int) (*model.Borrow, error) {
 	borrowByID, err := s.Repository.GetBorrowByID(borrowID)
 	if err != nil {
+		if errors.Is(err, ErrRecordNotFound) {
+			return nil, fmt.Errorf("borrow not found with ID %d", borrowID)
+		}
 		return nil, err
-	}
-	if borrowByID == nil {
-		return nil, fmt.Errorf("borrow not found with ID %d", borrowID)
 	}
 
 	return borrowByID, nil
 }
 
 func (s *Service) GetBorrowsByUser(userID int) ([]model.Borrow, error) {
+	// Проверяем, существует ли пользователь
+	_, err := s.Repository.GetUserByID(userID)
+	if err != nil {
+		if errors.Is(err, ErrRecordNotFound) {
+			return nil, fmt.Errorf("user not found with ID %d", userID)
+		}
+		return nil, err
+	}
+
+	// Получаем все выдачи пользователя
 	borrowsByUser, err := s.Repository.GetBorrowsByUser(userID)
 	if err != nil {
 		return nil, err
@@ -89,6 +118,16 @@ func (s *Service) GetBorrowsByUser(userID int) ([]model.Borrow, error) {
 }
 
 func (s *Service) GetBorrowsByBook(bookID int) ([]model.Borrow, error) {
+	// Проверяем, существует ли книга
+	_, err := s.Repository.GetBookByID(bookID)
+	if err != nil {
+		if errors.Is(err, ErrRecordNotFound) {
+			return nil, fmt.Errorf("book not found with ID %d", bookID)
+		}
+		return nil, err
+	}
+
+	// Получаем все выдачи книги
 	borrowsByBook, err := s.Repository.GetBorrowsByBook(bookID)
 	if err != nil {
 		return nil, err
@@ -100,12 +139,31 @@ func (s *Service) GetBorrowsByBook(bookID int) ([]model.Borrow, error) {
 	return borrowsByBook, nil
 }
 
-func (s *Service) GetBorrowsByUserAndBook(userID, bookID int) (*model.Borrow, error) {
+func (s *Service) GetBorrowsByUserAndBook(userID, bookID int) ([]model.Borrow, error) {
+	// Проверяем, существует ли пользователь
+	_, err := s.Repository.GetUserByID(userID)
+	if err != nil {
+		if errors.Is(err, ErrRecordNotFound) {
+			return nil, fmt.Errorf("user not found with ID %d", userID)
+		}
+		return nil, err
+	}
+
+	// Проверяем, существует ли книга
+	_, err = s.Repository.GetBookByID(bookID)
+	if err != nil {
+		if errors.Is(err, ErrRecordNotFound) {
+			return nil, fmt.Errorf("book not found with ID %d", bookID)
+		}
+		return nil, err
+	}
+
+	// Получаем все выдачи пользователя и книги
 	borrowByUserAndBook, err := s.Repository.GetBorrowsByUserAndBook(userID, bookID)
 	if err != nil {
 		return nil, err
 	}
-	if borrowByUserAndBook == nil {
+	if len(borrowByUserAndBook) == 0 {
 		return nil, fmt.Errorf("borrow not found with user ID %d and book ID %d", userID, bookID)
 	}
 
