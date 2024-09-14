@@ -2,21 +2,20 @@ package service
 
 import (
 	"fmt"
+	"gorm.io/gorm"
 	"projects/internal/model"
-	"projects/internal/repository"
 )
 
-type BooksService struct {
-	BookRepo repository.BooksRepo
-}
+func (s *Service) CreateBook(b *model.Book) (*model.Book, error) {
 
-func NewBookService(b repository.BooksRepo) *BooksService {
-	return &BooksService{b}
-}
-
-func (s *BooksService) CreateBook(b *model.Book) (*model.Book, error) {
-
-	books, err := s.BookRepo.GetBooksByAuthor(b.AuthorID)
+	authorByID, err := s.Repository.GetAuthorByID(b.AuthorID)
+	if err != nil && err != gorm.ErrRecordNotFound {
+		return nil, err
+	}
+	if authorByID == nil {
+		return nil, fmt.Errorf("Author with ID %d does not exist\n", b.AuthorID)
+	}
+	books, err := s.Repository.GetBooksByAuthor(b.AuthorID)
 	if err != nil {
 		return nil, err
 	}
@@ -27,25 +26,32 @@ func (s *BooksService) CreateBook(b *model.Book) (*model.Book, error) {
 			}
 		}
 	}
-	return s.BookRepo.AddBook(b)
+	return s.Repository.AddBook(b)
 }
 
-func (s *BooksService) ListBooks() ([]model.Book, error) {
-	return s.BookRepo.GetBooks()
+func (s *Service) ListBooks() ([]*model.Book, error) {
+	return s.Repository.GetBooks()
 }
 
-func (s *BooksService) FindBook(bookID int) (*model.Book, error) {
-	return s.BookRepo.GetBookByID(bookID)
+func (s *Service) FindBook(bookID int) (*model.Book, error) {
+	return s.Repository.GetBookByID(bookID)
 }
 
-func (s *BooksService) FindBooksByAuthor(authorID int) ([]model.Book, error) {
-	return s.BookRepo.GetBooksByAuthor(authorID)
+func (s *Service) FindBooksByAuthor(authorID int) ([]model.Book, error) {
+	return s.Repository.GetBooksByAuthor(authorID)
 }
 
-func (s *BooksService) EditBook(b *model.Book) (*model.Book, error) {
-	return s.BookRepo.UpdateBook(b)
+func (s *Service) EditBook(b *model.Book) (*model.Book, error) {
+	bookByID, err := s.Repository.GetBookByID(b.BookID)
+	if err != nil && err != gorm.ErrRecordNotFound {
+		return nil, err
+	}
+	if bookByID == nil {
+		return nil, fmt.Errorf("Book with ID %d does not exist\n", b.BookID)
+	}
+	return s.Repository.UpdateBook(b)
 }
 
-func (s *BooksService) RemoveBook(bookID int) (int, error) {
-	return s.BookRepo.DeleteBook(bookID)
+func (s *Service) RemoveBook(bookID int) (int, error) {
+	return s.Repository.DeleteBook(bookID)
 }

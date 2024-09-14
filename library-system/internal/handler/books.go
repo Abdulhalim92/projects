@@ -2,40 +2,15 @@ package handler
 
 import (
 	"encoding/json"
+	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"projects/internal/model"
-	"projects/internal/service"
 	"strconv"
 )
 
-type BookHandler struct {
-	mux     *http.ServeMux
-	service *service.BooksService
-}
-
-func (h *BookHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	h.mux.ServeHTTP(w, r)
-}
-
-func NewBookHandler(mux *http.ServeMux, s *service.BooksService) *BookHandler {
-	return &BookHandler{
-		mux:     mux,
-		service: s,
-	}
-}
-
-func (h *BookHandler) InitRoutes() {
-	h.mux.HandleFunc("/books", h.GetBooks)
-	//h.mux.HandleFunc("/books/:id", h.GetBookByID)
-	h.mux.HandleFunc("/books/{book_id}", h.GetBookByID)
-	h.mux.HandleFunc("/books/authors/{author_id}", h.GetBooksByAuthor)
-	h.mux.HandleFunc("/books/add", h.AddBook)
-	h.mux.HandleFunc("/books/edit", h.EditBook)
-	h.mux.HandleFunc("/books/delete/{id}", h.DeleteBook)
-}
-
-func (h *BookHandler) GetBooks(w http.ResponseWriter, r *http.Request) {
+func (h *MyHandler) GetBooks(w http.ResponseWriter, r *http.Request) {
 	books, err := h.service.ListBooks()
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -49,7 +24,7 @@ func (h *BookHandler) GetBooks(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (h *BookHandler) GetBookByID(w http.ResponseWriter, r *http.Request) {
+func (h *MyHandler) GetBookByID(w http.ResponseWriter, r *http.Request) {
 	//path := strings.Split(r.URL.RawQuery, "/")
 	//id := path[len(path)-1]
 	id, err := strconv.Atoi(r.PathValue("book_id"))
@@ -77,7 +52,7 @@ func (h *BookHandler) GetBookByID(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (h *BookHandler) GetBooksByAuthor(w http.ResponseWriter, r *http.Request) {
+func (h *MyHandler) GetBooksByAuthor(w http.ResponseWriter, r *http.Request) {
 	authorID, err := strconv.Atoi(r.PathValue("author_id"))
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -98,7 +73,7 @@ func (h *BookHandler) GetBooksByAuthor(w http.ResponseWriter, r *http.Request) {
 	w.Write(data)
 }
 
-func (h *BookHandler) EditBook(w http.ResponseWriter, r *http.Request) {
+func (h *MyHandler) EditBook(w http.ResponseWriter, r *http.Request) {
 
 	defer r.Body.Close()
 	data, err := io.ReadAll(r.Body)
@@ -107,17 +82,32 @@ func (h *BookHandler) EditBook(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var book model.Book
+	var book *model.Book
 	err = json.Unmarshal(data, &book)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	h.service.EditBook(&book)
+	book, err = h.service.EditBook(book)
+	if err != nil {
+		log.Printf("Failed to Edit Book - service.EditBook error %v\n", err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+	w.Header().Set("Content-Type", "application/json")
+	data, err = json.MarshalIndent(book, "   ", "")
+	if err != nil {
+		log.Printf("Failed to Edit Book - json.MarshalIndent error %v\n", err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+	_, err = w.Write(data)
+	if err != nil {
+		log.Printf("Failed to Edit Book - Write error %v\n", err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
 
 }
 
-func (h *BookHandler) AddBook(w http.ResponseWriter, r *http.Request) {
+func (h *MyHandler) AddBook(w http.ResponseWriter, r *http.Request) {
 
 	defer r.Body.Close()
 	data, err := io.ReadAll(r.Body)
@@ -126,29 +116,40 @@ func (h *BookHandler) AddBook(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var book model.Book
+	var book *model.Book
 	err = json.Unmarshal(data, &book)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	_, err = h.service.CreateBook(&book)
+	book, err = h.service.CreateBook(book)
 	if err != nil {
+		log.Printf("Failed to Add Book - service.CreateBook error %v\n", err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	data, err = json.MarshalIndent(book, "   ", "")
+	if err != nil {
+		log.Printf("Failed to Add Book - json.MarshalIndent error %v\n", err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+	_, err = w.Write(data)
+	if err != nil {
+		log.Printf("Failed to Add Book - Write error %v\n", err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 }
 
-func (h *BookHandler) DeleteBook(w http.ResponseWriter, r *http.Request) {
+func (h *MyHandler) DeleteBook(w http.ResponseWriter, r *http.Request) {
 	id, err := strconv.Atoi(r.PathValue("id"))
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-
-	_, err = h.service.RemoveBook(id)
+	id, err = h.service.RemoveBook(id)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+	fmt.Fprintf(w, "Book with id %d was successfully deleted", id)
 }

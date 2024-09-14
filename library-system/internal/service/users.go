@@ -2,41 +2,46 @@ package service
 
 import (
 	"projects/internal/model"
-	"projects/internal/repository"
 	"projects/internal/utils"
 )
 
-type UserService struct {
-	UsersRepo repository.UsersRepo
-}
-
-func NewUserService(u repository.UsersRepo) *UserService {
-	return &UserService{u}
-}
-
-func (s *UserService) CreateUser(u *model.User) (*model.User, error) {
+func (s *Service) CreateUser(u *model.User) (*model.User, error) {
 	hashPassword, err := utils.HashPassword(u.Password)
 	if err != nil {
 		return nil, err
 	}
 	u.Password = hashPassword
-	return s.UsersRepo.AddUser(u)
+	return s.Repository.AddUser(u)
 }
 
-
-
-func (s *UserService) ListUsers() ([]model.User, error) {
-	return s.UsersRepo.GetUsers()
+func (s *Service) ListUsers() ([]*model.User, error) {
+	return s.Repository.GetUsers()
 }
 
-func (s *UserService) FindUser(id int) (*model.User, error) {
-	return s.UsersRepo.GetUserByID(id)
+func (s *Service) FindUser(id int) (*model.User, error) {
+	return s.Repository.GetUserByID(id)
 }
 
-func (s *UserService) EditUser(u *model.User) (*model.User, error) {
-	return s.UsersRepo.UpdateUser(u)
+func (s *Service) EditUser(u *model.User) (*model.User, error) {
+	hashPassword, err := utils.HashPassword(u.Password)
+	if err != nil {
+		return nil, err
+	}
+	u.Password = hashPassword
+	return s.Repository.UpdateUser(u)
 }
 
-func (s *UserService) RemoveUser(id int) (int, error) {
-	return s.UsersRepo.DeleteUser(id)
+func (s *Service) RemoveUser(id int) (int, error) {
+	return s.Repository.DeleteUser(id)
+}
+
+func (s *Service) SignIn(user *model.User) (bool, error) {
+	originalUser, err := s.FindUser(user.UserID)
+	if err != nil {
+		return false, err
+	}
+	if !utils.CheckPasswordHash(user.Password, originalUser.Password) {
+		return false, nil
+	}
+	return true, nil
 }

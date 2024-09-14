@@ -106,7 +106,7 @@ DELETE FROM users WHERE username = 'lonelyrabbit';
 
 DROP TABLE IF EXISTS users CASCADE;
 DROP TABLE IF EXISTS books CASCADE;
-DROP TABLE IF EXISTS borrow CASCADE;
+DROP TABLE IF EXISTS borrows CASCADE;
 DROP TABLE IF EXISTS authors CASCADE;
 DROP TABLE IF EXISTS reviews CASCADE;
 DROP TABLE IF EXISTS profiles CASCADE;
@@ -122,6 +122,7 @@ CREATE TABLE users (
 ALTER TABLE users ADD UNIQUE (username);
 ALTER TABLE users ADD COLUMN created_at DATE NOT NULL DEFAULT now();
 ALTER TABLE users ADD COLUMN updated_at DATE;
+ALTER TABLE users ALTER COLUMN password TYPE VARCHAR(255);
 
 CREATE TABLE authors (
     author_id SERIAL PRIMARY KEY,
@@ -150,9 +151,16 @@ CREATE TABLE borrows (
     CONSTRAINT FK_borrow_user_id FOREIGN KEY (user_id) REFERENCES users(user_id),
     book_id INT,
     CONSTRAINT FK_borrow_book_id FOREIGN KEY (book_id) REFERENCES books(book_id),
-    borrow_date DATE DEFAULT now(),
+    borrow_date DATE DEFAULT now() NOT NULL,
     return_date DATE
 );
+
+ALTER TABLE borrows
+ALTER COLUMN borrow_id TYPE SERIAL;
+-- ALTER TABLE borrows
+-- ALTER COLUMN borrow_date TYPE NULL
+
+
 
 CREATE TABLE profiles(
     user_id INT PRIMARY KEY,
@@ -219,6 +227,24 @@ VALUES
     (1, 2),
     (2, 3);
 
+UPDATE borrows
+SET return_date = now()
+WHERE user_id = 1 AND book_id = 1;
+
+INSERT INTO borrows (user_id, book_id)
+VALUES
+    (4, 5),
+    (3, 8),
+    (5, 2),
+    (1, 9),
+    (2, 6);
+
+INSERT INTO borrows (user_id, book_id)
+VALUES
+    (4, 7);
+
+DELETE FROM borrows
+WHERE borrow_id = 0;
 
 INSERT INTO reviews (user_id, book_id, review_text, rating)
 VALUES
@@ -227,3 +253,19 @@ VALUES
     (3, 2, 'Невероятно увлекательная книга!', 5.0),
     (1, 2, 'Не понравилось, ожидал большего.', 2.5),
     (2, 3, 'Интересная, но тяжеловата для чтения.', 4.5);
+
+
+CREATE TABLE experiment (
+    exp_id SERIAL PRIMARY KEY,
+    user_id INT,
+    CONSTRAINT FK_borrow_user_id FOREIGN KEY (user_id) REFERENCES users(user_id),
+    book_id INT,
+    CONSTRAINT FK_borrow_book_id FOREIGN KEY (book_id) REFERENCES books(book_id),
+    exp_date DATE DEFAULT now() NOT NULL,
+    another_date DATE
+);
+
+INSERT INTO experiment (user_id, book_id)
+VALUES (3, 4), (2, 1);
+
+DROP TABLE experiment;
