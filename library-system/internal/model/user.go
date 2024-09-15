@@ -14,8 +14,8 @@ type User struct {
 	Username string `json:"username"`
 	Password string `json:"password,omitempty"`
 	//HasProfile bool
-	CreatedAt *time.Time `json:"created_at"`
-	UpdatedAt *time.Time `json:"updated_at"`
+	CreatedAt *time.Time `json:"created_at,omitempty"`
+	UpdatedAt *time.Time `json:"updated_at,omitempty"`
 }
 
 // ValidateUser функция, которая проверяет данные пользователя на соответствие заданным критериям.

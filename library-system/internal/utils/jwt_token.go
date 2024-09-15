@@ -2,6 +2,7 @@ package utils
 
 import (
 	"fmt"
+	"projects/internal/model"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
@@ -11,14 +12,14 @@ import (
 var jwtSecret = []byte("secret")
 
 // GenerateJWT создает новый JWT токен для пользователя
-func GenerateJWT(username string) (string, error) {
+func GenerateJWT(user model.User) (string, error) {
 	// Определяем срок действия токена
 	expirationTime := time.Now().Add(15 * time.Minute)
 
 	// Создаем токен с помощью стандарта HMAC и алгоритма подписи
 	claims := &jwt.MapClaims{
-		"username": username,
-		"exp":      expirationTime.Unix(),
+		"user_id": user.UserID,
+		"exp":     expirationTime.Unix(),
 	}
 
 	// Создание токена с подписью
@@ -34,7 +35,7 @@ func GenerateJWT(username string) (string, error) {
 }
 
 // ValidateJWT проверяет валидность JWT токена
-func ValidateJWT(tokenString string) (string, error) {
+func ValidateJWT(tokenString string) (int, error) {
 	// Парсинг и проверка токена
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 		// Проверка алгоритма подписи
@@ -45,21 +46,23 @@ func ValidateJWT(tokenString string) (string, error) {
 	})
 
 	if err != nil {
-		return "", err
+		return 0, err
 	}
 
 	// Проверка валидности токена и извлечение данных
 	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
-		username := claims["username"].(string)
-		return username, nil
+		userID := claims["user_id"].(float64)
+		return int(userID), nil
 	}
 
-	return "", fmt.Errorf("invalid token")
+	return 0, fmt.Errorf("invalid token")
 }
 
 func ExampleV1() {
 	// Пример использования
-	username := "john_doe"
+	username := model.User{
+		Username: "john_doe",
+	}
 
 	// Создание JWT токена
 	token, err := GenerateJWT(username)

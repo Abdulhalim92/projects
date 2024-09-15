@@ -62,7 +62,7 @@ func (s *Service) SignIn(u *model.User) (string, error) {
 	}
 
 	// Генерация JWT токена для авторизованного пользователя
-	token, err := utils.GenerateJWT(u.Username)
+	token, err := utils.GenerateJWT(*user)
 	if err != nil {
 		return "", fmt.Errorf("не удалось сгенерировать токен: %w", err)
 	}

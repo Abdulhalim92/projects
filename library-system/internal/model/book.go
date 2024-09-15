@@ -14,12 +14,12 @@ type Book struct {
 }
 
 type Reviews struct {
-	ReviewID   int     `json:"review_id" gorm:"primaryKey"`
-	UserID     int     `json:"user_id"`
-	BookID     int     `json:"book_id"`
-	ReviewText string  `json:"review_text"`
-	Rating     float64 `json:"rating"`
-	ReviewDate *time.Time
+	ReviewID   int        `json:"review_id" gorm:"primaryKey"`
+	UserID     int        `json:"user_id"`
+	BookID     int        `json:"book_id"`
+	ReviewText string     `json:"review_text"`
+	Rating     float64    `json:"rating"`
+	ReviewDate *time.Time `json:"review_date,omitempty"`
 }
 
 type Borrow struct {
@@ -31,10 +31,10 @@ type Borrow struct {
 }
 
 type BorrowHistory struct {
-	HistoryID  int    `json:"history_id" gorm:"primaryKey"`
-	BorrowID   int    `json:"borrow_id"`
-	ActionType string `json:"action_type"`
-	ActionDate *time.Time
+	HistoryID  int        `json:"history_id" gorm:"primaryKey"`
+	BorrowID   int        `json:"borrow_id"`
+	ActionType string     `json:"action_type"`
+	ActionDate *time.Time `json:"action_date,omitempty"`
 }
 
 type ReviewFilter struct {

@@ -8,16 +8,21 @@ import (
 )
 
 var (
-	ErrBookNotAvailable = errors.New("book not available")
-	ErrBorrowsNotFound  = errors.New("no borrows found")
+	ErrBookNotAvailable    = errors.New("book not available")
+	ErrBorrowsNotFound     = errors.New("no borrows found")
+	ErrBorrowNotFound      = errors.New("borrow not found")
+	ErrBookAlreadyReturned = errors.New("book already returned")
+	ErrDifferentUser       = errors.New("different user")
+	ErrUserNotFound        = errors.New("user not found")
 )
 
 func (s *Service) CreateBorrow(borrow *model.Borrow) (*model.Borrow, error) {
 	// Проверяем, существует ли пользователь
 	_, err := s.Repository.GetUserByID(borrow.UserID)
 	if err != nil {
-		if errors.Is(err, ErrRecordNotFound) {
-			return nil, fmt.Errorf("user with id %d doesn't exists", borrow.UserID)
+		if errors.As(err, &ErrRecordNotFound) {
+			//return nil, fmt.Errorf("user with id %d doesn't exist", borrow.UserID)
+			return nil, ErrUserNotFound
 		}
 		return nil, err
 	}
@@ -38,17 +43,20 @@ func (s *Service) CreateBorrow(borrow *model.Borrow) (*model.Borrow, error) {
 	return s.Repository.AddBorrow(borrow)
 }
 
-func (s *Service) ReturnBook(borrowID int) error {
+func (s *Service) ReturnBook(userID int, borrowID int) error {
 	// Получаем информацию о выдаче книги по ID
 	borrowByID, err := s.Repository.GetBorrowByID(borrowID)
 	if err != nil {
+		if errors.As(err, &ErrRecordNotFound) {
+			return ErrBorrowNotFound
+		}
 		return err
 	}
-	if borrowByID == nil {
-		return fmt.Errorf("borrow not found with ID %d", borrowID)
-	}
+
+	// Проверяем, вернулась ли книга
 	if borrowByID.ReturnDate != nil {
-		return fmt.Errorf("book already returned with ID %d", borrowID)
+		//return fmt.Errorf("book already returned with ID %d", borrowID)
+		return ErrBookAlreadyReturned
 	}
 	// Получаем информацию о книге по ID
 	_, err = s.Repository.GetBookByBorrow(borrowID)
@@ -60,12 +68,15 @@ func (s *Service) ReturnBook(borrowID int) error {
 	}
 
 	// Проверяем, существует ли пользователь
-	_, err = s.Repository.GetUserByID(borrowByID.UserID)
-	if err != nil {
-		if errors.Is(err, ErrRecordNotFound) {
-			return fmt.Errorf("user not found with ID %d", borrowByID.UserID)
-		}
-		return err
+	//_, err = s.Repository.GetUserByID(borrowByID.UserID)
+	//if err != nil {
+	//	if errors.As(err, &ErrRecordNotFound) {
+	//		return fmt.Errorf("user not found with ID %d", borrowByID.UserID)
+	//	}
+	//	return err
+	//}
+	if userID != borrowByID.UserID {
+		return ErrDifferentUser
 	}
 
 	return s.Repository.ReturnBook(borrowID)
