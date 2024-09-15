@@ -6,10 +6,8 @@ import (
 	"gorm.io/gorm"
 	"net/http"
 	"projects/internal/handler"
-	"projects/internal/model"
 	"projects/internal/repository"
 	"projects/internal/service"
-	"time"
 )
 
 func OperateThroughCL() {
@@ -43,13 +41,15 @@ func main() {
 
 	fmt.Printf("Server is starting...address: %s", ":8080\n")
 
-	t := time.Now()
-	borrow := &model.Borrow{BookID: 5, UserID: 3, BorrowDate: &t}
-	Repository.AddBorrow(borrow)
+	//borrow := &model.Borrow{BookID: 3, UserID: 4}
+	//result := db.Create(&borrow)
+	//if result.Error != nil {
+	//	fmt.Println(result.Error)
+	//}
 
-	user := &model.User{Username: "mike", Password: "yoo"}
-	Repository.AddUser(user)
-	//http.ListenAndServe("localhost:8080", handler)
+	//user := &model.User{Username: "grig", Password: "yoo"}
+	//Repository.AddUser(user)
+	http.ListenAndServe("localhost:8080", handler)
 
 }
 

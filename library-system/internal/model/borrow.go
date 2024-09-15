@@ -3,11 +3,11 @@ package model
 import "time"
 
 type Borrow struct {
-	BorrowID   int        `gorm:"column:borrow_id;primaryKey`
-	UserID     int        `gorm:"column:user_id`
-	BookID     int        `gorm:"column:book_id`
-	BorrowDate *time.Time `gorm:"column:borrow_date`
-	ReturnDate *time.Time `gorm:"column:return_date`
+	BorrowID   int `gorm:"column:borrow_id;primaryKey"`
+	UserID     int
+	BookID     int
+	BorrowDate *time.Time `gorm:"column:borrow_date"`
+	ReturnDate *time.Time
 }
 
 type BorrowFilter struct {

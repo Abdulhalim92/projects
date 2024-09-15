@@ -47,5 +47,10 @@ func (r *Repository) AddReview(review *model.Review) (*model.Review, error) {
 	if result.Error != nil {
 		return nil, result.Error
 	}
+	var rev *model.Review
+	result = result.Last(&rev)
+	if result.Error != nil {
+		return nil, result.Error
+	}
 	return review, nil
 }

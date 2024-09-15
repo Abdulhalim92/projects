@@ -3,6 +3,7 @@ package repository
 import (
 	"fmt"
 	"projects/internal/model"
+	"time"
 )
 
 //import "time"
@@ -52,10 +53,28 @@ func (r *Repository) GetBorrowByFilter(filter *model.BorrowFilter) ([]*model.Bor
 }
 
 func (r *Repository) AddBorrow(borrow *model.Borrow) (*model.Borrow, error) {
-	result := r.db.Create(&borrow)
+	result := r.db.Exec(
+		"INSERT INTO borrows (user_id, book_id) VALUES (?, ?)",
+		borrow.UserID, borrow.BookID)
 	if result.Error != nil {
 		return nil, fmt.Errorf("Failed to add borrow: %v\n", result.Error)
 	}
-	return borrow, nil
+	var b *model.Borrow
+	result = r.db.Last(&b)
+	return b, nil
+}
 
+func (r *Repository) ReturnBorrow(borrow *model.Borrow) (*model.Borrow, error) {
+	result := r.db.Exec(
+		"UPDATE borrows SET return_date = ? WHERE user_id = ? AND book_id = ? AND return_date IS NULL",
+		time.Now(), borrow.UserID, borrow.BookID)
+	if result.Error != nil {
+		return nil, fmt.Errorf("Failed to add borrow: %v\n", result.Error)
+	}
+	var b *model.Borrow
+	result = r.db.Last(&b)
+	if result.Error != nil {
+		return nil, fmt.Errorf("Failed to add borrow: %v\n", result.Error)
+	}
+	return b, nil
 }

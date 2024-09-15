@@ -30,7 +30,7 @@ func (h *MyHandler) GetBorrows(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (h *MyHandler) ListFilteredBorrows(w http.ResponseWriter, r *http.Request) {
+func (h *MyHandler) GetFilteredBorrows(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 	filterEncoded, err := io.ReadAll(r.Body)
 	if err != nil {
@@ -48,7 +48,7 @@ func (h *MyHandler) ListFilteredBorrows(w http.ResponseWriter, r *http.Request) 
 
 	borrows, err := h.service.ListFilteredBorrows(filter)
 	if err != nil {
-		log.Printf("Failed to get filtered borrows - service.ListFilteredBorrows error %v\n", err)
+		log.Printf("Failed to get filtered borrows - service.GetFilteredBorrows error %v\n", err)
 		http.Error(w, "", http.StatusInternalServerError)
 		return
 	}
@@ -84,6 +84,43 @@ func (h *MyHandler) AddBorrow(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	borrow, err = h.service.CreateBorrow(borrow)
+	if err != nil {
+		log.Printf("Failed to Add Borrow - service.CreateBorrow error %v\n", err)
+		http.Error(w, "", http.StatusInternalServerError)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	data, err := json.MarshalIndent(borrow, "   ", "")
+	if err != nil {
+		log.Printf("Failed to Add Borrow - json.MarshalIndent error %v\n", err)
+		http.Error(w, "", http.StatusInternalServerError)
+		return
+	}
+	_, err = w.Write(data)
+	if err != nil {
+		log.Printf("Failed to Add Borrow - Write error %v\n", err)
+		http.Error(w, "", http.StatusInternalServerError)
+		return
+	}
+}
+
+func (h *MyHandler) ReturnBorrow(w http.ResponseWriter, r *http.Request) {
+	defer r.Body.Close()
+	borrowEncoded, err := io.ReadAll(r.Body)
+	if err != nil {
+		log.Printf("Failed to Add Borrow - io.ReadAll error %v\n", err)
+		http.Error(w, "", http.StatusInternalServerError)
+		return
+	}
+
+	var borrow *model.Borrow
+	err = json.Unmarshal(borrowEncoded, &borrow)
+	if err != nil {
+		log.Printf("Failed to Add Borrow - json.Unmarshal error %v\n", err)
+		http.Error(w, "", http.StatusInternalServerError)
+		return
+	}
+	borrow, err = h.service.ReturnBorrow(borrow)
 	if err != nil {
 		log.Printf("Failed to Add Borrow - service.CreateBorrow error %v\n", err)
 		http.Error(w, "", http.StatusInternalServerError)

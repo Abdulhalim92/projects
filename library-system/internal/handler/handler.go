@@ -54,7 +54,15 @@ func (h *MyHandler) InitRoutes() {
 	//Borrows Routes
 	{
 		h.mux.HandleFunc("/borrows", h.GetBorrows)
-		h.mux.HandleFunc("/borrows/filtered", h.ListFilteredBorrows)
+		h.mux.HandleFunc("/borrows/filtered", h.GetFilteredBorrows)
 		h.mux.HandleFunc("/borrows/add", h.AddBorrow)
+		h.mux.HandleFunc("/borrows/return", h.ReturnBorrow)
+	}
+
+	//Review Routes
+	{
+		h.mux.HandleFunc("/reviews", h.GetReviews)
+		h.mux.HandleFunc("/reviews/filtered", h.GetFilteredReviews)
+		h.mux.HandleFunc("/reviews/add", h.AddReview)
 	}
 }

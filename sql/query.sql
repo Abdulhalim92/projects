@@ -151,7 +151,7 @@ CREATE TABLE borrows (
     CONSTRAINT FK_borrow_user_id FOREIGN KEY (user_id) REFERENCES users(user_id),
     book_id INT,
     CONSTRAINT FK_borrow_book_id FOREIGN KEY (book_id) REFERENCES books(book_id),
-    borrow_date DATE DEFAULT now() NOT NULL,
+    borrow_date DATE DEFAULT now(),
     return_date DATE
 );
 
@@ -182,6 +182,8 @@ CREATE TABLE reviews(
     created_at DATE DEFAULT now(),
     updated_at DATE
 );
+
+ALTER TABLE reviews ALTER COLUMN updated_at SET DEFAULT NULL;
 
 INSERT INTO users (username, password)
 VALUES
@@ -227,6 +229,7 @@ VALUES
     (1, 2),
     (2, 3);
 
+
 UPDATE borrows
 SET return_date = now()
 WHERE user_id = 1 AND book_id = 1;
@@ -244,7 +247,7 @@ VALUES
     (4, 7);
 
 DELETE FROM borrows
-WHERE borrow_id = 0;
+WHERE borrows.borrow_id = 7;
 
 INSERT INTO reviews (user_id, book_id, review_text, rating)
 VALUES
@@ -255,17 +258,6 @@ VALUES
     (2, 3, 'Интересная, но тяжеловата для чтения.', 4.5);
 
 
-CREATE TABLE experiment (
-    exp_id SERIAL PRIMARY KEY,
-    user_id INT,
-    CONSTRAINT FK_borrow_user_id FOREIGN KEY (user_id) REFERENCES users(user_id),
-    book_id INT,
-    CONSTRAINT FK_borrow_book_id FOREIGN KEY (book_id) REFERENCES books(book_id),
-    exp_date DATE DEFAULT now() NOT NULL,
-    another_date DATE
-);
+SELECT * FROM reviews
+WHERE book_id = 3;
 
-INSERT INTO experiment (user_id, book_id)
-VALUES (3, 4), (2, 1);
-
-DROP TABLE experiment;
