@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
 	"log"
 	"net/http"
 	"projects/internal/handler"
@@ -44,7 +45,19 @@ func main() {
 func connectToDB() (*gorm.DB, error) {
 	dsn := "host=localhost user=root password=root dbname=postgres port=5432 sslmode=disable TimeZone=Asia/Dushanbe"
 
-	db, err := gorm.Open(postgres.Open(dsn))
+	//dbLogger := logger.New(
+	//	log.New(os.Stdout, "\r\n", log.LstdFlags),
+	//	logger.Config{
+	//		SlowThreshold:             time.Second,
+	//		LogLevel:                  logger.Info,
+	//		IgnoreRecordNotFoundError: true,
+	//		ParameterizedQueries:      true,
+	//		Colorful:                  true,
+	//	})
+
+	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{
+		Logger: logger.Default.LogMode(logger.Info),
+	})
 	if err != nil {
 		return nil, fmt.Errorf("failed to connect database: %v", err)
 	}

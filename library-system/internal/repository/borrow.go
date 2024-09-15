@@ -135,9 +135,9 @@ func (r *Repository) DeleteBorrow(borrowID int) (int, error) {
 }
 
 // GetBorrowsByUserAndBook возвращает запись о выдаче книги по идентификатору.
-func (r *Repository) GetBorrowsByUserAndBook(userID, bookID int) (*model.Borrow, error) {
+func (r *Repository) GetBorrowsByUserAndBook(userID, bookID int) ([]model.Borrow, error) {
 
-	var borrow model.Borrow
+	var borrow []model.Borrow
 	// select * from borrows where user_id = userID and book_id = bookID
 	result := r.db.Where("user_id = ? AND book_id = ?", userID, bookID).Find(&borrow)
 	if result.Error != nil {
@@ -145,7 +145,7 @@ func (r *Repository) GetBorrowsByUserAndBook(userID, bookID int) (*model.Borrow,
 		return nil, fmt.Errorf("Failed to get borrow: %v\n", result.Error)
 	}
 
-	return &borrow, nil
+	return borrow, nil
 }
 
 // ReturnBook возвращает книгу в библиотеку.

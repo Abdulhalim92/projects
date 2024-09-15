@@ -2,6 +2,7 @@ package repository
 
 import (
 	"fmt"
+	"gorm.io/gorm/clause"
 	"log"
 	"projects/internal/model"
 )
@@ -10,7 +11,7 @@ func (r *Repository) AddUser(u *model.User) (*model.User, error) {
 	// insert into users (username, password) values ('admin', 'admin')
 	result := r.db.Create(&u)
 	if result.Error != nil {
-		log.Printf("AddUser: Failed to add user: %v\n", result.Error)
+		log.Printf("SignUp: Failed to add user: %v\n", result.Error)
 		return nil, fmt.Errorf("Failed to add user: %v\n", result.Error)
 	}
 
@@ -45,7 +46,7 @@ func (r *Repository) GetUserByUsername(username string) (*model.User, error) {
 	var user model.User
 
 	// select * from users where username = username
-	result := r.db.First(&user, user)
+	result := r.db.First(&user, "username = ?", username)
 	if result.Error != nil {
 		log.Printf("GetUserByUsername: Failed to get user: %v\n", result.Error)
 		return nil, fmt.Errorf("Failed to get user: %v\n", result.Error)
@@ -55,7 +56,7 @@ func (r *Repository) GetUserByUsername(username string) (*model.User, error) {
 
 func (r *Repository) UpdateUser(u *model.User) (*model.User, error) {
 	// update users set username = 'admin', password = 'admin' where user_id = 1
-	result := r.db.Model(&u).Updates(&u)
+	result := r.db.Model(&u).Clauses(clause.Returning{}).Updates(&u)
 	if result.Error != nil {
 		log.Printf("UpdateUser: Failed to update user: %v\n", result.Error)
 		return nil, fmt.Errorf("Failed to update user: %v\n", result.Error)

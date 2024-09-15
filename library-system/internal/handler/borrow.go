@@ -174,6 +174,10 @@ func (h *Handler) CreateBorrow(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Получение ID пользователя из контекста
+	userID := r.Context().Value("user_id").(int)
+	borrow.UserID = userID
+
 	//log.Printf("CreateBorrow - data after unmarshalling: %v", borrow)
 
 	createdBorrow, err := h.service.CreateBorrow(&borrow)
@@ -215,7 +219,14 @@ func (h *Handler) ReturnBook(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = h.service.ReturnBook(id)
+	userID, ok := r.Context().Value("user_id").(int)
+	if !ok {
+		log.Printf("ReturnBook - user_id is required")
+		http.Error(w, "user_id is required", http.StatusBadRequest)
+		return
+	}
+
+	err = h.service.ReturnBook(userID, id)
 	if err != nil {
 		log.Printf("ReturnBook - h.service.ReturnBook error: %v", err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
