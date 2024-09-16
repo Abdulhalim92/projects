@@ -136,7 +136,7 @@ func (h *Handler) UpdateAuthor(w http.ResponseWriter, r *http.Request) {
 	var author model.Author
 	err = json.Unmarshal(data, &author)
 	if err != nil {
-		log.Printf("EditAuthor - json.Unmarshal error: %v\n", err)
+		log.Printf("EditAuthor - json.Unmarshal error: %v", err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}

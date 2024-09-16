@@ -1,6 +1,9 @@
 package model
 
-import "time"
+import (
+	"fmt"
+	"time"
+)
 
 type Book struct {
 	BookID    int       `json:"book_id" gorm:"primaryKey"`
@@ -42,4 +45,17 @@ type ReviewFilter struct {
 	Page        int
 	DateFrom    *time.Time
 	DateTo      *time.Time
+}
+
+func (r *ReviewFilter) ValidateReviewFilter(filter ReviewFilter) error {
+	if filter.CountOnPage < 0 {
+		return fmt.Errorf("CountOnPage must be non-negative")
+	}
+	if filter.Page < 0 {
+		return fmt.Errorf("page must be non-negative")
+	}
+	if filter.DateFrom != nil && filter.DateTo != nil && filter.DateFrom.After(*filter.DateTo) {
+		return fmt.Errorf("DateFrom cannot be after DateTo")
+	}
+	return nil
 }

@@ -82,10 +82,10 @@ func (r *Repository) GetReviewByID(reviewID int) (*model.Reviews, error) {
 	var review model.Reviews
 
 	// select * from reviews where review_id = reviewID
-	err := r.db.Where("review_id = ?", reviewID).Find(&review).Error
+	err := r.db.Where("review_id = ?", reviewID).First(&review).Error
 	if err != nil {
 		log.Printf("GetReviewByID: Failed to get review: %v\n", err)
-		return nil, fmt.Errorf("Cannot find review with error: %v\n", err)
+		return nil, fmt.Errorf("cannot find review with error: %v", err)
 	}
 
 	return &review, nil

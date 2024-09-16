@@ -82,7 +82,7 @@ func (h *Handler) AddReview(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) GetReviewByID(w http.ResponseWriter, r *http.Request) {
-	idStr := strings.TrimPrefix(r.URL.Path, "/reviews/")
+	idStr := strings.TrimPrefix(r.URL.Path, "/reviews/get/")
 
 	id, err := strconv.Atoi(idStr)
 	if err != nil {

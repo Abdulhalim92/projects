@@ -1,17 +1,16 @@
 package service
 
 import (
+	"errors"
 	"fmt"
 	"projects/internal/model"
 )
 
 func (s *Service) CreateAuthor(a *model.Author) (*model.Author, error) {
-	authorByName, err := s.Repository.GetAuthorByName(a.Name)
-	if err != nil {
+	_, err := s.Repository.GetAuthorByName(a.Name)
+	if err != nil && errors.Is(err, ErrNoBooksFound) {
 		return nil, err
-	}
-
-	if authorByName != nil {
+	} else if !errors.Is(err, ErrNoBooksFound) {
 		return nil, fmt.Errorf("author with name %s already exists", a.Name)
 	}
 
