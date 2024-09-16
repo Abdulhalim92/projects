@@ -2,6 +2,7 @@ package handler
 
 import (
 	"encoding/json"
+	"github.com/gin-gonic/gin"
 	"io"
 	"log"
 	"net/http"
@@ -67,23 +68,13 @@ func (h *Handler) GetUserByID(w http.ResponseWriter, r *http.Request) {
 	w.Write(data)
 }
 
-func (h *Handler) SignUp(w http.ResponseWriter, r *http.Request) {
-	defer r.Body.Close()
-
-	data, err := io.ReadAll(r.Body)
-	if err != nil {
-		log.Printf("SignUp - io.ReadAll error: %v", err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	//log.Printf("SignUp - incoming request: %v", string(data))
-
+func (h *Handler) SignUp(c *gin.Context) {
 	var user model.User
-	err = json.Unmarshal(data, &user)
+
+	err := c.BindJSON(&user)
 	if err != nil {
-		log.Printf("SignUp - json.Unmarshal error: %v", err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		log.Printf("SignUp - c.BindJSON error: %v", err)
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
@@ -92,54 +83,36 @@ func (h *Handler) SignUp(w http.ResponseWriter, r *http.Request) {
 	createUser, err := h.service.CreateUser(&user)
 	if err != nil {
 		log.Printf("SignUp - h.service.CreateUser error: %v", err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	//log.Printf("SignUp - created user: %v", createUser)
+	//log.Printf("SignUp - response to client: %v", string(createUser))
 
-	w.Header().Set("Content-Type", "application/json")
-
-	data, err = json.MarshalIndent(createUser, "", "    ")
-	if err != nil {
-		log.Printf("SignUp - json.MarshalIndent error: %v", err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	//log.Printf("SignUp - response to client: %v", string(data))
-
-	w.WriteHeader(http.StatusOK)
-	w.Write(data)
+	c.JSON(http.StatusOK, gin.H{"data": createUser})
 }
 
-func (h *Handler) SignIn(w http.ResponseWriter, r *http.Request) {
-	defer r.Body.Close()
-
-	data, err := io.ReadAll(r.Body)
-	if err != nil {
-		log.Printf("SignIn - io.ReadAll error: %v", err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
+func (h *Handler) SignIn(c *gin.Context) {
 	var user model.User
-	err = json.Unmarshal(data, &user)
-	if err != nil {
-		log.Printf("SignIn - json.Unmarshal error: %v", err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+
+	if err := c.BindJSON(&user); err != nil {
+		log.Printf("SignIn - c.BindJSON error: %v", err)
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	signIn, err := h.service.SignIn(&user)
+	//log.Printf("SignIn - data after binding: %v", user)
+
+	token, err := h.service.SignIn(&user)
 	if err != nil {
 		log.Printf("SignIn - h.service.SignIn error: %v", err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	w.WriteHeader(http.StatusOK)
-	w.Write([]byte(signIn))
+	//log.Printf("SignIn - response to client: %v", string(token))
+
+	c.JSON(http.StatusOK, gin.H{"data": token})
 }
 
 func (h *Handler) UpdateUser(w http.ResponseWriter, r *http.Request) {

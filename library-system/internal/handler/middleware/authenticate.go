@@ -1,37 +1,35 @@
 package middleware
 
 import (
-	"context"
+	"github.com/gin-gonic/gin"
 	"log"
 	"net/http"
 	"projects/internal/utils"
 )
 
-func Authenticate(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+func Authenticate() gin.HandlerFunc {
+	return func(c *gin.Context) {
 		// Получаем токен из заголовка
-		authToken := r.Header.Get("Authorization")
-
-		// Проверяем наличие токена
-		if authToken == "" {
+		authToken, ok := c.Get("Authorization")
+		if !ok {
 			log.Printf("Authenticate - authToken is empty")
-			http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
 			return
 		}
 
+		strToken := authToken.(string)
+
 		// Получаем ID пользователя из JWT
-		userID, err := utils.ValidateJWT(authToken)
+		userID, err := utils.ValidateJWT(strToken)
 		if err != nil {
 			log.Printf("Authenticate - utils.ValidateJWT error: %v", err)
-			http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+			return
 		}
 
 		// Добавляем ID пользователя в контекст
-		ctx := context.WithValue(r.Context(), "user_id", userID)
+		c.Set("user_id", userID)
 
-		// Добавляем контекст в запрос
-		r = r.WithContext(ctx)
-
-		next.ServeHTTP(w, r)
-	})
+		c.Next()
+	}
 }
