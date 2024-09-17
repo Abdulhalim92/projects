@@ -38,13 +38,13 @@ type BorrowHistory struct {
 }
 
 type ReviewFilter struct {
-	ReviewID    int
-	BookID      int
-	UserID      int
-	CountOnPage int
-	Page        int
-	DateFrom    *time.Time
-	DateTo      *time.Time
+	ReviewID    int        `json:"review_id,omitempty"`
+	BookID      int        `json:"book_id,omitempty"`
+	UserID      int        `json:"user_id,omitempty"`
+	CountOnPage int        `json:"count_on_page,omitempty"`
+	Page        int        `json:"page,omitempty"`
+	DateFrom    *time.Time `json:"date_from,omitempty"`
+	DateTo      *time.Time `json:"date_to,omitempty"`
 }
 
 // ValidateReviewFilter проверяет корректность значений фильтра

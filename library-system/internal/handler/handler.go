@@ -20,7 +20,7 @@ func NewHandler(router *gin.Engine, s *service.Service) *Handler {
 }
 
 func (h *Handler) HealthCheck(c *gin.Context) {
-	c.JSON(http.StatusOK, "The service is up and running")
+	c.JSON(http.StatusOK, gin.H{"status": "The service is up and running"})
 }
 
 func (h *Handler) InitRoutes() {
@@ -54,47 +54,47 @@ func (h *Handler) InitRoutes() {
 	{
 		userGroup.GET("", h.GetUsers)
 		userGroup.GET("/{id}", h.GetUserByID)
-		userGroup.GET("/delete/{id}", h.DeleteUser)
-		userGroup.GET("/update", h.UpdateUser)
+		userGroup.DELETE("/delete/{id}", h.DeleteUser)
+		userGroup.PUT("/update", h.UpdateUser)
 	}
 
-	authorGroup := h.Group("/authors")
+	authorGroup := v1.Group("/authors")
 	{
-		authorGroup.Handle("", middleware.ChainMiddleware(middleware.MethodCheckHandler(h.GetAuthors, http.MethodGet), protectedMiddleware...))
-		authorGroup.Handle("/{id}", middleware.ChainMiddleware(middleware.MethodCheckHandler(h.GetAuthorByID, http.MethodGet), protectedMiddleware...))
-		authorGroup.Handle("/add", middleware.ChainMiddleware(middleware.MethodCheckHandler(h.AddAuthor, http.MethodGet), protectedMiddleware...))
-		authorGroup.Handle("/delete/{id}", middleware.ChainMiddleware(middleware.MethodCheckHandler(h.DeleteAuthor, http.MethodGet), protectedMiddleware...))
-		authorGroup.Handle("/update", middleware.ChainMiddleware(middleware.MethodCheckHandler(h.UpdateAuthor, http.MethodGet), protectedMiddleware...))
+		authorGroup.GET("", h.GetAuthors)
+		authorGroup.GET("/{id}", h.GetAuthorByID)
+		authorGroup.POST("/add", h.AddAuthor)
+		authorGroup.DELETE("/delete/{id}", h.DeleteAuthor)
+		authorGroup.PUT("/update", h.UpdateAuthor)
 	}
 
-	reviewGroup := h.Group("/reviews")
+	reviewGroup := v1.Group("/reviews")
 	{
-		reviewGroup.Handle("", middleware.ChainMiddleware(middleware.MethodCheckHandler(h.GetReviews, http.MethodGet), protectedMiddleware...))
-		reviewGroup.Handle("/{id}", middleware.ChainMiddleware(middleware.MethodCheckHandler(h.GetReviewByID, http.MethodGet), protectedMiddleware...))
-		reviewGroup.Handle("/user/{id}", middleware.ChainMiddleware(middleware.MethodCheckHandler(h.GetReviewsByUser, http.MethodGet), protectedMiddleware...))
-		reviewGroup.Handle("/book/{id}", middleware.ChainMiddleware(middleware.MethodCheckHandler(h.GetReviewsByBook, http.MethodGet), protectedMiddleware...))
-		reviewGroup.Handle("/filter", middleware.ChainMiddleware(middleware.MethodCheckHandler(h.GetReviewsByFilter, http.MethodGet), protectedMiddleware...))
-		reviewGroup.Handle("/add", middleware.ChainMiddleware(middleware.MethodCheckHandler(h.AddReview, http.MethodGet), protectedMiddleware...))
-		reviewGroup.Handle("/delete/{id}", middleware.ChainMiddleware(middleware.MethodCheckHandler(h.DeleteReview, http.MethodGet), protectedMiddleware...))
-		reviewGroup.Handle("/update", middleware.ChainMiddleware(middleware.MethodCheckHandler(h.UpdateReview, http.MethodGet), protectedMiddleware...))
+		reviewGroup.GET("", h.GetReviews)
+		reviewGroup.GET("/{id}", h.GetReviewByID)
+		reviewGroup.GET("/user/{id}", h.GetReviewsByUser)
+		reviewGroup.GET("/book/{id}", h.GetReviewsByBook)
+		reviewGroup.GET("/filter", h.GetReviewsByFilter)
+		reviewGroup.POST("/add", h.AddReview)
+		reviewGroup.DELETE("/delete/{id}", h.DeleteReview)
+		reviewGroup.PUT("/update", h.UpdateReview)
 	}
 
-	profileGroup := h.Group("/profiles")
+	profileGroup := v1.Group("/profiles")
 	{
-		profileGroup.Handle("", middleware.ChainMiddleware(middleware.MethodCheckHandler(h.ListProfiles, http.MethodGet), protectedMiddleware...))
-		profileGroup.Handle("/{id}", middleware.ChainMiddleware(middleware.MethodCheckHandler(h.GetProfileByID, http.MethodGet), protectedMiddleware...))
-		profileGroup.Handle("/add", middleware.ChainMiddleware(middleware.MethodCheckHandler(h.CreateProfile, http.MethodGet), protectedMiddleware...))
-		profileGroup.Handle("/delete/{id}", middleware.ChainMiddleware(middleware.MethodCheckHandler(h.DeleteProfile, http.MethodGet), protectedMiddleware...))
-		profileGroup.Handle("/update}", middleware.ChainMiddleware(middleware.MethodCheckHandler(h.UpdateProfile, http.MethodGet), protectedMiddleware...))
+		profileGroup.GET("", h.ListProfiles)
+		profileGroup.GET("/{id}", h.GetProfileByID)
+		profileGroup.POST("/add", h.CreateProfile)
+		profileGroup.DELETE("/delete/{id}", h.DeleteProfile)
+		profileGroup.PUT("/update", h.UpdateProfile)
 	}
 
-	borrowGroup := h.Group("/borrows")
+	borrowGroup := v1.Group("/borrows")
 	{
-		borrowGroup.Handle("", middleware.ChainMiddleware(middleware.MethodCheckHandler(h.GetBorrows, http.MethodGet), protectedMiddleware...))
-		borrowGroup.Handle("/{id}", middleware.ChainMiddleware(middleware.MethodCheckHandler(h.GetBorrowByID, http.MethodGet), protectedMiddleware...))
-		borrowGroup.Handle("/user/{id}", middleware.ChainMiddleware(middleware.MethodCheckHandler(h.GetBorrowByUser, http.MethodGet), protectedMiddleware...))
-		borrowGroup.Handle("/book/{id}", middleware.ChainMiddleware(middleware.MethodCheckHandler(h.GetBorrowByBook, http.MethodGet), protectedMiddleware...))
-		borrowGroup.Handle("/add", middleware.ChainMiddleware(middleware.MethodCheckHandler(h.CreateBorrow, http.MethodPost), protectedMiddleware...))
-		borrowGroup.Handle("/return/{id}", middleware.ChainMiddleware(middleware.MethodCheckHandler(h.ReturnBook, http.MethodGet), protectedMiddleware...))
+		borrowGroup.GET("", h.GetBorrows)
+		borrowGroup.GET("/{id}", h.GetBorrowByID)
+		borrowGroup.GET("/user/{id}", h.GetBorrowByUser)
+		borrowGroup.GET("/book/{id}", h.GetBorrowByBook)
+		borrowGroup.POST("/add", h.CreateBorrow)
+		borrowGroup.PUT("/return/{id}", h.ReturnBook)
 	}
 }

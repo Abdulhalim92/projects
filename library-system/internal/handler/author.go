@@ -1,188 +1,112 @@
 package handler
 
 import (
-	"encoding/json"
-	"io"
+	"github.com/gin-gonic/gin"
 	"log"
 	"net/http"
 	"projects/internal/model"
 	"strconv"
-	"strings"
 )
 
-func (h *Handler) GetAuthors(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) GetAuthors(c *gin.Context) {
 	authors, err := h.service.GetAuthors()
 	if err != nil {
 		log.Printf("GetAuthors - h.service.ListAuthors error: %v", err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	//log.Printf("GetAuthors - authors: %v", authors)
-
-	w.Header().Set("Content-Type", "application/json")
-
-	data, err := json.MarshalIndent(authors, "", "    ")
-	if err != nil {
-		log.Printf("GetAuthors - json.MarshalIndent error: %v", err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	//log.Printf("GetAuthors - data: %v", string(data))
-
-	w.WriteHeader(http.StatusOK)
-	w.Write(data)
+	log.Printf("GetAuthors - authors: %v", authors)
+	c.JSON(http.StatusOK, gin.H{"data": authors})
 }
 
-func (h *Handler) GetAuthorByID(w http.ResponseWriter, r *http.Request) {
-	idStr := strings.TrimPrefix(r.URL.Path, "/authors/")
+func (h *Handler) GetAuthorByID(c *gin.Context) {
+	idStr := c.Param("id")
 
 	if idStr == "" {
 		log.Printf("GetAuthorByID - id is required")
-		http.Error(w, "id is required", http.StatusBadRequest)
+		c.JSON(http.StatusBadRequest, gin.H{"error": "id is required"})
 		return
 	}
 
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
 		log.Printf("GetAuthorByID - strconv.Atoi error: %v", err)
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
 	author, err := h.service.GetAuthorByID(id)
 	if err != nil {
 		log.Printf("GetAuthorByID - h.service.GetAuthorByID error: %v", err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	//log.Printf("GetAuthorByID - author: %v", author)
-
-	w.Header().Set("Content-Type", "application/json")
-
-	data, err := json.MarshalIndent(author, "", "    ")
-	if err != nil {
-		log.Printf("GetAuthorByID - json.MarshalIndent error: %v", err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	//log.Printf("GetAuthorByID - data: %v", string(data))
-
-	w.WriteHeader(http.StatusOK)
-	w.Write(data)
+	log.Printf("GetAuthorByID - author: %v", author)
+	c.JSON(http.StatusOK, gin.H{"data": author})
 }
 
-func (h *Handler) AddAuthor(w http.ResponseWriter, r *http.Request) {
-	defer r.Body.Close()
-
-	data, err := io.ReadAll(r.Body)
-	if err != nil {
-		log.Printf("CreateAuthor - io.ReadAll error: %v", err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	//log.Printf("CreateAuthor - incoming request: %v", string(data))
-
+func (h *Handler) AddAuthor(c *gin.Context) {
 	var author model.Author
-	err = json.Unmarshal(data, &author)
-	if err != nil {
-		log.Printf("CreateAuthor - json.Unmarshal error: %v", err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+
+	if err := c.BindJSON(&author); err != nil {
+		log.Printf("AddAuthor - c.BindJSON error: %v", err)
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	//log.Printf("CreateAuthor - data after unmarshalling: %v", author)
+	log.Printf("AddAuthor - data after binding: %v", author)
 
 	createAuthor, err := h.service.CreateAuthor(&author)
 	if err != nil {
-		log.Printf("CreateAuthor - h.service.CreateAuthor error: %v", err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		log.Printf("AddAuthor - h.service.CreateAuthor error: %v", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	//log.Printf("CreateAuthor - created author: %v", createAuthor)
-
-	w.Header().Set("Content-Type", "application/json")
-
-	data, err = json.MarshalIndent(createAuthor, "", "    ")
-	if err != nil {
-		log.Printf("CreateAuthor - json.MarshalIndent error: %v", err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	//log.Printf("CreateAuthor - response to client: %v", string(data))
-
-	w.WriteHeader(http.StatusOK)
-	w.Write(data)
+	log.Printf("AddAuthor - created author: %v", createAuthor)
+	c.JSON(http.StatusOK, gin.H{"data": createAuthor})
 }
 
-func (h *Handler) UpdateAuthor(w http.ResponseWriter, r *http.Request) {
-	defer r.Body.Close()
-
-	data, err := io.ReadAll(r.Body)
-	if err != nil {
-		log.Printf("EditAuthor - io.ReadAll error: %v", err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	//log.Printf("EditAuthor - incoming request: %v", string(data))
-
+func (h *Handler) UpdateAuthor(c *gin.Context) {
 	var author model.Author
-	err = json.Unmarshal(data, &author)
-	if err != nil {
-		log.Printf("EditAuthor - json.Unmarshal error: %v", err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+
+	if err := c.BindJSON(&author); err != nil {
+		log.Printf("UpdateAuthor - c.BindJSON error: %v", err)
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	//log.Printf("EditAuthor - data after unmarshalling: %v", author)
+	log.Printf("UpdateAuthor - data after binding: %v", author)
 
 	updateAuthor, err := h.service.EditAuthor(&author)
 	if err != nil {
-		log.Printf("EditAuthor - h.service.EditAuthor error: %v", err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		log.Printf("UpdateAuthor - h.service.EditAuthor error: %v", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	//log.Printf("EditAuthor - updated author: %v", updateAuthor)
-
-	w.Header().Set("Content-Type", "application/json")
-
-	data, err = json.MarshalIndent(updateAuthor, "", "    ")
-	if err != nil {
-		log.Printf("EditAuthor - json.MarshalIndent error: %v", err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	//log.Printf("EditAuthor - response to client: %v", string(data))
-
-	w.WriteHeader(http.StatusOK)
-	w.Write(data)
+	log.Printf("UpdateAuthor - updated author: %v", updateAuthor)
+	c.JSON(http.StatusOK, gin.H{"data": updateAuthor})
 }
 
-func (h *Handler) DeleteAuthor(w http.ResponseWriter, r *http.Request) {
-	idStr := strings.TrimPrefix(r.URL.Path, "/authors/delete/")
+func (h *Handler) DeleteAuthor(c *gin.Context) {
+	idStr := c.Param("id")
 
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
 		log.Printf("DeleteAuthor - strconv.Atoi error: %v", err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	_, err = h.service.DeleteAuthor(id)
-	if err != nil {
+	if _, err := h.service.DeleteAuthor(id); err != nil {
 		log.Printf("DeleteAuthor - h.service.DeleteAuthor error: %v", err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	w.WriteHeader(http.StatusOK)
+	log.Printf("DeleteAuthor - author with id %d deleted", id)
+	c.JSON(http.StatusOK, gin.H{"message": "Author deleted"})
 }

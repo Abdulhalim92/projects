@@ -79,9 +79,9 @@ func (u *User) validatePassword() error {
 
 // Profile структура для профиля пользователя.
 type Profile struct {
-	UserID  int
-	Email   string
-	Address string
+	UserID  int    `json:"user_id" gorm:"primaryKey"`
+	Email   string `json:"email,omitempty"`
+	Address string `json:"address,omitempty"`
 }
 
 // ValidateProfile функция, которая проверяет данные профиля пользователя на соответствие заданным критериям.
