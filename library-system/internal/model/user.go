@@ -12,7 +12,7 @@ import (
 type User struct {
 	UserID   int    `json:"user_id" gorm:"primaryKey"`
 	Username string `json:"username"`
-	Password string `json:"password,omitempty"`
+	Password string `json:"-"`
 	//HasProfile bool
 	CreatedAt *time.Time `json:"created_at,omitempty"`
 	UpdatedAt *time.Time `json:"updated_at,omitempty"`

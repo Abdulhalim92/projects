@@ -52,7 +52,7 @@ func (h *Handler) SignIn(c *gin.Context) {
 
 	//log.Printf("SignIn - response to client: %v", string(token))
 
-	c.JSON(http.StatusOK, gin.H{"data": token})
+	c.JSON(http.StatusOK, gin.H{"token": token})
 }
 
 func (h *Handler) GetUsers(c *gin.Context) {
