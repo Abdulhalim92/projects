@@ -1,298 +1,170 @@
 package handler
 
 import (
-	"encoding/json"
-	"io"
+	"github.com/gin-gonic/gin"
 	"log"
 	"net/http"
 	"projects/internal/model"
 	"strconv"
-	"strings"
 )
 
-func (h *Handler) GetReviews(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) GetReviews(c *gin.Context) {
 	reviews, err := h.service.ListReviews()
 	if err != nil {
-		log.Printf("ListReviews - h.service.ListReviews error: %v", err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		log.Printf("GetReviews - h.service.ListReviews error: %v", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	//log.Printf("GetReviews - reviews: %v", reviews)
-
-	w.Header().Set("Content-Type", "application/json")
-
-	data, err := json.MarshalIndent(reviews, "", "    ")
-	if err != nil {
-		log.Printf("GetReviews - json.MarshalIndent error: %v", err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	//log.Printf("GetReviews - response to client: %v", string(data))
-
-	w.WriteHeader(http.StatusOK)
-	w.Write(data)
+	log.Printf("GetReviews - reviews: %v", reviews)
+	c.JSON(http.StatusOK, gin.H{"data": reviews})
 }
 
-func (h *Handler) AddReview(w http.ResponseWriter, r *http.Request) {
-	defer r.Body.Close()
-
-	data, err := io.ReadAll(r.Body)
-	if err != nil {
-		log.Printf("CreateReview - io.ReadAll error: %v", err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	//log.Printf("CreateReview - incoming request: %v", string(data))
-
+func (h *Handler) AddReview(c *gin.Context) {
 	var review model.Reviews
-	err = json.Unmarshal(data, &review)
-	if err != nil {
-		log.Printf("CreateReview - json.Unmarshal error: %v", err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+
+	if err := c.BindJSON(&review); err != nil {
+		log.Printf("AddReview - c.BindJSON error: %v", err)
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	//log.Printf("CreateReview - data after unmarshalling: %v", review)
+	log.Printf("AddReview - data after binding: %v", review)
 
 	createReview, err := h.service.CreateReview(&review)
 	if err != nil {
-		log.Printf("CreateReview - h.service.CreateReview error: %v", err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		log.Printf("AddReview - h.service.CreateReview error: %v", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	//log.Printf("CreateReview - created review: %v", createReview)
-
-	w.Header().Set("Content-Type", "application/json")
-
-	data, err = json.MarshalIndent(createReview, "", "    ")
-	if err != nil {
-		log.Printf("CreateReview - json.MarshalIndent error: %v", err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	//log.Printf("CreateReview - response to client: %v", string(data))
-
-	w.WriteHeader(http.StatusOK)
-	w.Write(data)
+	log.Printf("AddReview - created review: %v", createReview)
+	c.JSON(http.StatusOK, gin.H{"data": createReview})
 }
 
-func (h *Handler) GetReviewByID(w http.ResponseWriter, r *http.Request) {
-	idStr := strings.TrimPrefix(r.URL.Path, "/reviews/get/")
+func (h *Handler) GetReviewByID(c *gin.Context) {
+	idStr := c.Param("id")
 
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
-		log.Printf("GetReview - strconv.Atoi error: %v", err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		log.Printf("GetReviewByID - strconv.Atoi error: %v", err)
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
 	review, err := h.service.GetReviewByID(id)
 	if err != nil {
-		log.Printf("GetReview - h.service.GetReviewByID error: %v", err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		log.Printf("GetReviewByID - h.service.GetReviewByID error: %v", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	//log.Printf("GetReview - review: %v", review)
-
-	w.Header().Set("Content-Type", "application/json")
-
-	data, err := json.MarshalIndent(review, "", "    ")
-	if err != nil {
-		log.Printf("GetReview - json.MarshalIndent error: %v", err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	//log.Printf("GetReview - response to client: %v", string(data))
-
-	w.WriteHeader(http.StatusOK)
-	w.Write(data)
+	log.Printf("GetReviewByID - review: %v", review)
+	c.JSON(http.StatusOK, gin.H{"data": review})
 }
 
-func (h *Handler) GetReviewsByBook(w http.ResponseWriter, r *http.Request) {
-	idStr := strings.TrimPrefix(r.URL.Path, "/reviews/get/book/")
+func (h *Handler) GetReviewsByBook(c *gin.Context) {
+	idStr := c.Param("id")
 
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
-		log.Printf("GetReviewsByBookID - strconv.Atoi error: %v", err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		log.Printf("GetReviewsByBook - strconv.Atoi error: %v", err)
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
 	reviews, err := h.service.GetReviewsByBook(id)
 	if err != nil {
-		log.Printf("GetReviewsByBookID - h.service.GetReviewsByBookID error: %v", err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		log.Printf("GetReviewsByBook - h.service.GetReviewsByBook error: %v", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	//log.Printf("GetReviewsByBookID - reviews: %v", reviews)
-
-	w.Header().Set("Content-Type", "application/json")
-
-	data, err := json.MarshalIndent(reviews, "", "    ")
-	if err != nil {
-		log.Printf("GetReviewsByBookID - json.MarshalIndent error: %v", err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	//log.Printf("GetReviewsByBookID - response to client: %v", string(data))
-
-	w.WriteHeader(http.StatusOK)
-	w.Write(data)
+	log.Printf("GetReviewsByBook - reviews: %v", reviews)
+	c.JSON(http.StatusOK, gin.H{"data": reviews})
 }
 
-func (h *Handler) GetReviewsByUser(w http.ResponseWriter, r *http.Request) {
-	idStr := strings.TrimPrefix(r.URL.Path, "/reviews/get/user/")
+func (h *Handler) GetReviewsByUser(c *gin.Context) {
+	idStr := c.Param("id")
 
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
-		log.Printf("GetReviewsByUserID - strconv.Atoi error: %v", err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		log.Printf("GetReviewsByUser - strconv.Atoi error: %v", err)
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
 	reviews, err := h.service.GetReviewsByUser(id)
 	if err != nil {
-		log.Printf("GetReviewsByUserID - h.service.GetReviewsByUser error: %v", err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		log.Printf("GetReviewsByUser - h.service.GetReviewsByUser error: %v", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	//log.Printf("GetReviewsByUserID - reviews: %v", reviews)
-
-	w.Header().Set("Content-Type", "application/json")
-
-	data, err := json.MarshalIndent(reviews, "", "    ")
-	if err != nil {
-		log.Printf("GetReviewsByUserID - json.MarshalIndent error: %v", err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	//log.Printf("GetReviewsByUserID - response to client: %v", string(data))
-
-	w.WriteHeader(http.StatusOK)
-	w.Write(data)
+	log.Printf("GetReviewsByUser - reviews: %v", reviews)
+	c.JSON(http.StatusOK, gin.H{"data": reviews})
 }
 
-func (h *Handler) GetReviewsByFilter(w http.ResponseWriter, r *http.Request) {
-	defer r.Body.Close()
-
+func (h *Handler) GetReviewsByFilter(c *gin.Context) {
 	var filter model.ReviewFilter
 
-	data, err := io.ReadAll(r.Body)
-	if err != nil {
-		log.Printf("GetReviewsByFilter - io.ReadAll error: %v", err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+	if err := c.BindJSON(&filter); err != nil {
+		log.Printf("GetReviewsByFilter - c.BindJSON error: %v", err)
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	//log.Printf("GetReviewsByFilter - incoming request: %v", string(data))
-
-	err = json.Unmarshal(data, &filter)
-	if err != nil {
-		log.Printf("GetReviewsByFilter - json.Unmarshal error: %v", err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	//log.Printf("GetReviewsByFilter - data after unmarshalling: %v", filter)
+	log.Printf("GetReviewsByFilter - data after unmarshalling: %v", filter)
 
 	reviews, err := h.service.GetReviewsByFilter(filter)
 	if err != nil {
 		log.Printf("GetReviewsByFilter - h.service.GetReviewsByFilter error: %v", err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	//log.Printf("GetReviewsByFilter - reviews: %v", reviews)
-
-	w.Header().Set("Content-Type", "application/json")
-
-	data, err = json.MarshalIndent(reviews, "", "    ")
-	if err != nil {
-		log.Printf("GetReviewsByFilter - json.MarshalIndent error: %v", err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	//log.Printf("GetReviewsByFilter - response to client: %v", string(data))
-
-	w.WriteHeader(http.StatusOK)
-	w.Write(data)
+	log.Printf("GetReviewsByFilter - reviews: %v", reviews)
+	c.JSON(http.StatusOK, gin.H{"data": reviews})
 }
 
-func (h *Handler) UpdateReview(w http.ResponseWriter, r *http.Request) {
-	defer r.Body.Close()
-
-	data, err := io.ReadAll(r.Body)
-	if err != nil {
-		log.Printf("EditReview - io.ReadAll error: %v", err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	//log.Printf("EditReview - incoming request: %v", string(data))
-
+func (h *Handler) UpdateReview(c *gin.Context) {
 	var review model.Reviews
-	err = json.Unmarshal(data, &review)
-	if err != nil {
-		log.Printf("EditReview - json.Unmarshal error: %v", err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+
+	if err := c.BindJSON(&review); err != nil {
+		log.Printf("UpdateReview - c.BindJSON error: %v", err)
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	//log.Printf("EditReview - data after unmarshalling: %v", review)
+	log.Printf("UpdateReview - data after binding: %v", review)
 
 	updatedReview, err := h.service.EditReview(&review)
 	if err != nil {
-		log.Printf("EditReview - h.service.EditReview error: %v", err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		log.Printf("UpdateReview - h.service.EditReview error: %v", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	//log.Printf("EditReview - updated review: %v", updatedReview)
-
-	w.Header().Set("Content-Type", "application/json")
-
-	data, err = json.MarshalIndent(updatedReview, "", "    ")
-	if err != nil {
-		log.Printf("EditReview - json.MarshalIndent error: %v", err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	//log.Printf("EditReview - response to client: %v", string(data))
-
-	w.WriteHeader(http.StatusOK)
-	w.Write(data)
+	log.Printf("UpdateReview - updated review: %v", updatedReview)
+	c.JSON(http.StatusOK, gin.H{"data": updatedReview})
 }
 
-func (h *Handler) DeleteReview(w http.ResponseWriter, r *http.Request) {
-	idStr := strings.TrimPrefix(r.URL.Path, "/reviews/delete/")
+func (h *Handler) DeleteReview(c *gin.Context) {
+	idStr := c.Param("id")
 
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
 		log.Printf("DeleteReview - strconv.Atoi error: %v", err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	_, err = h.service.DeleteReview(id)
-	if err != nil {
+	if _, err := h.service.DeleteReview(id); err != nil {
 		log.Printf("DeleteReview - h.service.DeleteReview error: %v", err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("Deleted review"))
+	log.Printf("DeleteReview - review with id %d deleted", id)
+	c.JSON(http.StatusOK, gin.H{"message": "Review deleted"})
 }

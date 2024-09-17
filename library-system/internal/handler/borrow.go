@@ -1,238 +1,163 @@
 package handler
 
 import (
-	"encoding/json"
-	"io"
+	"github.com/gin-gonic/gin"
 	"log"
 	"net/http"
 	"projects/internal/model"
 	"strconv"
-	"strings"
 )
 
-func (h *Handler) GetBorrows(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) GetBorrows(c *gin.Context) {
 	borrows, err := h.service.GetBorrows()
 	if err != nil {
 		log.Printf("GetBorrows - h.service.GetBorrows error: %v", err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	//log.Printf("GetBorrows - borrows: %v", borrows)
-
-	w.Header().Set("Content-Type", "application/json")
-
-	data, err := json.MarshalIndent(borrows, "", "    ")
-	if err != nil {
-		log.Printf("GetBorrows - json.MarshalIndent error: %v", err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	//log.Printf("GetBorrows - data: %v", string(data))
-
-	w.WriteHeader(http.StatusOK)
-	w.Write(data)
+	log.Printf("GetBorrows - borrows: %v", borrows)
+	c.JSON(http.StatusOK, gin.H{"data": borrows})
 }
 
-func (h *Handler) GetBorrowByID(w http.ResponseWriter, r *http.Request) {
-	idStr := strings.TrimPrefix(r.URL.Path, "/borrows/")
+func (h *Handler) GetBorrowByID(c *gin.Context) {
+	idStr := c.Param("id")
 
 	if idStr == "" {
 		log.Printf("GetBorrowByID - id is required")
-		http.Error(w, "id is required", http.StatusBadRequest)
+		c.JSON(http.StatusBadRequest, gin.H{"error": "id is required"})
 		return
 	}
 
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
 		log.Printf("GetBorrowByID - strconv.Atoi error: %v", err)
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
 	borrow, err := h.service.GetBorrowByID(id)
 	if err != nil {
 		log.Printf("GetBorrowByID - h.service.GetBorrowByID error: %v", err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	//log.Printf("GetBorrowByID - borrow: %v", borrow)
-
-	w.Header().Set("Content-Type", "application/json")
-
-	data, err := json.MarshalIndent(borrow, "", "    ")
-	if err != nil {
-		log.Printf("GetBorrowByID - json.MarshalIndent error: %v", err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	//log.Printf("GetBorrowByID - response to client: %v", string(data))
-
-	w.WriteHeader(http.StatusOK)
-	w.Write(data)
+	log.Printf("GetBorrowByID - borrow: %v", borrow)
+	c.JSON(http.StatusOK, gin.H{"data": borrow})
 }
 
-func (h *Handler) GetBorrowByUser(w http.ResponseWriter, r *http.Request) {
-	idStr := strings.TrimPrefix(r.URL.Path, "/borrows/user/")
+func (h *Handler) GetBorrowByUser(c *gin.Context) {
+	idStr := c.Param("id")
 	if idStr == "" {
 		log.Printf("GetBorrowByUser - id is required")
-		http.Error(w, "id is required", http.StatusBadRequest)
+		c.JSON(http.StatusBadRequest, gin.H{"error": "id is required"})
 		return
 	}
 
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
 		log.Printf("GetBorrowByUser - strconv.Atoi error: %v", err)
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
 	borrows, err := h.service.GetBorrowsByUser(id)
 	if err != nil {
 		log.Printf("GetBorrowByUser - h.service.GetBorrowsByUser error: %v", err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	//log.Printf("GetBorrowByUser - borrows: %v", borrows)
-
-	w.Header().Set("Content-Type", "application/json")
-
-	data, err := json.MarshalIndent(borrows, "", "    ")
-	if err != nil {
-		log.Printf("GetBorrowByUser - json.MarshalIndent error: %v", err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	//log.Printf("GetBorrowByUser - response to client: %v", string(data))
-
-	w.WriteHeader(http.StatusOK)
-	w.Write(data)
+	log.Printf("GetBorrowByUser - borrows: %v", borrows)
+	c.JSON(http.StatusOK, gin.H{"data": borrows})
 }
 
-func (h *Handler) GetBorrowByBook(w http.ResponseWriter, r *http.Request) {
-	idStr := strings.TrimPrefix(r.URL.Path, "/borrows/book/")
+func (h *Handler) GetBorrowByBook(c *gin.Context) {
+	idStr := c.Param("id")
 	if idStr == "" {
 		log.Printf("GetBorrowByBook - id is required")
-		http.Error(w, "id is required", http.StatusBadRequest)
+		c.JSON(http.StatusBadRequest, gin.H{"error": "id is required"})
 		return
 	}
 
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
 		log.Printf("GetBorrowByBook - strconv.Atoi error: %v", err)
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
 	borrows, err := h.service.GetBorrowsByBook(id)
 	if err != nil {
 		log.Printf("GetBorrowByBook - h.service.GetBorrowsByBook error: %v", err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	//log.Printf("GetBorrowByBook - borrows: %v", borrows)
-
-	w.Header().Set("Content-Type", "application/json")
-
-	data, err := json.MarshalIndent(borrows, "", "    ")
-	if err != nil {
-		log.Printf("GetBorrowByBook - json.MarshalIndent error: %v", err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	//log.Printf("GetBorrowByBook - response to client: %v", string(data))
-
-	w.WriteHeader(http.StatusOK)
-	w.Write(data)
+	log.Printf("GetBorrowByBook - borrows: %v", borrows)
+	c.JSON(http.StatusOK, gin.H{"data": borrows})
 }
 
-func (h *Handler) CreateBorrow(w http.ResponseWriter, r *http.Request) {
-	defer r.Body.Close()
-
-	body, err := io.ReadAll(r.Body)
-	if err != nil {
-		log.Printf("CreateBorrow - io.ReadAll error: %v", err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	//log.Printf("CreateBorrow - incoming request: %v\n", string(body))
-
+func (h *Handler) CreateBorrow(c *gin.Context) {
 	var borrow model.Borrow
 
-	err = json.Unmarshal(body, &borrow)
-	if err != nil {
-		log.Printf("CreateBorrow - json.Unmarshal error: %v", err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+	if err := c.BindJSON(&borrow); err != nil {
+		log.Printf("CreateBorrow - c.BindJSON error: %v", err)
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	// Получение ID пользователя из контекста
-	userID := r.Context().Value("user_id").(int)
-	borrow.UserID = userID
+	log.Printf("CreateBorrow - data after binding: %v", borrow)
 
-	//log.Printf("CreateBorrow - data after unmarshalling: %v", borrow)
+	// Получение ID пользователя из контекста
+	userID, ok := c.Get("user_id")
+	if !ok {
+		log.Printf("CreateBorrow - user_id is required")
+		c.JSON(http.StatusBadRequest, gin.H{"error": "user_id is required"})
+		return
+	}
+	borrow.UserID = userID.(int)
 
 	createdBorrow, err := h.service.CreateBorrow(&borrow)
 	if err != nil {
 		log.Printf("CreateBorrow - h.service.CreateBorrow error: %v", err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	//log.Printf("CreateBorrow - createdBorrow: %v", createdBorrow)
-
-	w.Header().Set("Content-Type", "application/json")
-
-	data, err := json.MarshalIndent(createdBorrow, "", "    ")
-	if err != nil {
-		log.Printf("CreateBorrow - json.MarshalIndent error: %v", err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	//log.Printf("CreateBorrow - response to client: %v", string(data))
-
-	w.WriteHeader(http.StatusOK)
-	w.Write(data)
+	log.Printf("CreateBorrow - createdBorrow: %v", createdBorrow)
+	c.JSON(http.StatusOK, gin.H{"data": createdBorrow})
 }
 
-func (h *Handler) ReturnBook(w http.ResponseWriter, r *http.Request) {
-	idStr := strings.TrimPrefix(r.URL.Path, "/borrows/return/")
+func (h *Handler) ReturnBook(c *gin.Context) {
+	idStr := c.Param("id")
 	if idStr == "" {
 		log.Printf("ReturnBook - id is required")
-		http.Error(w, "id is required", http.StatusBadRequest)
+		c.JSON(http.StatusBadRequest, gin.H{"error": "id is required"})
 		return
 	}
 
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
 		log.Printf("ReturnBook - strconv.Atoi error: %v", err)
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	userID, ok := r.Context().Value("user_id").(int)
+	userID, ok := c.Get("user_id")
 	if !ok {
 		log.Printf("ReturnBook - user_id is required")
-		http.Error(w, "user_id is required", http.StatusBadRequest)
+		c.JSON(http.StatusBadRequest, gin.H{"error": "user_id is required"})
 		return
 	}
 
-	err = h.service.ReturnBook(userID, id)
-	if err != nil {
+	if err := h.service.ReturnBook(userID.(int), id); err != nil {
 		log.Printf("ReturnBook - h.service.ReturnBook error: %v", err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("Book returned"))
+	log.Printf("ReturnBook - book with id %d returned by user %d", id, userID)
+	c.JSON(http.StatusOK, gin.H{"message": "Book returned"})
 }
