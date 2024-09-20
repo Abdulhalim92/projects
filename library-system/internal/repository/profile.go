@@ -13,7 +13,6 @@ func (r *Repository) AddProfile(p *model.Profile) (*model.Profile, error) {
 		log.Printf("AddProfile: Failed to add profile: %v\n", result.Error)
 		return nil, fmt.Errorf("Failed to add profile: %v\n", result.Error)
 	}
-
 	return p, nil
 }
 

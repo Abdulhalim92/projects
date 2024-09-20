@@ -2,10 +2,10 @@ package main
 
 import (
 	"fmt"
+	"github.com/gin-gonic/gin"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"log"
-	"net/http"
 	"projects/internal/handler"
 	"projects/internal/repository"
 	"projects/internal/service"
@@ -24,17 +24,13 @@ func main() {
 	newRepository := repository.NewRepository(db)
 	// Инициализация сервиса
 	newService := service.NewService(*newRepository)
-	//
-	mux := http.NewServeMux()
+	// Инициализация роутера
+	router := gin.Default()
 	// Инициализация обработчика
-	newHandler := handler.NewHandler(mux, newService)
+	newHandler := handler.NewHandler(router, newService)
 	newHandler.InitRoutes()
 
-	fmt.Printf("Server is starting... address: %v", ":8080\n")
-	err = http.ListenAndServe("localhost:8080", newHandler)
-	if err != nil {
-		panic(err)
-	}
+	log.Fatalf("Failed to start server: %v", router.Run(":8080"))
 }
 func ConnectToDb() (*gorm.DB, error) {
 	dsn := "host=localhost user=humo password=humo dbname=Humo port=5432 sslmode=disable"

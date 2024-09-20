@@ -238,3 +238,7 @@ VALUES
     (13, 13, 'A complex and engaging story.', 4.8),
     (14, 14, NULL, 4.4),                           -- Пустое поле review_text
     (15, 15, 'An epic tale from antiquity.', 4.9);
+DELETE FROM borrows;
+DELETE FROM users;
+DELETE FROM profiles;
+DELETE FROM reviews;

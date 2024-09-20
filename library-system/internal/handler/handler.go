@@ -1,101 +1,100 @@
 package handler
 
 import (
+	"github.com/gin-gonic/gin"
 	"net/http"
 	"projects/internal/handler/middleware"
 	"projects/internal/service"
 )
 
 type Handler struct {
-	mux     *http.ServeMux
+	router  *gin.Engine
 	service *service.Service
 }
 
-func NewHandler(mux *http.ServeMux, s *service.Service) *Handler {
+func NewHandler(router *gin.Engine, s *service.Service) *Handler {
 	return &Handler{
-		mux:     mux,
+		router:  router,
 		service: s,
 	}
 }
 
-func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	h.mux.ServeHTTP(w, r)
-}
-
-func (h *Handler) HealthCheck(w http.ResponseWriter, r *http.Request) {
-	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("The service is up and running"))
+func (h *Handler) HealthCheck(c *gin.Context) {
+	c.JSON(http.StatusOK, gin.H{"status": "The service is up and running"})
 }
 
 func (h *Handler) InitRoutes() {
-	publicMiddleware := []middleware.Middleware{
-		middleware.CORS,
-		middleware.Recovery,
-	}
-
-	protectedMiddleware := append(publicMiddleware, middleware.Authenticate)
+	h.router.Use(
+		middleware.CORS(),
+		middleware.Recovery(),
+	)
 
 	{
-		h.mux.Handle("/health", middleware.ChainMiddleware(middleware.MethodCheckHandler(h.HealthCheck, http.MethodGet), publicMiddleware...))
-		h.mux.Handle("/users/add", middleware.ChainMiddleware(middleware.MethodCheckHandler(h.SignUp, http.MethodPost), publicMiddleware...))
-		h.mux.Handle("/users/login", middleware.ChainMiddleware(middleware.MethodCheckHandler(h.SignIn, http.MethodPost), publicMiddleware...))
+		h.router.GET("/health", h.HealthCheck)
+		h.router.POST("/users/add", h.SignUp)
+		h.router.POST("/users/login", h.SignIn)
 	}
 
-	bookGroup := h.Group("/books")
+	v1 := h.router.Group("/v1")
+	v1.Use(
+		middleware.Authenticate(),
+	)
+
+	bookGroup := v1.Group("/books")
 	{
-		bookGroup.Handle("", middleware.ChainMiddleware(middleware.MethodCheckHandler(h.GetBooks, http.MethodGet), protectedMiddleware...))
-		bookGroup.Handle("/{id}", middleware.ChainMiddleware(middleware.MethodCheckHandler(h.GetBookByID, http.MethodGet), protectedMiddleware...))
-		bookGroup.Handle("/add", middleware.ChainMiddleware(middleware.MethodCheckHandler(h.AddBook, http.MethodGet), protectedMiddleware...))
-		bookGroup.Handle("/delete/{id}", middleware.ChainMiddleware(middleware.MethodCheckHandler(h.DeleteBook, http.MethodGet), protectedMiddleware...))
-		bookGroup.Handle("/update", middleware.ChainMiddleware(middleware.MethodCheckHandler(h.UpdateBook, http.MethodGet), protectedMiddleware...))
-		bookGroup.Handle("/author/{id}", middleware.ChainMiddleware(middleware.MethodCheckHandler(h.GetBooksByAuthor, http.MethodGet), protectedMiddleware...))
+		bookGroup.GET("", h.GetBooks)
+		bookGroup.GET("/{id}", h.GetBookByID)
+		bookGroup.POST("/add", h.AddBook)
+		bookGroup.DELETE("/delete/{id}", h.DeleteBook)
+		bookGroup.PUT("/update", h.UpdateBook)
+		bookGroup.GET("/author/{id}", h.GetBooksByAuthor)
 	}
 
-	userGroup := h.Group("/users")
+	userGroup := v1.Group("/users")
 	{
-		userGroup.Handle("", middleware.ChainMiddleware(middleware.MethodCheckHandler(h.GetUsers, http.MethodGet), protectedMiddleware...))
-		userGroup.Handle("/{id}", middleware.ChainMiddleware(middleware.MethodCheckHandler(h.GetUserByID, http.MethodGet), protectedMiddleware...))
-		userGroup.Handle("/delete/{id}", middleware.ChainMiddleware(middleware.MethodCheckHandler(h.DeleteUser, http.MethodGet), protectedMiddleware...))
-		userGroup.Handle("/update", middleware.ChainMiddleware(middleware.MethodCheckHandler(h.UpdateUser, http.MethodGet), protectedMiddleware...))
+		userGroup.GET("", h.GetUsers)
+		userGroup.GET("/{id}", h.GetUserByID)
+		userGroup.DELETE("/delete/{id}", h.DeleteUser)
+		userGroup.PUT("/update", h.UpdateUser)
 	}
 
-	authorGroup := h.Group("/authors")
+	authorGroup := v1.Group("/authors")
 	{
-		authorGroup.Handle("", middleware.ChainMiddleware(middleware.MethodCheckHandler(h.GetAuthors, http.MethodGet), protectedMiddleware...))
-		authorGroup.Handle("/{id}", middleware.ChainMiddleware(middleware.MethodCheckHandler(h.GetAuthorByID, http.MethodGet), protectedMiddleware...))
-		authorGroup.Handle("/add", middleware.ChainMiddleware(middleware.MethodCheckHandler(h.AddAuthor, http.MethodGet), protectedMiddleware...))
-		authorGroup.Handle("/delete/{id}", middleware.ChainMiddleware(middleware.MethodCheckHandler(h.DeleteAuthor, http.MethodGet), protectedMiddleware...))
-		authorGroup.Handle("/update", middleware.ChainMiddleware(middleware.MethodCheckHandler(h.UpdateAuthor, http.MethodGet), protectedMiddleware...))
+		authorGroup.GET("", h.GetAuthors)
+		authorGroup.GET("/{id}", h.GetAuthorByID)
+		authorGroup.POST("/add", h.AddAuthor)
+		authorGroup.DELETE("/delete/{id}", h.DeleteAuthor)
+		authorGroup.PUT("/update", h.UpdateAuthor)
 	}
 
-	reviewGroup := h.Group("/reviews")
+	reviewGroup := v1.Group("/reviews")
 	{
-		reviewGroup.Handle("", middleware.ChainMiddleware(middleware.MethodCheckHandler(h.GetReviews, http.MethodGet), protectedMiddleware...))
-		reviewGroup.Handle("/{id}", middleware.ChainMiddleware(middleware.MethodCheckHandler(h.GetReviewByID, http.MethodGet), protectedMiddleware...))
-		reviewGroup.Handle("/user/{id}", middleware.ChainMiddleware(middleware.MethodCheckHandler(h.GetReviewsByUser, http.MethodGet), protectedMiddleware...))
-		reviewGroup.Handle("/book/{id}", middleware.ChainMiddleware(middleware.MethodCheckHandler(h.GetReviewsByBook, http.MethodGet), protectedMiddleware...))
-		reviewGroup.Handle("/filter", middleware.ChainMiddleware(middleware.MethodCheckHandler(h.GetReviewsByFilter, http.MethodGet), protectedMiddleware...))
-		reviewGroup.Handle("/add", middleware.ChainMiddleware(middleware.MethodCheckHandler(h.AddReview, http.MethodGet), protectedMiddleware...))
-		reviewGroup.Handle("/delete/{id}", middleware.ChainMiddleware(middleware.MethodCheckHandler(h.DeleteReview, http.MethodGet), protectedMiddleware...))
-		reviewGroup.Handle("/update", middleware.ChainMiddleware(middleware.MethodCheckHandler(h.UpdateReview, http.MethodGet), protectedMiddleware...))
+		reviewGroup.GET("", h.GetReviews)
+		reviewGroup.GET("/{id}", h.GetReviewByID)
+		reviewGroup.GET("/user/{id}", h.GetReviewsByUser)
+		reviewGroup.GET("/book/{id}", h.GetReviewsByBook)
+		reviewGroup.GET("/filter", h.GetReviewsByFilter)
+		reviewGroup.POST("/add", h.AddReview)
+		reviewGroup.DELETE("/delete/{id}", h.DeleteReview)
+		reviewGroup.PUT("/update", h.UpdateReview)
 	}
 
-	profileGroup := h.Group("/profiles")
+	profileGroup := v1.Group("/profiles")
 	{
-		profileGroup.Handle("", middleware.ChainMiddleware(middleware.MethodCheckHandler(h.ListProfiles, http.MethodGet), protectedMiddleware...))
-		profileGroup.Handle("/{id}", middleware.ChainMiddleware(middleware.MethodCheckHandler(h.GetProfileByID, http.MethodGet), protectedMiddleware...))
-		profileGroup.Handle("/add", middleware.ChainMiddleware(middleware.MethodCheckHandler(h.CreateProfile, http.MethodGet), protectedMiddleware...))
-		profileGroup.Handle("/delete/{id}", middleware.ChainMiddleware(middleware.MethodCheckHandler(h.DeleteProfile, http.MethodGet), protectedMiddleware...))
-		profileGroup.Handle("/update}", middleware.ChainMiddleware(middleware.MethodCheckHandler(h.UpdateProfile, http.MethodGet), protectedMiddleware...))
+		profileGroup.GET("", h.ListProfiles)
+		profileGroup.GET("/{id}", h.GetProfileByID)
+		profileGroup.POST("/add", h.CreateProfile)
+		profileGroup.DELETE("/delete/{id}", h.DeleteProfile)
+		profileGroup.PUT("/update", h.UpdateProfile)
 	}
 
-	borrowGroup := h.Group("/borrows")
+	borrowGroup := v1.Group("/borrows")
 	{
-		borrowGroup.Handle("", middleware.ChainMiddleware(middleware.MethodCheckHandler(h.GetBorrows, http.MethodGet), protectedMiddleware...))
-		borrowGroup.Handle("/{id}", middleware.ChainMiddleware(middleware.MethodCheckHandler(h.GetBorrowByID, http.MethodGet), protectedMiddleware...))
-		borrowGroup.Handle("/user/{id}", middleware.ChainMiddleware(middleware.MethodCheckHandler(h.GetBorrowByUser, http.MethodGet), protectedMiddleware...))
-		borrowGroup.Handle("/book/{id}", middleware.ChainMiddleware(middleware.MethodCheckHandler(h.GetBorrowByBook, http.MethodGet), protectedMiddleware...))
-		borrowGroup.Handle("/add", middleware.ChainMiddleware(middleware.MethodCheckHandler(h.CreateBorrow, http.MethodPost), protectedMiddleware...))
-		borrowGroup.Handle("/return/{id}", middleware.ChainMiddleware(middleware.MethodCheckHandler(h.ReturnBook, http.MethodGet), protectedMiddleware...))
+		borrowGroup.GET("", h.GetBorrows)
+		borrowGroup.GET("/{id}", h.GetBorrowByID)
+		borrowGroup.GET("/user/{id}", h.GetBorrowByUser)
+		borrowGroup.GET("/book/{id}", h.GetBorrowByBook)
+		borrowGroup.POST("/add", h.CreateBorrow)
+		borrowGroup.PUT("/return/{id}", h.ReturnBook)
 	}
 }

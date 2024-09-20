@@ -4,16 +4,16 @@ import (
 	"errors"
 	"fmt"
 	"regexp"
+	"time"
 	"unicode"
 )
 
 type User struct {
-	UserID   int `gorm:"primaryKey"`
-	Username string
-	Password string
-	//HasProfile bool
-	//CreatedAt time.Time
-	//UpdatedAt time.Time
+	UserID    int    `gorm:"primaryKey"`
+	Username  string `gorm:"username" json:"username"`
+	Password  string `gorm:"password" json:"password"`
+	CreatedAt time.Time
+	UpdatedAt time.Time
 }
 
 func (u *User) ValidateUser() error {
