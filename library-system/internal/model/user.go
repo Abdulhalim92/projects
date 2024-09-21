@@ -10,9 +10,9 @@ import (
 
 // User структура для пользователя.
 type User struct {
-	UserID   int    `json:"user_id" gorm:"primaryKey"`
-	Username string `json:"username"`
-	Password string `json:"-"`
+	UserID   int     `json:"user_id" gorm:"primaryKey"`
+	Username string  `json:"username"`
+	Password *string `json:"password,omitempty"`
 	//HasProfile bool
 	CreatedAt *time.Time `json:"created_at,omitempty"`
 	UpdatedAt *time.Time `json:"updated_at,omitempty"`
@@ -41,11 +41,15 @@ func (u *User) validatePassword() error {
 		hasSpecial = false
 	)
 
-	if len(u.Password) >= 8 {
+	if u.Password == nil {
+		return fmt.Errorf("field password is empty")
+	}
+
+	if len(*u.Password) >= 8 {
 		hasMinLen = true
 	}
 
-	for _, char := range u.Password {
+	for _, char := range *u.Password {
 		switch {
 		case unicode.IsUpper(char):
 			hasUpper = true

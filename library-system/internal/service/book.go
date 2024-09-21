@@ -14,7 +14,7 @@ var (
 func (s *Service) CreateBook(b *model.Book) (*model.Book, error) {
 	_, err := s.Repository.GetAuthorByID(b.AuthorID)
 	if err != nil {
-		if errors.Is(err, ErrRecordNotFound) {
+		if errors.As(err, &ErrRecordNotFound) {
 			return nil, fmt.Errorf("author with id %d doesn't exists", b.AuthorID)
 		}
 		return nil, err
@@ -24,6 +24,8 @@ func (s *Service) CreateBook(b *model.Book) (*model.Book, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	//s.Repository.GetBookByAuthorAndID(b.AuthorID, b.BookID)
 
 	if len(books) > 0 {
 		for _, book := range books {

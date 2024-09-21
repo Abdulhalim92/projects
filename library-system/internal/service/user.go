@@ -30,13 +30,13 @@ func (s *Service) CreateUser(u *model.User) (*model.User, error) {
 	}
 
 	// Хешируем пароль пользователя
-	hashedPassword, err := utils.HashPassword(u.Password)
+	hashedPassword, err := utils.HashPassword(*u.Password)
 	if err != nil {
 		return nil, fmt.Errorf("failed to hash password: %w", err)
 	}
 
 	// Присваиваем хэшированный пароль пользователю
-	u.Password = hashedPassword
+	u.Password = &hashedPassword
 
 	// Добавляем пользователя в репозиторий
 	return s.Repository.AddUser(u)
@@ -57,7 +57,7 @@ func (s *Service) SignIn(u *model.User) (string, error) {
 	}
 
 	// Проверка пароля пользователя
-	if !utils.CheckPasswordHash(u.Password, user.Password) {
+	if !utils.CheckPasswordHash(*u.Password, *user.Password) {
 		return "", fmt.Errorf("введен неправильный пароль")
 	}
 
@@ -120,8 +120,8 @@ func (s *Service) EditUser(u *model.User) (*model.User, error) {
 	}
 
 	// Не отправляем пароль в ответ
-	if updatedUser.Password != "" {
-		updatedUser.Password = ""
+	if *updatedUser.Password != "" {
+		updatedUser.Password = nil
 	}
 
 	return updatedUser, nil

@@ -22,7 +22,7 @@ func (r *Repository) GetUsers() ([]model.User, error) {
 	var users []model.User
 
 	// select * from users
-	result := r.db.Find(&users)
+	result := r.db.Omit("password").Find(&users)
 	if result.Error != nil {
 		log.Printf("GetUsers: Failed to get users: %v\n", result.Error)
 		return nil, fmt.Errorf("Failed to get users: %v\n", result.Error)

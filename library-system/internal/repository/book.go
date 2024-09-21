@@ -50,7 +50,19 @@ func (r *Repository) GetBooksByAuthor(authorID int) ([]model.Book, error) {
 	err := r.db.Where("author_id = ?", authorID).Find(&b).Error
 	if err != nil {
 		log.Printf("GetBooksByAuthor: Failed to get books: %v\n", err)
-		return nil, fmt.Errorf("Cannot find books by authorID with error: %v", err)
+		return nil, fmt.Errorf("cannot find books by authorID with error: %v", err)
+	}
+
+	return b, nil
+}
+
+func (r *Repository) GetBookByAuthorAndTitle(authorID int, title string) (*model.Book, error) {
+	var b *model.Book
+
+	// select * from books where author_id = authorID and title = title
+	if err := r.db.Where("author_id = ? and title = ?", authorID, title).First(&b).Error; err != nil {
+		log.Printf("GetBookByAuthorAndTitle: Failed to get book by author and title")
+		return nil, err // TODO
 	}
 
 	return b, nil

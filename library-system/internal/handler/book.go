@@ -16,7 +16,8 @@ func (h *Handler) GetBooks(c *gin.Context) {
 		return
 	}
 
-	log.Printf("GetBooks - data: %v", books)
+	//log.Printf("GetBooks - data: %v", books)
+
 	c.JSON(http.StatusOK, gin.H{"data": books})
 }
 
