@@ -1,22 +1,22 @@
 package repository
 
 import (
-	"errors"
 	"fmt"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 	"log"
 	"projects/internal/model"
 )
 
-type RoleRepository struct {
+type Repository struct {
 	db *gorm.DB
 }
 
-func NewRoleRepository(db *gorm.DB) *RoleRepository {
-	return &RoleRepository{db: db}
+func NewRepository(db *gorm.DB) *Repository {
+	return &Repository{db: db}
 }
 
-func (r *RoleRepository) GetRoles() ([]model.Role, error) {
+func (r *Repository) GetRoles() ([]model.Role, error) {
 	var roles []model.Role
 	// select * from roles
 	err := r.db.Find(&roles).Error
@@ -32,14 +32,11 @@ func (r *RoleRepository) GetRoles() ([]model.Role, error) {
 	return roles, nil
 }
 
-func (r *RoleRepository) GetRoleByID(roleID int) (*model.Role, error) {
+func (r *Repository) GetRoleByID(roleID int) (*model.Role, error) {
 	var role *model.Role
 	// select * from roles where role_id = ?
 	err := r.db.First(&role, roleID).Error
 	if err != nil {
-		if err.Error() == "record not found" {
-			return nil, errors.New("record not found")
-		}
 		log.Printf("GetRoleByID: Error getting role by ID: %v", err)
 		return nil, err
 	}
@@ -47,7 +44,7 @@ func (r *RoleRepository) GetRoleByID(roleID int) (*model.Role, error) {
 	return role, nil
 }
 
-func (r *RoleRepository) CreateRole(role *model.Role) (int, error) {
+func (r *Repository) CreateRole(role *model.Role) (int, error) {
 	// insert into roles (name) values ('admin') returning role_id
 	err := r.db.Create(role).Error
 	if err != nil {
@@ -56,4 +53,26 @@ func (r *RoleRepository) CreateRole(role *model.Role) (int, error) {
 	}
 
 	return role.RoleID, nil
+}
+
+func (r *Repository) UpdateRole(role *model.Role) (*model.Role, error) {
+	// update roles set name = 'admin' where role_id = 1
+	err := r.db.Clauses(clause.Returning{}).Updates(role).Error
+	if err != nil {
+		log.Printf("UpdateRole: Error updating role: %v", err)
+		return nil, err
+	}
+
+	return role, nil
+}
+
+func (r *Repository) DeleteRole(roleID int) error {
+	// delete from roles where role_id = 1
+	err := r.db.Delete(&model.Role{}, roleID).Error
+	if err != nil {
+		log.Printf("DeleteRole: Error deleting role: %v", err)
+		return err
+	}
+
+	return nil
 }

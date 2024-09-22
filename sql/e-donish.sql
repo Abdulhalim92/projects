@@ -59,6 +59,8 @@ CREATE TABLE "users" (
                          FOREIGN KEY ("role_id") REFERENCES "roles" ("role_id") -- Внешний ключ на роли
 );
 
+ALTER TABLE users ADD UNIQUE (username);
+
 -- Таблица для родителей
 CREATE TABLE "parents" (
                            "parent_id" serial PRIMARY KEY,
