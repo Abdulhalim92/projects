@@ -3,10 +3,11 @@ package repository
 import (
 	"fmt"
 	"log"
+	"os/user"
 	"projects/internal/model"
 )
 
-func (r *Repository) GetUsers() ([]model.User, error) {
+func (r *Repository) GetUsers() ([]model.User, error)s{
 	var users []model.User
 	// select * from users
 	err := r.db.Find(&users).Error
@@ -31,4 +32,34 @@ func (r *Repository) CreateUser(user *model.User) (int, error) {
 	}
 
 	return user.UserID, nil
+}
+func (r *Repository) GetUserByID(userID int) (*model.User, error) {
+	var user *model.User
+	// select * from users where user_id = ?
+	err := r.db.First(&user, userID).Error
+	if err != nil {
+		log.Printf("GetUserByID: Error getting user by ID: %v", err)
+		return nil, err
+	}
+	return user, nil
+}
+func (r *Repository) UpdateUser(user *model.User) (*model.User, error) {
+	// update users set name = 'admin' where user_id = 1
+	err := r.db.Clauses(clause.Returning{}).Updates(user).Error
+	if err != nil {
+		log.Printf("UpdateUser: Error updating user: %v", err)
+		return nil, err
+	}
+
+	return user, nil
+}
+func (r *Repository) DeleteUser(userID int) error {
+	// delete from users where user_id = 1
+	err := r.db.Delete(&model.User{}, userID).Error
+	if err != nil {
+		log.Printf("DeleteUser: Error deleting user: %v", err)
+		return err
+	}
+
+	return nil
 }

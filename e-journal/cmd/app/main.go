@@ -41,7 +41,7 @@ func main() {
 
 // Подключение к базе данных
 func connectToDB() (*gorm.DB, error) {
-	dsn := "host=localhost user=root password=root dbname=e-donish port=5432 sslmode=disable TimeZone=Asia/Dushanbe"
+	dsn := "host=localhost user=root password=root dbname=e_donish port=5432 sslmode=disable TimeZone=Asia/Dushanbe"
 
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{
 		Logger: logger.Default.LogMode(logger.Info),
