@@ -2,12 +2,12 @@ package repository
 
 import (
 	"fmt"
+	"gorm.io/gorm/clause"
 	"log"
-	"os/user"
 	"projects/internal/model"
 )
 
-func (r *Repository) GetUsers() ([]model.User, error)s{
+func (r *Repository) GetUsers() ([]model.User, error) {
 	var users []model.User
 	// select * from users
 	err := r.db.Find(&users).Error
