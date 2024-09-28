@@ -25,7 +25,7 @@ func (r *Repository) GetReviews() ([]model.Reviews, error) {
 	err := r.db.Find(&reviews).Error
 	if err != nil {
 		log.Printf("ListReviews: Failed to get reviews: %v\n", err)
-		return nil, fmt.Errorf("Cannot find reviews with error: %v", err)
+		return nil, fmt.Errorf("cannot find reviews with error: %v", err)
 	}
 
 	return reviews, nil
@@ -36,11 +36,21 @@ func (r *Repository) GetReviewsByFilter(filter model.ReviewFilter) ([]model.Revi
 
 	query := r.db
 
-	if filter.ReviewID > 0 {
+	switch {
+	case filter.ReviewID > 0:
 		query = query.Where("review_id = ?", filter.ReviewID)
-	}
-	if filter.BookID > 0 {
+	case filter.BookID > 0:
 		query = query.Where("book_id = ?", filter.BookID)
+	case filter.UserID > 0:
+		query = query.Where("user_id = ?", filter.UserID)
+	case filter.CountOnPage > 0:
+		query = query.Limit(filter.CountOnPage)
+	case filter.Page > 0:
+		query = query.Offset((filter.Page - 1) * filter.CountOnPage)
+	case filter.DateFrom != nil:
+		query = query.Where("date >= ?", filter.DateFrom)
+	case filter.DateTo != nil:
+		query = query.Where("date <= ?", filter.DateTo)
 	}
 
 	// select * from reviews where book_id = bookID

@@ -67,6 +67,7 @@ func (h *Handler) GetUsers(c *gin.Context) {
 }
 
 func (h *Handler) GetUserByID(c *gin.Context) {
+	// Получение ID пользователя из URL
 	idStr := c.Param("id")
 
 	if idStr == "" {

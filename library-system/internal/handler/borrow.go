@@ -9,6 +9,7 @@ import (
 )
 
 func (h *Handler) GetBorrows(c *gin.Context) {
+	// Получение данных из БД через сервис
 	borrows, err := h.service.GetBorrows()
 	if err != nil {
 		log.Printf("GetBorrows - h.service.GetBorrows error: %v", err)
@@ -16,38 +17,13 @@ func (h *Handler) GetBorrows(c *gin.Context) {
 		return
 	}
 
-	log.Printf("GetBorrows - borrows: %v", borrows)
+	//log.Printf("GetBorrows - borrows: %v", borrows)
+
 	c.JSON(http.StatusOK, gin.H{"data": borrows})
 }
 
-func (h *Handler) GetBorrowByID(c *gin.Context) {
-	idStr := c.Param("id")
-
-	if idStr == "" {
-		log.Printf("GetBorrowByID - id is required")
-		c.JSON(http.StatusBadRequest, gin.H{"error": "id is required"})
-		return
-	}
-
-	id, err := strconv.Atoi(idStr)
-	if err != nil {
-		log.Printf("GetBorrowByID - strconv.Atoi error: %v", err)
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
-	borrow, err := h.service.GetBorrowByID(id)
-	if err != nil {
-		log.Printf("GetBorrowByID - h.service.GetBorrowByID error: %v", err)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-
-	log.Printf("GetBorrowByID - borrow: %v", borrow)
-	c.JSON(http.StatusOK, gin.H{"data": borrow})
-}
-
 func (h *Handler) GetBorrowByUser(c *gin.Context) {
+	// Получение ID пользователя из URL
 	idStr := c.Param("id")
 	if idStr == "" {
 		log.Printf("GetBorrowByUser - id is required")
@@ -62,6 +38,20 @@ func (h *Handler) GetBorrowByUser(c *gin.Context) {
 		return
 	}
 
+	// Получение user_id из контекста
+	userID, exists := c.Get("user_id")
+	if !exists {
+		log.Printf("AddAuthor - user_id not found in context")
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+		return
+	}
+
+	if id != userID.(int) {
+		log.Printf("GetBorrowByUser - user_id doesn't match")
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+		return
+	}
+
 	borrows, err := h.service.GetBorrowsByUser(id)
 	if err != nil {
 		log.Printf("GetBorrowByUser - h.service.GetBorrowsByUser error: %v", err)
@@ -69,46 +59,50 @@ func (h *Handler) GetBorrowByUser(c *gin.Context) {
 		return
 	}
 
-	log.Printf("GetBorrowByUser - borrows: %v", borrows)
+	//log.Printf("GetBorrowByUser - borrows: %v", borrows)
+
 	c.JSON(http.StatusOK, gin.H{"data": borrows})
 }
 
-func (h *Handler) GetBorrowByBook(c *gin.Context) {
+func (h *Handler) GetBorrowsByBook(c *gin.Context) {
+	// Получение ID книги из URL
 	idStr := c.Param("id")
 	if idStr == "" {
-		log.Printf("GetBorrowByBook - id is required")
+		log.Printf("GetBorrowsByBook - id is required")
 		c.JSON(http.StatusBadRequest, gin.H{"error": "id is required"})
 		return
 	}
 
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
-		log.Printf("GetBorrowByBook - strconv.Atoi error: %v", err)
+		log.Printf("GetBorrowsByBook - strconv.Atoi error: %v", err)
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
 	borrows, err := h.service.GetBorrowsByBook(id)
 	if err != nil {
-		log.Printf("GetBorrowByBook - h.service.GetBorrowsByBook error: %v", err)
+		log.Printf("GetBorrowsByBook - h.service.GetBorrowsByBook error: %v", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	log.Printf("GetBorrowByBook - borrows: %v", borrows)
+	//log.Printf("GetBorrowsByBook - borrows: %v", borrows)
+
 	c.JSON(http.StatusOK, gin.H{"data": borrows})
 }
 
 func (h *Handler) CreateBorrow(c *gin.Context) {
 	var borrow model.Borrow
 
+	// Получение данных из тела запроса
 	if err := c.BindJSON(&borrow); err != nil {
 		log.Printf("CreateBorrow - c.BindJSON error: %v", err)
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	log.Printf("CreateBorrow - data after binding: %v", borrow)
+	//log.Printf("CreateBorrow - data after binding: %v", borrow)
 
 	// Получение ID пользователя из контекста
 	userID, ok := c.Get("user_id")
@@ -117,7 +111,13 @@ func (h *Handler) CreateBorrow(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "user_id is required"})
 		return
 	}
-	borrow.UserID = userID.(int)
+
+	// Проверка user_id в запросе
+	if borrow.UserID != userID.(int) {
+		log.Printf("CreateBorrow - user_id doesn't match")
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+		return
+	}
 
 	createdBorrow, err := h.service.CreateBorrow(&borrow)
 	if err != nil {
@@ -126,11 +126,13 @@ func (h *Handler) CreateBorrow(c *gin.Context) {
 		return
 	}
 
-	log.Printf("CreateBorrow - createdBorrow: %v", createdBorrow)
+	//log.Printf("CreateBorrow - createdBorrow: %v", createdBorrow)
+
 	c.JSON(http.StatusOK, gin.H{"data": createdBorrow})
 }
 
 func (h *Handler) ReturnBook(c *gin.Context) {
+	// Получение ID книги из URL
 	idStr := c.Param("id")
 	if idStr == "" {
 		log.Printf("ReturnBook - id is required")
@@ -145,6 +147,7 @@ func (h *Handler) ReturnBook(c *gin.Context) {
 		return
 	}
 
+	// Получение user_id из контекста
 	userID, ok := c.Get("user_id")
 	if !ok {
 		log.Printf("ReturnBook - user_id is required")

@@ -91,9 +91,8 @@ func (h *Handler) InitRoutes() {
 	borrowGroup := v1.Group("/borrows")
 	{
 		borrowGroup.GET("", h.GetBorrows)
-		borrowGroup.GET("/:id", h.GetBorrowByID)
 		borrowGroup.GET("/user/:id", h.GetBorrowByUser)
-		borrowGroup.GET("/book/:id", h.GetBorrowByBook)
+		borrowGroup.GET("/book/:id", h.GetBorrowsByBook)
 		borrowGroup.POST("/add", h.CreateBorrow)
 		borrowGroup.PUT("/return/:id", h.ReturnBook)
 	}

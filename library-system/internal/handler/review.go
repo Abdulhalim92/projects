@@ -9,6 +9,7 @@ import (
 )
 
 func (h *Handler) GetReviews(c *gin.Context) {
+	// Получение всех отзывов
 	reviews, err := h.service.ListReviews()
 	if err != nil {
 		log.Printf("GetReviews - h.service.ListReviews error: %v", err)
@@ -16,20 +17,22 @@ func (h *Handler) GetReviews(c *gin.Context) {
 		return
 	}
 
-	log.Printf("GetReviews - reviews: %v", reviews)
+	//log.Printf("GetReviews - reviews: %v", reviews)
+
 	c.JSON(http.StatusOK, gin.H{"data": reviews})
 }
 
 func (h *Handler) AddReview(c *gin.Context) {
 	var review model.Reviews
 
+	// Получение данных из тела запроса
 	if err := c.BindJSON(&review); err != nil {
 		log.Printf("AddReview - c.BindJSON error: %v", err)
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	log.Printf("AddReview - data after binding: %v", review)
+	//log.Printf("AddReview - data after binding: %v", review)
 
 	createReview, err := h.service.CreateReview(&review)
 	if err != nil {
@@ -38,11 +41,13 @@ func (h *Handler) AddReview(c *gin.Context) {
 		return
 	}
 
-	log.Printf("AddReview - created review: %v", createReview)
+	//log.Printf("AddReview - created review: %v", createReview)
+
 	c.JSON(http.StatusOK, gin.H{"data": createReview})
 }
 
 func (h *Handler) GetReviewByID(c *gin.Context) {
+	// Получение ID отзыва из URL
 	idStr := c.Param("id")
 
 	id, err := strconv.Atoi(idStr)
@@ -59,11 +64,13 @@ func (h *Handler) GetReviewByID(c *gin.Context) {
 		return
 	}
 
-	log.Printf("GetReviewByID - review: %v", review)
+	//log.Printf("GetReviewByID - review: %v", review)
+
 	c.JSON(http.StatusOK, gin.H{"data": review})
 }
 
 func (h *Handler) GetReviewsByBook(c *gin.Context) {
+	// Получение ID книги из URL
 	idStr := c.Param("id")
 
 	id, err := strconv.Atoi(idStr)
@@ -80,11 +87,13 @@ func (h *Handler) GetReviewsByBook(c *gin.Context) {
 		return
 	}
 
-	log.Printf("GetReviewsByBook - reviews: %v", reviews)
+	//log.Printf("GetReviewsByBook - reviews: %v", reviews)
+
 	c.JSON(http.StatusOK, gin.H{"data": reviews})
 }
 
 func (h *Handler) GetReviewsByUser(c *gin.Context) {
+	// Получение ID пользователя из URL
 	idStr := c.Param("id")
 
 	id, err := strconv.Atoi(idStr)
@@ -101,20 +110,22 @@ func (h *Handler) GetReviewsByUser(c *gin.Context) {
 		return
 	}
 
-	log.Printf("GetReviewsByUser - reviews: %v", reviews)
+	//log.Printf("GetReviewsByUser - reviews: %v", reviews)
+
 	c.JSON(http.StatusOK, gin.H{"data": reviews})
 }
 
 func (h *Handler) GetReviewsByFilter(c *gin.Context) {
 	var filter model.ReviewFilter
 
+	// Получение данных из тела запроса
 	if err := c.BindJSON(&filter); err != nil {
 		log.Printf("GetReviewsByFilter - c.BindJSON error: %v", err)
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	log.Printf("GetReviewsByFilter - data after unmarshalling: %v", filter)
+	//log.Printf("GetReviewsByFilter - data after unmarshalling: %v", filter)
 
 	reviews, err := h.service.GetReviewsByFilter(filter)
 	if err != nil {
@@ -123,20 +134,22 @@ func (h *Handler) GetReviewsByFilter(c *gin.Context) {
 		return
 	}
 
-	log.Printf("GetReviewsByFilter - reviews: %v", reviews)
+	//log.Printf("GetReviewsByFilter - reviews: %v", reviews)
+
 	c.JSON(http.StatusOK, gin.H{"data": reviews})
 }
 
 func (h *Handler) UpdateReview(c *gin.Context) {
 	var review model.Reviews
 
+	// Получение данных из тела запроса
 	if err := c.BindJSON(&review); err != nil {
 		log.Printf("UpdateReview - c.BindJSON error: %v", err)
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	log.Printf("UpdateReview - data after binding: %v", review)
+	//log.Printf("UpdateReview - data after binding: %v", review)
 
 	updatedReview, err := h.service.EditReview(&review)
 	if err != nil {
@@ -145,11 +158,13 @@ func (h *Handler) UpdateReview(c *gin.Context) {
 		return
 	}
 
-	log.Printf("UpdateReview - updated review: %v", updatedReview)
+	//log.Printf("UpdateReview - updated review: %v", updatedReview)
+
 	c.JSON(http.StatusOK, gin.H{"data": updatedReview})
 }
 
 func (h *Handler) DeleteReview(c *gin.Context) {
+	// Получение ID отзыва из URL
 	idStr := c.Param("id")
 
 	id, err := strconv.Atoi(idStr)
@@ -165,6 +180,7 @@ func (h *Handler) DeleteReview(c *gin.Context) {
 		return
 	}
 
-	log.Printf("DeleteReview - review with id %d deleted", id)
+	//log.Printf("DeleteReview - review with id %d deleted", id)
+
 	c.JSON(http.StatusOK, gin.H{"message": "Review deleted"})
 }
