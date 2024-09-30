@@ -1,0 +1,9 @@
+database:
+  host: "localhost"
+  port: 5432
+  user: "bank"
+  password: "password"
+  dbname: "bank-system"
+  sslmode: "disable"
+server:
+  port: ":8080"
