@@ -27,5 +27,22 @@ func (s *Service) CreateUser(user *model.User) (int, error) {
 }
 
 func (s *Service) UpdateUser(user *model.User) (*model.User, error) {
+	_, err := s.Repository.GetUserByName(user.Username)
+	if err != nil {
+		if errors.As(err, &ErrNotFound) {
+			return nil, fmt.Errorf("user with username %s is not exist", user.Username)
+		}
+		return nil, err
+	}
 
+	updatedUser, err := s.Repository.UpdateUser(user)
+	if err != nil {
+		return nil, err
+	}
+
+	return updatedUser, nil
+}
+
+func (s *Service) Login(user *model.User) (string, error) {
+  
 }

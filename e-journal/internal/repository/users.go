@@ -5,8 +5,6 @@ import (
 	"gorm.io/gorm/clause"
 	"log"
 	"projects/internal/model"
-
-	"gorm.io/gorm/clause"
 )
 
 func (r *Repository) GetUsers() ([]model.User, error) {
