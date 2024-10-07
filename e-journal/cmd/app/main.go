@@ -6,8 +6,8 @@ import (
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 	"log"
-	"projects/internal/model"
 	"projects/internal/repository"
+	"projects/internal/service"
 )
 
 func main() {
@@ -17,31 +17,13 @@ func main() {
 	}
 
 	newRepository := repository.NewRepository(db)
+	newService := service.NewService(newRepository)
 
-	newUser := &model.User{
-		Username: "shohin",
-		Password: "admin",
-		RoleID:   1,
-	}
-
-	userID, err := newRepository.CreateUser(newUser)
-	if err != nil {
-		log.Fatalf("Failed to create user: %v", err)
-	}
-
-	log.Printf("User created with id: %v", userID)
-
-	users, err := newRepository.GetUsers()
-	if err != nil {
-		log.Fatalf("Failed to create user: %v", err)
-	}
-
-	log.Printf("Users: %v", users)
 }
 
 // Подключение к базе данных
 func connectToDB() (*gorm.DB, error) {
-	dsn := "host=localhost user=root password=root dbname=e_donish port=5432 sslmode=disable TimeZone=Asia/Dushanbe"
+	dsn := "host=localhost user=root password=root dbname=e-donish port=5432 sslmode=disable TimeZone=Asia/Dushanbe"
 
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{
 		Logger: logger.Default.LogMode(logger.Info),

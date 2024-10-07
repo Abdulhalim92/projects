@@ -2,13 +2,14 @@ package repository
 
 import (
 	"fmt"
+	"gorm.io/gorm/clause"
 	"log"
 	"projects/internal/model"
 
 	"gorm.io/gorm/clause"
 )
 
-func (r *Repository) GetUsers() ([]model.User, error){
+func (r *Repository) GetUsers() ([]model.User, error) {
 	var users []model.User
 	// select * from users
 	err := r.db.Find(&users).Error
@@ -34,6 +35,7 @@ func (r *Repository) CreateUser(user *model.User) (int, error) {
 
 	return user.UserID, nil
 }
+
 func (r *Repository) GetUserByID(userID int) (*model.User, error) {
 	var user *model.User
 	// select * from users where user_id = ?
@@ -44,6 +46,19 @@ func (r *Repository) GetUserByID(userID int) (*model.User, error) {
 	}
 	return user, nil
 }
+
+func (r *Repository) GetUserByName(username string) (*model.User, error) {
+	var users *model.User
+	//select * from users where username = ?
+	err := r.db.Where("username = ?", username).First(&users).Error
+	if err != nil {
+		log.Printf("GetUserByname: Error getting user by name: %v", err)
+		return nil, err
+	}
+
+	return users, nil
+}
+
 func (r *Repository) UpdateUser(user *model.User) (*model.User, error) {
 	// update users set name = 'admin' where user_id = 1
 	err := r.db.Clauses(clause.Returning{}).Updates(user).Error
@@ -64,6 +79,3 @@ func (r *Repository) DeleteUser(userID int) error {
 
 	return nil
 }
-
-
-
