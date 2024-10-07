@@ -3,11 +3,12 @@ package repository
 import (
 	"fmt"
 	"log"
-	"os/user"
 	"projects/internal/model"
+
+	"gorm.io/gorm/clause"
 )
 
-func (r *Repository) GetUsers() ([]model.User, error)s{
+func (r *Repository) GetUsers() ([]model.User, error){
 	var users []model.User
 	// select * from users
 	err := r.db.Find(&users).Error
@@ -63,3 +64,6 @@ func (r *Repository) DeleteUser(userID int) error {
 
 	return nil
 }
+
+
+
