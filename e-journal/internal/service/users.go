@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"projects/internal/model"
+	"projects/internal/utils"
 )
 
 var (
@@ -24,6 +25,17 @@ func (s *Service) CreateUser(user *model.User) (int, error) {
 	}
 
 	return createdUserID, nil
+	// Хешируем пароль пользователя
+	hashedPassword, err := utils.HashPassword(user.Password)
+	if err != nil {
+		return nil, fmt.Errorf("failed to hash password: %w", err)
+	}
+
+	// Присваиваем хэшированный пароль пользователю
+	user.Password = hashedPassword
+
+	// Добавляем пользователя в репозиторий
+	return s.Repository.CreateUser(user)
 }
 
 func (s *Service) UpdateUser(user *model.User) (*model.User, error) {
@@ -44,5 +56,5 @@ func (s *Service) UpdateUser(user *model.User) (*model.User, error) {
 }
 
 func (s *Service) Login(user *model.User) (string, error) {
-  
+
 }
